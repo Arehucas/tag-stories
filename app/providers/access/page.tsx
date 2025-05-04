@@ -43,6 +43,27 @@ export default function ProviderAccess() {
             <span className="text-base font-medium">Iniciar sesión con Google</span>
           </span>
         </button>
+        {process.env.NODE_ENV === "development" && (
+          <button
+            className="btn-google-gradient w-full max-w-xs mb-4 z-10"
+            onClick={async () => {
+              // Guardar sesión demo
+              const email = "demo@demo.com";
+              localStorage.setItem("demoSession", JSON.stringify({ user: { email, name: "Demo User" } }));
+              window.location.href = "/providers/dashboard";
+            }}
+          >
+            <span>
+              <svg width="28" height="28" viewBox="0 0 48 48" className="inline-block">
+                <g>
+                  <circle cx="24" cy="24" r="20" fill="#3a86ff" />
+                  <text x="24" y="30" textAnchor="middle" fontSize="18" fill="#fff" fontFamily="Arial">D</text>
+                </g>
+              </svg>
+              <span className="text-base font-medium">Entrar como demo</span>
+            </span>
+          </button>
+        )}
       </section>
       {/* Sección de los 3 pasos (igual que landing) */}
       <section className="w-full bg-[#23243a] py-10 px-4 flex flex-col gap-8 items-center">

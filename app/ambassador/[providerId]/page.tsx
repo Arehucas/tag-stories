@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useRef, useState, useEffect, useCallback } from "react";
 import Cropper from 'react-easy-crop';
+import LoaderBolas from "@/components/ui/LoaderBolas";
 
 interface Props {
   params: Promise<{ providerId: string }>;
@@ -164,7 +165,7 @@ export default function AmbassadorLanding(props: Props) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
-        <span className="text-white/80 text-lg animate-pulse">Cargando local...</span>
+        <LoaderBolas />
       </div>
     );
   }
