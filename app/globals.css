@@ -158,6 +158,43 @@
     box-shadow: 0 0 0 3px #f72585cc;
     border-image: linear-gradient(90deg, #f72585, #7209b7, #3a86ff, #00f2ea) 1;
   }
+  .btn-gradient-border {
+    position: relative;
+    z-index: 0;
+    background: #181824 !important;
+    padding: 2px;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    display: inline-block;
+  }
+  .btn-gradient-border > span {
+    display: block;
+    background: #181824;
+    border-radius: 0.6875rem;
+    width: 100%;
+    height: 100%;
+    padding: 0.75rem 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.125rem;
+    color: #fff;
+    position: relative;
+    z-index: 1;
+  }
+  .btn-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(120deg, #f72585, #3a86ff, #00f2ea, #f72585 90%);
+    background-size: 200% 200%;
+    animation: btn-gradient-rotate 3s linear infinite;
+  }
+  @keyframes btn-gradient-rotate {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
 }
 
 @keyframes wave-slow {
@@ -198,4 +235,215 @@
 }
 .animate-wave-x {
   animation: wave-x 12s linear infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gradient {
+  --size: 750px;
+  --speed: 2s;
+  --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
+
+  width: var(--size);
+  height: var(--size);
+  filter: blur(calc(var(--size) / 5));
+  background-image: linear-gradient(hsl(222, 84%, 60%, 100%), hsl(164, 79%, 71%));
+  animation: rotate var(--speed) var(--easing) alternate infinite;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+@media (min-width: 720px) {
+  .gradient {
+    --size: 500px;
+  }
+}
+
+body {
+  background-color: #071c39;
+}
+
+/* Transición para cambios de viewport */
+* {
+  transition: all 0.5s ease-out;
+}
+
+.hero-gradient-bg {
+  --size: 750px;
+  --speed: 2.5s;
+  --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero-gradient-bg-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #000;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 2;
+}
+.hero-gradient-bg-inner {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  filter: blur(calc(var(--size) / 5));
+  background-image: linear-gradient(135deg, #f72585 0%, #3a86ff 60%, #00f2ea 100%);
+  animation: rotate var(--speed) var(--easing) alternate infinite;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  margin: auto;
+}
+@media (min-width: 720px) {
+  .hero-gradient-bg-inner {
+    --size: 500px;
+  }
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.fade-in-up {
+  animation: fade-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.step-animate {
+  transition: box-shadow 0.3s, transform 0.3s;
+  will-change: transform;
+}
+.step-animate:hover {
+  box-shadow: 0 8px 32px 0 rgba(58,134,255,0.18), 0 1.5px 8px 0 rgba(247,37,133,0.10);
+  transform: translateY(-4px) scale(1.03);
+}
+
+@keyframes icon-shake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-1px, 1px) rotate(-2deg); }
+  20% { transform: translate(-2px, -1px) rotate(1deg); }
+  30% { transform: translate(1px, 2px) rotate(1deg); }
+  40% { transform: translate(1px, -1px) rotate(-1deg); }
+  50% { transform: translate(-1px, 2px) rotate(2deg); }
+  60% { transform: translate(-2px, 1px) rotate(-1deg); }
+  70% { transform: translate(2px, 1px) rotate(2deg); }
+  80% { transform: translate(-1px, -1px) rotate(-1deg); }
+  90% { transform: translate(1px, 2px) rotate(2deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.icon-shake {
+  animation: icon-shake 1.2s infinite;
+}
+.icon-shake-delay-1 {
+  animation-delay: 0.2s;
+}
+.icon-shake-delay-2 {
+  animation-delay: 0.6s;
+}
+.step-card {
+  background: rgba(36, 40, 60, 0.85);
+  border-radius: 1.25rem;
+  border: 1.5px solid #3a86ff33;
+  box-shadow: 0 2px 16px 0 rgba(58,134,255,0.10);
+  padding: 1.5rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .step-card {
+    padding: 2rem 2rem;
+    gap: 1.5rem;
+  }
+}
+
+.login-hero-bg {
+  --size: 750px;
+  --speed: 2.5s;
+  --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.login-hero-bg-inner {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  filter: blur(calc(var(--size) / 5));
+  background-image: linear-gradient(135deg, #f72585 0%, #3a86ff 60%, #00f2ea 100%);
+  animation: rotate var(--speed) var(--easing) alternate infinite;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  margin: auto;
+  opacity: 0.4;
+}
+@media (min-width: 720px) {
+  .login-hero-bg-inner {
+    --size: 500px;
+  }
+}
+.btn-google-gradient {
+  position: relative;
+  z-index: 0;
+  background: #181824 !important;
+  padding: 2px;
+  border-radius: 9999px;
+  overflow: hidden;
+  display: inline-block;
+  border: none;
+}
+.btn-google-gradient > span {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #181824;
+  border-radius: 9999px;
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+  justify-content: center;
+}
+.btn-google-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(120deg, #f72585, #3a86ff, #00f2ea, #f72585 90%);
+  background-size: 200% 200%;
+  animation: btn-gradient-rotate 3s linear infinite;
 }
