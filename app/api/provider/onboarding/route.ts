@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     },
     { upsert: true, returnDocument: "after" }
   );
-  // @ts-expect-error
+  // @ts-expect-error: result.value puede ser undefined según el tipado de MongoDB, pero está bien para este flujo
   const provider = result.value;
   console.log("[ONBOARDING] Resultado de upsert:", provider);
   if (provider && provider._id) {

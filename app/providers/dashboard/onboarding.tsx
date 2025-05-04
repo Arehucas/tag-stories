@@ -20,7 +20,7 @@ export default function OnboardingProvider({ provider }: Props) {
   const [ciudad, setCiudad] = useState(provider?.ciudad || "");
   const [instagram, setInstagram] = useState(provider?.instagram_handle || "");
   const [logo, setLogo] = useState<File | null>(null);
-  const [logoUrl, setLogoUrl] = useState(provider?.logo_url || "");
+  const [logoUrl] = useState(provider?.logo_url || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
