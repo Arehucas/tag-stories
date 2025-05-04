@@ -5,12 +5,21 @@ import { useEffect, useState } from "react";
 import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 
+interface Provider {
+  nombre?: string;
+  direccion?: string;
+  ciudad?: string;
+  instagram_handle?: string;
+  logo_url?: string;
+  email?: string;
+}
+
 export default function ProviderDashboard() {
   const { status, data: session } = useSession();
   const router = useRouter();
-  const [provider, setProvider] = useState<any>(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
-  const [demo, setDemo] = useState<any>(null);
+  const [demo, setDemo] = useState<{ user: { email: string; name: string } } | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {

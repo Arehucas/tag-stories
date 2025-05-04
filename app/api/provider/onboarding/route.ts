@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     },
     { upsert: true, returnDocument: "after" }
   );
-  // @ts-ignore
+  // @ts-expect-error
   const provider = result.value;
   console.log("[ONBOARDING] Resultado de upsert:", provider);
   if (provider && provider._id) {

@@ -8,14 +8,18 @@ interface Props {
   params: Promise<{ providerId: string }>;
 }
 
+interface Provider {
+  nombre?: string;
+  direccion?: string;
+  ciudad?: string;
+  instagram_handle?: string;
+  logo_url?: string;
+  email?: string;
+}
+
 export default function AmbassadorLanding(props: Props) {
   const [providerId, setProviderId] = useState<string | null>(null);
-  const [provider, setProvider] = useState<{
-    nombre: string;
-    logo: string;
-    instagram: string;
-    instrucciones: string;
-  } | null>(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -86,7 +90,7 @@ export default function AmbassadorLanding(props: Props) {
       ctx.fillRect(0, canvas.height - canvas.height * 0.25, canvas.width, canvas.height * 0.25);
       // Logo en la esquina inferior derecha (encima del gradiente)
       const logo = new window.Image();
-      logo.src = provider?.logo || "";
+      logo.src = provider?.logo_url || "";
       let logoLoaded = false;
       await Promise.race([
         new Promise((res) => {
@@ -146,7 +150,7 @@ export default function AmbassadorLanding(props: Props) {
       await navigator.share({
         files: [file],
         title: `Comparte tu experiencia en ${provider?.nombre}`,
-        text: `Menciona a ${provider?.instagram} en tu story para tu recompensa!`,
+        text: `Menciona a ${provider?.instagram_handle} en tu story para tu recompensa!`,
       });
     } else {
       // Fallback: descarga la imagen y muestra instrucción
@@ -183,11 +187,11 @@ export default function AmbassadorLanding(props: Props) {
         {!selectedFile && (
           <>
             <div className="w-24 h-24 rounded-full overflow-hidden gradient-border p-1 bg-[#23243a]">
-              <Image src={provider.logo} alt={provider.nombre} width={96} height={96} className="rounded-full object-cover" />
+              <Image src={provider.logo_url || ""} alt={provider.nombre || "Logo"} width={96} height={96} className="rounded-full object-cover" />
             </div>
             <h1 className="text-2xl font-bold text-white text-center drop-shadow-lg mb-2">¡Sube tu mejor foto!</h1>
             <p className="text-base text-white/80 text-center mb-2">
-              Etiqueta en una story de Instagram a <b>@{provider.instagram}</b> y podrás conseguir <span className="text-pink-400 font-bold">magníficas recompensas</span>
+              Etiqueta en una story de Instagram a <b>@{provider.instagram_handle}</b> y podrás conseguir <span className="text-pink-400 font-bold">magníficas recompensas</span>
             </p>
             <label className="w-full py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform text-center cursor-pointer">
               Selecciona una imagen
@@ -255,7 +259,7 @@ export default function AmbassadorLanding(props: Props) {
               </div>
               <div className="flex items-center gap-3 w-full">
                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-fuchsia-500 via-cyan-500 to-blue-500 text-white font-bold text-lg shadow">3</span>
-                <span className="text-white/90 text-base font-medium">🏷️ @{provider.instagram}</span>
+                <span className="text-white/90 text-base font-medium">🏷️ @{provider.instagram_handle}</span>
               </div>
             </div>
             <div

@@ -1,7 +1,17 @@
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+
+interface Provider {
+  nombre?: string;
+  direccion?: string;
+  ciudad?: string;
+  instagram_handle?: string;
+  logo_url?: string;
+  email?: string;
+}
 
 interface Props {
-  provider: any;
+  provider: Provider | null;
 }
 
 export default function OnboardingProvider({ provider }: Props) {
@@ -107,20 +117,20 @@ export default function OnboardingProvider({ provider }: Props) {
             </filter>
           </defs>
         </svg>
-        <span className="text-white text-base text-center mt-8">Estamos configurando todo a tu gusto...</span>
+        <span className="text-white text-base text-center mt-5" style={{ paddingTop: 18 }}>Estamos configurando todo a tu gusto...</span>
         <style jsx>{`
           .loader-wrapper {
             position: relative;
-            width: 120px;
-            height: 120px;
+            width: 60px;
+            height: 60px;
             filter: url('#pink-glow');
           }
           .ball {
-            width: 60px;
-            height: 60px;
+            width: 30px;
+            height: 30px;
             position: absolute;
-            top: 30px;
-            left: 30px;
+            top: 15px;
+            left: 15px;
           }
           .ball:before {
             background: #f472b6;
@@ -147,27 +157,27 @@ export default function OnboardingProvider({ provider }: Props) {
           }
           .ball:nth-child(3) {
             animation: x-axis-lateral 2s infinite alternate ease;
-            left: 90px;
-            top: 90px;
+            left: 45px;
+            top: 45px;
           }
           .ball:nth-child(3):before {
             animation: y-axis-lateral 1s infinite .4s alternate ease-in-out;
           }
           @keyframes x-axis {
-            0% { transform: translate(-96px, 0); }
-            100% { transform: translate(96px, 0); }
+            0% { transform: translate(-48px, 0); }
+            100% { transform: translate(48px, 0); }
           }
           @keyframes y-axis {
-            0% { transform: translateY(42px); }
-            100% { transform: translateY(-66px) scale(.8); background: #f9a8d4;}
+            0% { transform: translateY(21px); }
+            100% { transform: translateY(-33px) scale(.8); background: #f9a8d4;}
           }
           @keyframes x-axis-lateral {
-            0% { transform: translate(-36px, 0); }
-            100% { transform: translate(36px, 0); }
+            0% { transform: translate(-18px, 0); }
+            100% { transform: translate(18px, 0); }
           }
           @keyframes y-axis-lateral {
-            0% { transform: translateY(12px); }
-            100% { transform: translateY(-60px); background: #f9a8d4;}
+            0% { transform: translateY(6px); }
+            100% { transform: translateY(-30px); background: #f9a8d4;}
           }
         `}</style>
       </div>
@@ -225,7 +235,7 @@ export default function OnboardingProvider({ provider }: Props) {
             className="hidden"
           />
           {logoUrl && !logo && (
-            <img src={logoUrl} alt="Logo actual" className="h-16 mt-2 rounded bg-white/10 object-contain" />
+            <Image src={logoUrl} alt="Logo actual" width={64} height={64} className="h-16 mt-2 rounded bg-white/10 object-contain" />
           )}
         </div>
         {error && <div className="text-red-400 text-sm text-center">{error}</div>}
