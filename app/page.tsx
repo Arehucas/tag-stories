@@ -1,103 +1,105 @@
-import Image from "next/image";
+"use client";
+import { useRouter } from "next/navigation";
+import { Megaphone, Gift, Users, Zap, ShieldCheck, TrendingUp } from "lucide-react";
 
-export default function Home() {
+export default function Landing() {
+  const router = useRouter();
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="w-full min-h-screen flex flex-col items-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
+      {/* HERO */}
+      <section className="relative w-full flex flex-col items-center justify-center pt-10 pb-8 px-4 bg-gradient-to-b from-[#23243a] to-[#1a1a2e]" style={{ minHeight: 400 }}>
+        {/* Olas decorativas animadas en el borde inferior, fondo blanco temporal para debug */}
+        <div className="absolute left-0 right-0 bottom-0 h-[120px] w-full -z-10 bg-white">
+          <svg className="w-[200%] h-full animate-wave-x" viewBox="0 0 750 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 60 Q 75 120 150 60 T 300 60 T 450 60 T 600 60 T 750 60 V120 H0Z" fill="#a21caf" fillOpacity="0.18"/>
+            <path d="M0 80 Q 75 40 150 80 T 300 80 T 450 80 T 600 80 T 750 80 V120 H0Z" fill="#38bdf8" fillOpacity="0.12"/>
+            <path d="M0 100 Q 75 140 150 100 T 300 100 T 450 100 T 600 100 T 750 100 V120 H0Z" fill="#f472b6" fillOpacity="0.15"/>
+          </svg>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div className="mb-4">
+          <Megaphone className="w-16 h-16 text-fuchsia-400 drop-shadow-lg" />
+        </div>
+        <h1 className="text-3xl font-extrabold text-white text-center leading-tight mb-3 drop-shadow-lg">
+          Haz que tus clientes<br />
+          <span className="text-pink-400">promocionen tu local</span>
+        </h1>
+        <p className="text-white/80 text-lg text-center mb-5 max-w-xs">
+          Convierte cada visita en una oportunidad de marketing real. Recompensa a quienes comparten tu negocio en Instagram Stories.
+        </p>
+        <button
+          onClick={() => router.push("/providers/access")}
+          className="w-full max-w-xs py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform mb-2"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          Regístrate gratis
+        </button>
+        <span className="text-xs text-white/60">Sin tarjeta, sin compromiso</span>
+      </section>
+
+      {/* SECCIÓN CLARA: Beneficios */}
+      <section className="w-full bg-white py-10 px-4 flex flex-col gap-8 items-center">
+        <div className="flex flex-col items-center gap-2 max-w-xs">
+          <TrendingUp className="w-10 h-10 text-blue-500 mb-1" />
+          <h2 className="text-xl font-bold text-[#23243a] text-center">Aumenta tu visibilidad</h2>
+          <p className="text-[#23243a]/80 text-center text-base">
+            Cada story es una recomendación auténtica de tu local a cientos de potenciales clientes.
+          </p>
+        </div>
+        <div className="flex flex-col items-center gap-2 max-w-xs">
+          <Gift className="w-10 h-10 text-pink-500 mb-1" />
+          <h2 className="text-xl font-bold text-[#23243a] text-center">Automatiza tus recompensas</h2>
+          <p className="text-[#23243a]/80 text-center text-base">
+            Fideliza a tus clientes premiando su promoción, sin esfuerzo y sin complicaciones técnicas.
+          </p>
+        </div>
+        <div className="flex flex-col items-center gap-2 max-w-xs">
+          <Users className="w-10 h-10 text-cyan-500 mb-1" />
+          <h2 className="text-xl font-bold text-[#23243a] text-center">Crecimiento orgánico</h2>
+          <p className="text-[#23243a]/80 text-center text-base">
+            Transforma a tus clientes en embajadores y haz crecer tu comunidad de forma natural.
+          </p>
+        </div>
+      </section>
+
+      {/* SECCIÓN OSCURA: Cómo funciona */}
+      <section className="w-full bg-[#23243a] py-10 px-4 flex flex-col gap-8 items-center">
+        <h2 className="text-2xl font-bold text-white text-center mb-2">¿Cómo funciona?</h2>
+        <div className="flex flex-col gap-6 w-full max-w-md">
+          <div className="flex items-center gap-4">
+            <Zap className="w-8 h-8 text-fuchsia-400" />
+            <div>
+              <span className="text-white font-semibold">1. Regístrate y configura tu campaña</span>
+              <p className="text-white/70 text-sm">En menos de 2 minutos tendrás tu local listo para recibir stories.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <ShieldCheck className="w-8 h-8 text-blue-400" />
+            <div>
+              <span className="text-white font-semibold">2. Valida stories fácilmente</span>
+              <p className="text-white/70 text-sm">Nuestro sistema te ayuda a comprobar que las stories son reales y cumplen tus requisitos.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Gift className="w-8 h-8 text-pink-400" />
+            <div>
+              <span className="text-white font-semibold">3. Premia a tus clientes</span>
+              <p className="text-white/70 text-sm">Entrega recompensas y haz que quieran volver y recomendarte aún más.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="w-full bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 py-10 px-4 flex flex-col items-center">
+        <h2 className="text-2xl font-bold text-white text-center mb-3">¿Listo para empezar?</h2>
+        <button
+          onClick={() => router.push("/providers/access")}
+          className="w-full max-w-xs py-3 rounded-xl font-bold text-lg bg-white text-[#23243a] shadow-lg hover:scale-105 transition-transform mb-2"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          Regístrate gratis ahora
+        </button>
+        <span className="text-xs text-white/90">Únete a la revolución del boca a boca digital</span>
+      </section>
+    </main>
   );
 }

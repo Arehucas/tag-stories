@@ -159,3 +159,43 @@
     border-image: linear-gradient(90deg, #f72585, #7209b7, #3a86ff, #00f2ea) 1;
   }
 }
+
+@keyframes wave-slow {
+  0% { transform: translateY(0) scaleX(1); }
+  50% { transform: translateY(10px) scaleX(1.03); }
+  100% { transform: translateY(0) scaleX(1); }
+}
+@keyframes wave-fast {
+  0% { transform: translateY(0) scaleX(1); }
+  50% { transform: translateY(-8px) scaleX(0.98); }
+  100% { transform: translateY(0) scaleX(1); }
+}
+.animate-wave-slow {
+  animation: wave-slow 8s ease-in-out infinite;
+}
+.animate-wave-fast {
+  animation: wave-fast 5s ease-in-out infinite;
+}
+
+.bg-wave-pattern {
+  background-image: url('data:image/svg+xml;utf8,<svg width="375" height="200" viewBox="0 0 375 200" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="wave1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%25" stop-color="%23a21caf" stop-opacity="0.18"/><stop offset="100%25" stop-color="%2338bdf8" stop-opacity="0.12"/></linearGradient><linearGradient id="wave2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%25" stop-color="%23f472b6" stop-opacity="0.12"/><stop offset="100%25" stop-color="%232563eb" stop-opacity="0.10"/></linearGradient></defs><path d="M0,120 Q90,180 187.5,120 T375,120 V200 H0Z" fill="url(%23wave1)"/><path d="M0,140 Q90,100 187.5,140 T375,130 V200 H0Z" fill="url(%23wave2)"/></svg>');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
+@keyframes wave-bg {
+  0% { background-position: 0 0; }
+  50% { background-position: 0 20px; }
+  100% { background-position: 0 0; }
+}
+.animate-wave-bg {
+  animation: wave-bg 8s ease-in-out infinite;
+}
+
+@keyframes wave-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-wave-x {
+  animation: wave-x 12s linear infinite;
+}
