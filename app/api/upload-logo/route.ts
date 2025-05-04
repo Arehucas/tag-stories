@@ -7,7 +7,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<Response> {
   const data = await req.formData();
   const file = data.get("file");
   if (!file || typeof file === "string") {
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  return new Promise((resolve) => {
+  return await new Promise<Response>((resolve) => {
     const upload = cloudinary.uploader.upload_stream(
       { folder: "provider_logos", resource_type: "image" },
       (error, result) => {
