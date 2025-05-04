@@ -15,7 +15,7 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn() {
       // Permitir login siempre, el registro es automático
       return true;
     },

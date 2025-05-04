@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     };
     const result = await db.collection('storySubmissions').insertOne(submission);
     return NextResponse.json({ id: result.insertedId });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
 } 

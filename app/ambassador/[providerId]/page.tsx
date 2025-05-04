@@ -25,7 +25,6 @@ export default function AmbassadorLanding(props: Props) {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [cropping, setCropping] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [colorCode, setColorCode] = useState<{ r: number; g: number; b: number }[] | null>(null);
 
   // Carga providerId y provider
   useEffect(() => {
@@ -53,7 +52,7 @@ export default function AmbassadorLanding(props: Props) {
   };
 
   // Cuando el usuario termina de recortar
-  const onCropComplete = useCallback((_: any, croppedPixels: { x: number; y: number; width: number; height: number }) => {
+  const onCropComplete = useCallback((_: unknown, croppedPixels: { x: number; y: number; width: number; height: number }) => {
     setCroppedAreaPixels(croppedPixels);
   }, []);
 
@@ -109,7 +108,7 @@ export default function AmbassadorLanding(props: Props) {
           b: Math.floor(Math.random() * 256),
         };
       }
-      let code: { r: number; g: number; b: number }[] = [];
+      const code: { r: number; g: number; b: number }[] = [];
       while (code.length < 4) {
         const c = randomColor();
         if (!code.some(col => col.r === c.r && col.g === c.g && col.b === c.b)) code.push(c);
@@ -131,7 +130,6 @@ export default function AmbassadorLanding(props: Props) {
           body: JSON.stringify({ providerId, colorCode: code }),
         });
       } catch {}
-      setColorCode(code);
       setPreview(canvas.toDataURL("image/png"));
       setCropping(false);
     };

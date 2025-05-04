@@ -5,7 +5,7 @@ import { signIn, useSession } from "next-auth/react";
 
 export default function ProviderAccess() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   useEffect(() => {
     if (status === "authenticated") {
