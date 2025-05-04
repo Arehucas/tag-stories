@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 interface Provider {
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function OnboardingProvider({ provider }: Props) {
+  const { data: session } = useSession();
   const [nombre, setNombre] = useState(provider?.nombre || "");
   const [direccion, setDireccion] = useState(provider?.direccion || "");
   const [ciudad, setCiudad] = useState(provider?.ciudad || "");
@@ -42,8 +44,13 @@ export default function OnboardingProvider({ provider }: Props) {
     // Si no es demo, usar el email del provider prop
     if (provider && provider.email) {
       setEmail(provider.email);
+      return;
     }
-  }, [provider]);
+    // Si hay sesión de Google, usar ese email
+    if (session?.user?.email) {
+      setEmail(session.user.email);
+    }
+  }, [provider, session]);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
