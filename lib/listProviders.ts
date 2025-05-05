@@ -4,7 +4,9 @@ async function main() {
   const db = await getDb();
   const providers = await db.collection("providers").find({}).toArray();
   console.log("Proveedores en la base de datos:");
-  console.log(JSON.stringify(providers, null, 2));
+  providers.forEach(p => {
+    console.log(`Nombre: ${p.nombre}, shortId: ${p.shortId}, slug: ${p.slug}`);
+  });
   process.exit(0);
 }
 

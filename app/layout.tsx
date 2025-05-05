@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ambassador Rewards",
+  title: "Provider Rewards",
   description: "Premia a tus clientes por compartir tu local en Instagram Stories.",
 };
 
@@ -36,6 +36,16 @@ export default function RootLayout({
         <div className="md:hidden">
           {children}
         </div>
+        {/* Filtro SVG global para LoaderBolas */}
+        <svg width="0" height="0" style={{ position: "absolute" }}>
+          <defs>
+            <filter id="pink-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur" />
+              <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 28 -10" result="filter" />
+              <feComposite in="SourceGraphic" in2="filter" operator="atop" />
+            </filter>
+          </defs>
+        </svg>
       </body>
     </html>
   );

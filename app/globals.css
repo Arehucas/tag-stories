@@ -447,3 +447,38 @@ body {
   background-size: 200% 200%;
   animation: btn-gradient-rotate 3s linear infinite;
 }
+
+.loader-wrapper-bolas {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  filter: url('#pink-glow');
+}
+.ball-bolas {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #f472b6;
+  border-radius: 100%;
+}
+.ball-bolas:nth-child(1) {
+  animation: x-axis-lateral 2s infinite alternate ease-in-out;
+}
+.ball-bolas:nth-child(2) {
+  animation: x-axis 2s infinite alternate ease-in-out;
+}
+.ball-bolas:nth-child(3) {
+  animation: x-axis-lateral 2s infinite alternate ease;
+  left: 45px;
+  top: 45px;
+}
+@keyframes x-axis {
+  0% { transform: translate(-48px, 0); }
+  100% { transform: translate(48px, 0); }
+}
+@keyframes x-axis-lateral {
+  0% { transform: translate(-18px, 0); }
+  100% { transform: translate(18px, 0); }
+}
