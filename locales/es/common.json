@@ -89,5 +89,16 @@
       "cta": "Regístrate gratis ahora",
       "terms": "Únete a la revolución del boca a boca digital"
     }
+  },
+  "testshare": {
+    "title": "Test de compartir imagen",
+    "text": "¡Mira esta imagen!",
+    "button": "Compartir imagen",
+    "error": "No se pudo compartir la imagen.",
+    "nativeshare_not_supported": "El navegador no soporta compartir nativo.",
+    "context_instagram": "Estás en el WebView de Instagram. Se intentará compartir nativo.",
+    "context_chrome_ios": "Estás en Chrome para iOS. Se intentará compartir nativo (puede que no funcione).",
+    "context_android": "Estás en un navegador Android. Se intentará compartir nativo.",
+    "context_other": "Navegador no identificado. Se intentará compartir nativo."
   }
 } 
