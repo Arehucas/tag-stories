@@ -24,32 +24,48 @@ export default function ProviderDashboard() {
   const [demo, setDemo] = useState<{ user: { email: string; name: string } } | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState(true);
 
   useEffect(() => {
     setHydrated(true);
-    // Solo en cliente
     if (typeof window !== "undefined") {
       const demoSession = localStorage.getItem("demoSession");
       if (demoSession) {
         const demoUser = JSON.parse(demoSession);
         setDemo(demoUser);
         fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.user.email)}`)
-          .then(res => res.json())
-          .then(data => setProvider(data));
+          .then(res => {
+            if (!res.ok) return null;
+            return res.json();
+          })
+          .then(data => {
+            setProvider(data);
+            setLoadingProvider(false);
+          });
         return;
       }
     }
     if (status === "unauthenticated") {
       router.push("/providers/access");
+      setLoadingProvider(false);
+      return;
     }
     if (status === "authenticated" && session?.user?.email) {
       fetch(`/api/provider/by-email?email=${encodeURIComponent(session.user.email)}`)
-        .then(res => res.json())
-        .then(data => setProvider(data));
+        .then(res => {
+          if (!res.ok) return null;
+          return res.json();
+        })
+        .then(data => {
+          setProvider(data);
+          setLoadingProvider(false);
+        });
+    } else {
+      setLoadingProvider(false);
     }
   }, [status, session, router]);
 
-  if (!hydrated) {
+  if (!hydrated || loadingProvider) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas />

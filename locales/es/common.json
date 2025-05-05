@@ -19,7 +19,7 @@
   "choose_file": "Elige archivo",
   "loading": "Cargando...",
   "onboarding": {
-    "loading": "Estamos configurando todo a tu gusto...",
+    "loading": "Cargando información del proveedor...",
     "title": "Completa tu perfil de local",
     "name": "Nombre del local o establecimiento *",
     "address": "Dirección *",
