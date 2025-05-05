@@ -79,7 +79,18 @@ export default function TestSharePage() {
           alert('No se pudo compartir la imagen.');
         }
       } else {
-        alert('Tu navegador no permite compartir imágenes generadas.');
+        // Fallback: descarga automática
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'imagen-roja.jpg';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+        alert('Tu navegador no permite compartir imágenes generadas. Se ha descargado la imagen.');
       }
     }, 'image/jpeg', 0.95);
   };

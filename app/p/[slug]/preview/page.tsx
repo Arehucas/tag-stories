@@ -54,10 +54,24 @@ export default function PreviewPage() {
                   return new Blob([u8arr], { type: mime });
                 }
                 const blob = dataURLtoBlob(croppedImage);
+                const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.png` : 'story-local.png';
+                const file = new File([blob], fileName, { type: blob.type });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                  try {
+                    await navigator.share({
+                      files: [file],
+                      title: 'Comparte tu story',
+                      text: 'Publica tu story en Instagram',
+                    });
+                    return;
+                  } catch {
+                    // Si el usuario cancela o falla, sigue con la descarga
+                  }
+                }
+                // Fallback: descarga automática
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.png` : 'story-local.png';
                 a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
