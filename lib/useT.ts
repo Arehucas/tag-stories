@@ -3,11 +3,14 @@ import es from '../locales/es/common.json';
 export function useT() {
   return (key: string) => {
     const keys = key.split('.');
-    let value: any = es;
+    let value: unknown = es;
     for (const k of keys) {
-      value = value?.[k];
-      if (value === undefined) return key;
+      if (typeof value === 'object' && value !== null && k in value) {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        return key;
+      }
     }
-    return value;
+    return value as string;
   };
 } 
