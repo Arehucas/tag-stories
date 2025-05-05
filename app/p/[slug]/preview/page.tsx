@@ -12,7 +12,7 @@ export default function PreviewPage() {
   const steps = [
     { title: 'Sube tu foto', description: 'Saca o elige una foto' },
     { title: 'Ajusta tu imagen', description: 'Recorta y ajusta tu foto.' },
-    { title: 'Comparte', description: <><div>Publica tu story en Instagram.</div><div>Etiqueta a @{provider?.instagram_handle || 'tuLocal'}</div></> },
+    { title: 'Comparte', description: <><div>Publica tu story en Instagram.</div>{provider?.instagram_handle && <div>Etiqueta a @{provider.instagram_handle}</div>}</> },
   ];
 
   const croppedImage = useImageStore(state => state.croppedImage);
@@ -76,7 +76,7 @@ export default function PreviewPage() {
       </div>
       <div className="flex justify-center w-full mt-0 mb-[50px]">
         <button
-          className="border border-white/40 text-white/80 rounded-xl px-6 py-2 hover:bg-white/10 transition"
+          className="w-full max-w-xs mt-5 border border-white/40 text-white/80 rounded-xl px-6 py-2 hover:bg-white/10 transition"
           onClick={() => router.push(`/p/${slug}`)}
         >
           Subir otra foto

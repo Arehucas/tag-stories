@@ -12,7 +12,10 @@
   "not_found": "No se encontró el local",
   "downloaded_alert": "Imagen descargada, compártela con stories de Instagram",
   "best_photo": "¡Sube tu mejor foto!",
-  "tag_and_win": "Etiqueta en una story de Instagram a <1>@{{handle}}</1> y podrás conseguir <3>magníficas recompensas</3>",
+  "tag_and_win_1": "Etiqueta en una story de Instagram a ",
+  "tag_and_win_handle": "@{{handle}}",
+  "tag_and_win_2": "y podrás conseguir",
+  "tag_and_win_reward": "magníficas recompensas",
   "choose_file": "Elige archivo",
   "loading": "Cargando...",
   "onboarding": {

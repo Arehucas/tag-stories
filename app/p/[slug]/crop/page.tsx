@@ -27,7 +27,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   const steps = [
     { title: t('upload_photo'), description: t('choose_or_take') },
     { title: t('adjust_image'), description: t('crop_and_adjust') },
-    { title: t('share'), description: <><div>{t('publish_story')}</div><div>{t('tag_at').replace('{{handle}}', searchParams.get('ig') || 'tuLocal')}</div></> },
+    { title: t('share'), description: <><div>{t('publish_story')}</div><div>{t('tag_at').replace('{{handle}}', provider?.instagram_handle || '')}</div></> },
   ];
 
   const onCropComplete = useCallback((_: unknown, croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
@@ -213,7 +213,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       </div>
       <div className="flex justify-center w-full mt-0 mb-[50px]">
         <button
-          className="border border-white/40 text-white/80 rounded-xl px-6 py-2 hover:bg-white/10 transition"
+          className="w-full max-w-xs mt-5 border border-white/40 text-white/80 rounded-xl px-6 py-2 hover:bg-white/10 transition"
           onClick={() => router.push(`/p/${slug}`)}
         >
           {t('upload_another')}

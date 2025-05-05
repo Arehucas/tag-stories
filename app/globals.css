@@ -482,3 +482,22 @@ body {
   0% { transform: translate(-18px, 0); }
   100% { transform: translate(18px, 0); }
 }
+
+.shine-text {
+  position: relative;
+  display: inline-block;
+  font-size: 1.25em;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ec4899 0%, #ec4899 40%, #fff 50%, #ec4899 60%, #ec4899 100%);
+  background-size: 300% auto;
+  background-position: -50% 50%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: shine-text-move 2.5s linear infinite;
+}
+@keyframes shine-text-move {
+  0% { background-position: -50% 50%; }
+  100% { background-position: 150% 50%; }
+}

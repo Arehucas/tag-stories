@@ -12,10 +12,11 @@ interface StepsProps {
 }
 
 export default function Steps({ steps, current }: StepsProps) {
-  // Separa pasos completados y el resto
-  const completed = steps.filter((_, i) => i < current);
-  const rest = steps.filter((_, i) => i >= current);
-  const ordered = [...rest, ...completed].map((s, i) => ({ ...s, i }));
+  // Orden: activo, pendientes, completados
+  const active = steps.map((s, i) => ({...s, i})).filter((_, i) => i === current);
+  const pending = steps.map((s, i) => ({...s, i})).filter((_, i) => i > current);
+  const completed = steps.map((s, i) => ({...s, i})).filter((_, i) => i < current);
+  const ordered = [...active, ...pending, ...completed];
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-xs mx-auto mb-6">
@@ -45,7 +46,7 @@ export default function Steps({ steps, current }: StepsProps) {
           )}
           <div className="flex-1">
             <div className="font-semibold text-white text-base mb-1">{step.title}</div>
-            {step.i === current && step.description && (
+            {step.i >= current && step.description && (
               <div className="text-white/70 text-sm leading-tight">{step.description}</div>
             )}
           </div>

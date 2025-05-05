@@ -30,7 +30,7 @@ export default function PLanding(props: Props) {
   const steps = [
     { title: t('upload_photo'), description: t('choose_or_take') },
     { title: t('adjust_image'), description: t('crop_and_adjust') },
-    { title: t('share'), description: <><div>{t('publish_story')}</div><div>{t('tag_at')}</div></> },
+    { title: t('share'), description: <><div>{t('publish_story')}</div>{provider?.instagram_handle && <div>{t('tag_at').replace('{{handle}}', provider.instagram_handle)}</div>}</> },
   ];
   const setOriginalImage = useImageStore(state => state.setOriginalImage);
   const clearImage = useImageStore(state => state.clear);
@@ -86,7 +86,11 @@ export default function PLanding(props: Props) {
           <h1 className="text-2xl font-bold text-white text-center drop-shadow-lg">{t('best_photo')}</h1>
         </div>
         <p className="text-base text-white/80 text-center mb-2">
-          {t('tag_and_win').replace('{{handle}}', provider?.instagram_handle || '')}
+          {t('tag_and_win_1')}
+          <span className="font-bold text-white">{t('tag_and_win_handle').replace('{{handle}}', provider?.instagram_handle || '')}</span> {t('tag_and_win_2')}<br/>
+          <span className="shine-text" style={{ fontSize: '1.25em' }}>
+            {t('tag_and_win_reward')}
+          </span>
         </p>
         <label className="w-full py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform text-center cursor-pointer">
           Selecciona una imagen
