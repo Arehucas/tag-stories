@@ -59,9 +59,7 @@ export default function PreviewPage() {
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                   try {
                     await navigator.share({
-                      files: [file],
-                      title: 'Comparte tu story',
-                      text: 'Publica tu story en Instagram',
+                      files: [file]
                     });
                     return;
                   } catch {
