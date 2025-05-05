@@ -1,8 +1,6 @@
 'use client';
 import React from 'react';
 
-const IMAGE_URL = 'https://res.cloudinary.com/dg2xe4wtu/image/upload/v1746468351/provider_logos/f01t5exk9woz8opuxa1a.jpg';
-
 type ContextType = 'instagram' | 'chrome_ios' | 'safari_ios' | 'android' | 'other';
 
 function isInstagramWebView() {
@@ -51,19 +49,39 @@ export default function TestSharePage() {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Test de compartir imagen',
-          text: '¡Mira esta imagen!',
-          url: IMAGE_URL,
-        });
-      } catch {
-        alert('No se pudo compartir la imagen.');
-      }
-    } else {
-      alert('El navegador no soporta compartir nativo.');
+    // Crear canvas rojo 1080x1920
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1920;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      alert('No se pudo crear el canvas.');
+      return;
     }
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Convertir a blob
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        alert('No se pudo generar la imagen.');
+        return;
+      }
+      const file = new File([blob], 'imagen-roja.jpg', { type: blob.type });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Imagen generada',
+            text: 'Esta es una imagen roja 9:16',
+          });
+        } catch {
+          alert('No se pudo compartir la imagen.');
+        }
+      } else {
+        alert('Tu navegador no permite compartir imágenes generadas.');
+      }
+    }, 'image/jpeg', 0.95);
   };
 
   return (
