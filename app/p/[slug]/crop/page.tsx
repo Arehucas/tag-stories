@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback, useEffect, use } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Cropper from "react-easy-crop";
 import Steps from '@/components/ui/Steps';
 import { useImageStore } from '@/hooks/useImageStore';
@@ -10,7 +10,6 @@ import { useT } from '@/lib/useT';
 
 export default function CropPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { slug } = use(params);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
