@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useT } from '@/lib/useT';
 
 interface Provider {
   nombre?: string;
@@ -27,6 +28,7 @@ export default function OnboardingProvider({ provider }: Props) {
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(provider?.email || "");
+  const t = useT();
 
   // Expresión regular: solo letras, números, puntos y guiones bajos, sin @
   const instagramRegex = /^[a-zA-Z0-9._]+$/;
@@ -124,7 +126,7 @@ export default function OnboardingProvider({ provider }: Props) {
             </filter>
           </defs>
         </svg>
-        <span className="text-white text-base text-center mt-5" style={{ paddingTop: 18 }}>Estamos configurando todo a tu gusto...</span>
+        <span className="text-white text-base text-center mt-5" style={{ paddingTop: 18 }}>{t('onboarding.loading')}</span>
         <style jsx>{`
           .loader-wrapper {
             position: relative;
@@ -194,21 +196,21 @@ export default function OnboardingProvider({ provider }: Props) {
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] pt-10 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-md bg-[#23243a]/80 rounded-2xl p-6 flex flex-col gap-5 shadow-xl">
-        <h2 className="text-2xl font-bold text-white text-center mb-2">Completa tu perfil de local</h2>
+        <h2 className="text-2xl font-bold text-white text-center mb-2">{t('onboarding.title')}</h2>
         <div>
-          <label className="block text-white/80 mb-1">Nombre del local o establecimiento *</label>
+          <label className="block text-white/80 mb-1">{t('onboarding.name')}</label>
           <input type="text" className="w-full rounded-lg px-4 py-2 bg-neutral-900 text-white border border-white/10 focus:border-fuchsia-500 outline-none" value={nombre} onChange={e => setNombre(e.target.value)} required />
         </div>
         <div>
-          <label className="block text-white/80 mb-1">Dirección *</label>
+          <label className="block text-white/80 mb-1">{t('onboarding.address')}</label>
           <input type="text" className="w-full rounded-lg px-4 py-2 bg-neutral-900 text-white border border-white/10 focus:border-fuchsia-500 outline-none" value={direccion} onChange={e => setDireccion(e.target.value)} required />
         </div>
         <div>
-          <label className="block text-white/80 mb-1">Ciudad *</label>
+          <label className="block text-white/80 mb-1">{t('onboarding.city')}</label>
           <input type="text" className="w-full rounded-lg px-4 py-2 bg-neutral-900 text-white border border-white/10 focus:border-fuchsia-500 outline-none" value={ciudad} onChange={e => setCiudad(e.target.value)} required />
         </div>
         <div>
-          <label className="block text-white/80 mb-1">Cuenta de Instagram *</label>
+          <label className="block text-white/80 mb-1">{t('onboarding.instagram')}</label>
           <div className="flex items-center">
             <span className="px-3 py-2 bg-neutral-800 text-white rounded-l-lg select-none">@</span>
             <input
@@ -222,17 +224,17 @@ export default function OnboardingProvider({ provider }: Props) {
               autoComplete="off"
             />
           </div>
-          <span className="text-xs text-white/50">No incluyas el @, solo el usuario.</span>
+          <span className="text-xs text-white/50">{t('onboarding.instagram_note')}</span>
         </div>
         <div>
-          <label className="block text-white/80 mb-1">Logo del local *</label>
-          <div className="text-xs text-white/60 mb-2">Recomendado PNG con fondo transparente.</div>
+          <label className="block text-white/80 mb-1">{t('onboarding.logo')}</label>
+          <div className="text-xs text-white/60 mb-2">{t('onboarding.logo_note')}</div>
           <button
             type="button"
             className="w-full border-2 border-white/30 rounded-lg py-2 px-4 text-white bg-transparent hover:border-fuchsia-500 transition-colors mb-2"
             onClick={() => fileInputRef.current?.click()}
           >
-            {logo ? logo.name : "Seleccionar archivo"}
+            {logo ? logo.name : t('onboarding.select_file')}
           </button>
           <input
             type="file"
@@ -247,7 +249,7 @@ export default function OnboardingProvider({ provider }: Props) {
         </div>
         {error && <div className="text-red-400 text-sm text-center">{error}</div>}
         <button type="submit" className="btn-gradient-border w-full py-3 rounded-xl font-bold text-lg bg-neutral-900 text-white shadow-lg hover:bg-neutral-800 transition-colors mt-2" disabled={loading}>
-          {loading ? "Guardando..." : "Guardar y continuar"}
+          {loading ? t('onboarding.saving') : t('onboarding.save_and_continue')}
         </button>
       </form>
     </div>

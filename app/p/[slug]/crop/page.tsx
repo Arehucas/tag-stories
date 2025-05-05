@@ -4,18 +4,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Cropper from "react-easy-crop";
 import Steps from '@/components/ui/Steps';
 import { useImageStore } from '@/hooks/useImageStore';
-import Image from "next/image";
 import { useProviderStore } from '@/hooks/useProviderStore';
 import ProviderHeader from '@/components/ui/ProviderHeader';
+import { useT } from '@/lib/useT';
 
 export default function CropPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { slug } = use(params);
-  const imageUrl = searchParams.get("img");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const originalImage = useImageStore(state => state.originalImage);
   const setCroppedImage = useImageStore(state => state.setCroppedImage);
   // Calcula el zoom mínimo para cubrir el área 9:16
@@ -23,14 +22,15 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   // Obtén el provider del store global
   const provider = useProviderStore(state => state.provider);
   const [colorCode, setColorCode] = useState<{ r: number; g: number; b: number }[]>([]);
+  const t = useT();
 
   const steps = [
-    { title: 'Sube tu foto', description: 'Saca o elige una foto' },
-    { title: 'Ajusta tu imagen', description: 'Recorta y ajusta tu foto.' },
-    { title: 'Comparte', description: <><div>Publica tu story en Instagram.</div><div>Etiqueta a @{searchParams.get('ig') || 'tuLocal'}</div></> },
+    { title: t('upload_photo'), description: t('choose_or_take') },
+    { title: t('adjust_image'), description: t('crop_and_adjust') },
+    { title: t('share'), description: <><div>{t('publish_story')}</div><div>{t('tag_at').replace('{{handle}}', searchParams.get('ig') || 'tuLocal')}</div></> },
   ];
 
-  const onCropComplete = useCallback((_: any, croppedAreaPixels: any) => {
+  const onCropComplete = useCallback((_: unknown, croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
@@ -174,7 +174,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       <ProviderHeader logoUrl={provider?.logo_url} instagramHandle={provider?.instagram_handle} />
       <div className="flex flex-col items-center w-full max-w-xs gap-8 mx-auto pt-0">
         {!originalImage ? (
-          <div className="text-white/70 text-center mt-16">No se ha seleccionado imagen</div>
+          <div className="text-white/70 text-center mt-16">{t('no_image_selected')}</div>
         ) : (
         <div className="w-full flex flex-col items-center mt-8">
           <div className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ maxHeight: '60vh' }}>
@@ -205,7 +205,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
             className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
             onClick={handleDone}
           >
-            Listo
+            {t('done')}
           </button>
         </div>
         )}
@@ -216,7 +216,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
           className="border border-white/40 text-white/80 rounded-xl px-6 py-2 hover:bg-white/10 transition"
           onClick={() => router.push(`/p/${slug}`)}
         >
-          Subir otra foto
+          {t('upload_another')}
         </button>
       </div>
     </div>

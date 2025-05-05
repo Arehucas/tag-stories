@@ -2,10 +2,12 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
+import { useT } from '@/lib/useT';
 
 export default function ProviderAccess() {
   const router = useRouter();
   const { status } = useSession();
+  const t = useT();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -21,10 +23,10 @@ export default function ProviderAccess() {
       </div>
       <section className="relative w-full flex flex-col items-center justify-start pt-12 pb-8 px-4 max-w-md mx-auto">
         <h1 className="text-3xl font-extrabold text-white text-center leading-tight mb-3 drop-shadow-lg z-10">
-          Acceso para Providers
+          {t('access.title')}
         </h1>
         <p className="text-white/80 text-lg text-center mb-8 max-w-xs z-10 leading-tight">
-          Inicia sesión con Google para acceder a tu panel de gestión de recompensas y validar stories de tus clientes.
+          {t('access.description')}
         </p>
         <button
           onClick={() => signIn("google")}
@@ -40,7 +42,7 @@ export default function ProviderAccess() {
                 <path fill="none" d="M0 0h48v48H0z"/>
               </g>
             </svg>
-            <span className="text-base font-medium">Iniciar sesión con Google</span>
+            <span className="text-base font-medium">{t('access.googleButton')}</span>
           </span>
         </button>
         {process.env.NODE_ENV === "development" && (
@@ -60,34 +62,34 @@ export default function ProviderAccess() {
                   <text x="24" y="30" textAnchor="middle" fontSize="18" fill="#fff" fontFamily="Arial">D</text>
                 </g>
               </svg>
-              <span className="text-base font-medium">Entrar como demo</span>
+              <span className="text-base font-medium">{t('access.demoButton')}</span>
             </span>
           </button>
         )}
       </section>
       {/* Sección de los 3 pasos (igual que landing) */}
       <section className="w-full bg-[#23243a] py-10 px-4 flex flex-col gap-8 items-center">
-        <h2 className="text-2xl font-bold text-white text-center mb-2">¿Cómo funciona?</h2>
+        <h2 className="text-2xl font-bold text-white text-center mb-2">{t('access.howItWorksTitle')}</h2>
         <div className="flex flex-col gap-0 w-full max-w-md">
           <div className="step-card">
             <svg className="w-8 h-8 text-fuchsia-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             <div>
-              <span className="text-white font-semibold">1. Regístrate y configura tu campaña</span>
-              <p className="text-white/70 text-sm">En menos de 2 minutos tendrás tu local listo para recibir stories.</p>
+              <span className="text-white font-semibold">{t('access.step1Title')}</span>
+              <p className="text-white/70 text-sm">{t('access.step1Description')}</p>
             </div>
           </div>
           <div className="step-card">
             <svg className="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
             <div>
-              <span className="text-white font-semibold">2. Valida stories fácilmente</span>
-              <p className="text-white/70 text-sm">Nuestro sistema te ayuda a comprobar que las stories son reales y cumplen tus requisitos.</p>
+              <span className="text-white font-semibold">{t('access.step2Title')}</span>
+              <p className="text-white/70 text-sm">{t('access.step2Description')}</p>
             </div>
           </div>
           <div className="step-card">
             <svg className="w-8 h-8 text-pink-400 icon-shake icon-shake-delay-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="2" /><path d="M16 8V6a4 4 0 0 0-8 0v2" /></svg>
             <div>
-              <span className="text-white font-semibold">3. Premia a tus clientes</span>
-              <p className="text-white/70 text-sm">Entrega recompensas y haz que quieran volver y recomendarte aún más.</p>
+              <span className="text-white font-semibold">{t('access.step3Title')}</span>
+              <p className="text-white/70 text-sm">{t('access.step3Description')}</p>
             </div>
           </div>
         </div>
@@ -95,7 +97,7 @@ export default function ProviderAccess() {
       {/* Footer */}
       <footer className="w-full py-6 flex justify-center items-center bg-transparent">
         <button onClick={() => router.push("/")} className="text-white/70 hover:text-white underline text-base font-medium transition-colors">
-          Volver al home
+          {t('access.backToHome')}
         </button>
       </footer>
     </div>

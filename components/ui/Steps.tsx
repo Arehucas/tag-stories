@@ -13,13 +13,13 @@ interface StepsProps {
 
 export default function Steps({ steps, current }: StepsProps) {
   // Separa pasos completados y el resto
-  const completed = steps.map((s, i) => ({ ...s, i })).filter(s => s.i < current);
-  const rest = steps.map((s, i) => ({ ...s, i })).filter(s => s.i >= current);
-  const ordered = [...rest, ...completed];
+  const completed = steps.filter((_, i) => i < current);
+  const rest = steps.filter((_, i) => i >= current);
+  const ordered = [...rest, ...completed].map((s, i) => ({ ...s, i }));
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-xs mx-auto mb-6">
-      {ordered.map((step, idx) => (
+      {ordered.map((step) => (
         <div
           key={step.i}
           className={`flex items-start gap-3 p-4 rounded-xl border transition-all duration-300 ${

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import { Copy } from 'lucide-react';
+import '@/lib/i18n';
 
 interface Provider {
   nombre?: string;
@@ -20,7 +21,6 @@ export default function ProviderDashboard() {
   const { status, data: session } = useSession();
   const router = useRouter();
   const [provider, setProvider] = useState<Provider | null>(null);
-  const [loading, setLoading] = useState(true);
   const [demo, setDemo] = useState<{ user: { email: string; name: string } } | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -35,8 +35,7 @@ export default function ProviderDashboard() {
         setDemo(demoUser);
         fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.user.email)}`)
           .then(res => res.json())
-          .then(data => setProvider(data))
-          .finally(() => setLoading(false));
+          .then(data => setProvider(data));
         return;
       }
     }
@@ -46,8 +45,7 @@ export default function ProviderDashboard() {
     if (status === "authenticated" && session?.user?.email) {
       fetch(`/api/provider/by-email?email=${encodeURIComponent(session.user.email)}`)
         .then(res => res.json())
-        .then(data => setProvider(data))
-        .finally(() => setLoading(false));
+        .then(data => setProvider(data));
     }
   }, [status, session, router]);
 

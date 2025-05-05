@@ -1,0 +1,90 @@
+{
+  "upload_photo": "Sube tu foto",
+  "choose_or_take": "Saca o elige una foto",
+  "adjust_image": "Ajusta tu imagen",
+  "crop_and_adjust": "Recorta y ajusta tu foto.",
+  "share": "Comparte",
+  "publish_story": "Publica tu story en Instagram.",
+  "tag_at": "Etiqueta a @{{handle}}",
+  "no_image_selected": "No se ha seleccionado imagen",
+  "done": "Listo",
+  "upload_another": "Subir otra foto",
+  "not_found": "No se encontró el local",
+  "downloaded_alert": "Imagen descargada, compártela con stories de Instagram",
+  "best_photo": "¡Sube tu mejor foto!",
+  "tag_and_win": "Etiqueta en una story de Instagram a <1>@{{handle}}</1> y podrás conseguir <3>magníficas recompensas</3>",
+  "choose_file": "Elige archivo",
+  "loading": "Cargando...",
+  "onboarding": {
+    "loading": "Estamos configurando todo a tu gusto...",
+    "title": "Completa tu perfil de local",
+    "name": "Nombre del local o establecimiento *",
+    "address": "Dirección *",
+    "city": "Ciudad *",
+    "instagram": "Cuenta de Instagram *",
+    "instagram_note": "No incluyas el @, solo el usuario.",
+    "logo": "Logo del local *",
+    "logo_note": "Recomendado PNG con fondo transparente.",
+    "select_file": "Seleccionar archivo",
+    "saving": "Guardando...",
+    "save_and_continue": "Guardar y continuar"
+  },
+  "access": {
+    "title": "Acceso para Providers",
+    "description": "Inicia sesión con Google para acceder a tu panel de gestión de recompensas y validar stories de tus clientes.",
+    "googleButton": "Iniciar sesión con Google",
+    "demoButton": "Entrar como demo",
+    "howItWorksTitle": "¿Cómo funciona?",
+    "step1Title": "1. Regístrate y configura tu campaña",
+    "step1Description": "En menos de 2 minutos tendrás tu local listo para recibir stories.",
+    "step2Title": "2. Valida stories fácilmente",
+    "step2Description": "Nuestro sistema te ayuda a comprobar que las stories son reales y cumplen tus requisitos.",
+    "step3Title": "3. Premia a tus clientes",
+    "step3Description": "Entrega recompensas y haz que quieran volver y recomendarte aún más.",
+    "backToHome": "Volver al home"
+  },
+  "landing": {
+    "hero": {
+      "title": "Haz que tus clientes\npromocionen tu local",
+      "description": "Convierte cada visita en una oportunidad de marketing real. Recompensa a quienes comparten tu negocio en Instagram Stories.",
+      "cta": "Regístrate gratis",
+      "terms": "Sin tarjeta, sin compromiso"
+    },
+    "benefits": {
+      "increaseVisibility": {
+        "title": "Aumenta tu visibilidad",
+        "description": "Cada story es una recomendación auténtica de tu local a cientos de potenciales clientes."
+      },
+      "automateRewards": {
+        "title": "Automatiza tus recompensas",
+        "description": "Fideliza a tus clientes premiando su promoción, sin esfuerzo y sin complicaciones técnicas."
+      },
+      "organicGrowth": {
+        "title": "Crecimiento orgánico",
+        "description": "Transforma a tus clientes en embajadores y haz crecer tu comunidad de forma natural."
+      }
+    },
+    "howItWorks": {
+      "title": "¿Cómo funciona?",
+      "steps": {
+        "registerAndConfigure": {
+          "title": "1. Regístrate y configura tu campaña",
+          "description": "En menos de 2 minutos tendrás tu local listo para recibir stories."
+        },
+        "validateStories": {
+          "title": "2. Valida stories fácilmente",
+          "description": "Nuestro sistema te ayuda a comprobar que las stories son reales y cumplen tus requisitos."
+        },
+        "rewardClients": {
+          "title": "3. Premia a tus clientes",
+          "description": "Entrega recompensas y haz que quieran volver y recomendarte aún más."
+        }
+      }
+    },
+    "cta": {
+      "title": "¿Listo para empezar?",
+      "cta": "Regístrate gratis ahora",
+      "terms": "Únete a la revolución del boca a boca digital"
+    }
+  }
+} 

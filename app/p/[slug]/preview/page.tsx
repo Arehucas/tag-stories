@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useRouter } from 'next/navigation';
+import '@/lib/i18n';
 
 export default function PreviewPage() {
   const provider = useProviderStore(state => state.provider);
@@ -16,7 +17,6 @@ export default function PreviewPage() {
 
   const croppedImage = useImageStore(state => state.croppedImage);
   const router = useRouter();
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const slug = typeof window !== 'undefined' ? window.location.pathname.split('/')[2] : '';
 
   // Redirigir si no hay imagen cropeada
@@ -24,9 +24,6 @@ export default function PreviewPage() {
     router.replace(`/p/${slug}`);
     return null;
   }
-
-  const logoUrl = provider?.logo_url || "/default-logo.png";
-  const igHandle = provider?.instagram_handle || "tuLocal";
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] flex flex-col items-center">
@@ -47,7 +44,12 @@ export default function PreviewPage() {
                 if (!croppedImage) return;
                 // Convertir dataURL a Blob
                 function dataURLtoBlob(dataurl: string) {
-                  const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                  const arr = dataurl.split(',');
+                  const match = arr[0].match(/:(.*?);/);
+                  const mime = match ? match[1] : 'image/png';
+                  const bstr = atob(arr[1]);
+                  const n = bstr.length;
+                  const u8arr = new Uint8Array(n);
                   for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
                   return new Blob([u8arr], { type: mime });
                 }
