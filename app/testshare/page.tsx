@@ -58,7 +58,7 @@ export default function TestSharePage() {
           text: '¡Mira esta imagen!',
           url: IMAGE_URL,
         });
-      } catch (err) {
+      } catch {
         alert('No se pudo compartir la imagen.');
       }
     } else {
