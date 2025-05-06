@@ -17,6 +17,12 @@ interface Provider {
   slug?: string;
 }
 
+interface Story {
+  createdAt: string | Date;
+  status: "pending" | "validated" | "redeemed";
+  colorCode: { r: number; g: number; b: number }[];
+}
+
 export default function ProviderDashboard() {
   const { status, data: session } = useSession();
   const router = useRouter();
@@ -25,7 +31,7 @@ export default function ProviderDashboard() {
   const [hydrated, setHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState(true);
-  const [stories, setStories] = useState<any[]>([]);
+  const [stories, setStories] = useState<Story[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
 
   useEffect(() => {

@@ -5,11 +5,10 @@ import { Clock, Calendar } from 'lucide-react';
 
 interface ProviderStoryCardProps {
   createdAt: string | Date;
-  status: "pending" | "validated" | "redeemed";
   colorCode: { r: number; g: number; b: number }[];
 }
 
-export const ProviderStoryCard: FC<ProviderStoryCardProps> = ({ createdAt, status, colorCode }) => {
+export const ProviderStoryCard: FC<ProviderStoryCardProps> = ({ createdAt, colorCode }) => {
   const date = typeof createdAt === "string" ? new Date(createdAt) : createdAt;
   const dateStr = format(date, "dd/MM/yyyy", { locale: es });
   const hourStr = format(date, "HH:mm", { locale: es });
