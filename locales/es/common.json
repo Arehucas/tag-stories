@@ -30,7 +30,8 @@
     "logo_note": "Recomendado PNG con fondo transparente.",
     "select_file": "Seleccionar archivo",
     "saving": "Guardando...",
-    "save_and_continue": "Guardar y continuar"
+    "save_and_continue": "Guardar y continuar",
+    "description": "Rellena los datos de tu local para empezar a premiar a tus clientes."
   },
   "access": {
     "title": "Acceso para Providers",
@@ -87,7 +88,9 @@
     "cta": {
       "title": "¿Listo para empezar?",
       "cta": "Regístrate gratis ahora",
-      "terms": "Únete a la revolución del boca a boca digital"
+      "terms": "Únete a la revolución del boca a boca digital",
+      "title": "Haz que tus clientes promocionen tu local",
+      "description": "Convierte cada visita en una oportunidad de marketing real. Recompensa a quienes comparten tu negocio en Instagram Stories."
     }
   },
   "testshare": {
@@ -100,5 +103,39 @@
     "context_chrome_ios": "Estás en Chrome para iOS. Se intentará compartir nativo (puede que no funcione).",
     "context_android": "Estás en un navegador Android. Se intentará compartir nativo.",
     "context_other": "Navegador no identificado. Se intentará compartir nativo."
+  },
+  "metadata": {
+    "root": {
+      "title": "Provider Rewards",
+      "description": "Premia a tus clientes por compartir tu local en Instagram Stories."
+    },
+    "landing": {
+      "title": "Haz que tus clientes promocionen tu local",
+      "description": "Convierte cada visita en una oportunidad de marketing real. Recompensa a quienes comparten tu negocio en Instagram Stories."
+    },
+    "providers_access": {
+      "title": "Acceso para Providers",
+      "description": "Inicia sesión con Google para acceder a tu panel de gestión de recompensas y validar stories de tus clientes."
+    },
+    "providers_dashboard": {
+      "title": "Panel de gestión de Providers",
+      "description": "Gestiona tus recompensas, valida stories y accede a todas las funciones para tu local."
+    },
+    "provider_landing": {
+      "title": "Participa y gana recompensas en Instagram Stories",
+      "description": "Etiqueta al local en tu story de Instagram y consigue recompensas exclusivas."
+    },
+    "provider_crop": {
+      "title": "Recorta tu imagen para la story",
+      "description": "Ajusta tu foto antes de compartirla en Instagram Stories."
+    },
+    "provider_preview": {
+      "title": "Previsualiza tu imagen para Instagram Stories",
+      "description": "Descarga o comparte tu imagen lista para Instagram Stories."
+    },
+    "onboarding": {
+      "title": "Completa tu perfil de local",
+      "description": "Rellena los datos de tu local para empezar a premiar a tus clientes."
+    }
   }
 } 

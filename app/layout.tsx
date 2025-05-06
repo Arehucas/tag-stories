@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import common from '@/locales/es/common.json';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Provider Rewards",
-  description: "Premia a tus clientes por compartir tu local en Instagram Stories.",
+  title: common.metadata.root.title,
+  description: common.metadata.root.description,
 };
 
 export default function RootLayout({

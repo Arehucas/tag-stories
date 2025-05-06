@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useT } from '@/lib/useT';
+import common from '@/locales/es/common.json';
 
 interface Provider {
   nombre?: string;
@@ -15,6 +16,11 @@ interface Provider {
 interface Props {
   provider: Provider | null;
 }
+
+export const metadata = {
+  title: common.metadata.onboarding.title,
+  description: common.metadata.onboarding.description,
+};
 
 export default function OnboardingProvider({ provider }: Props) {
   const { data: session } = useSession();

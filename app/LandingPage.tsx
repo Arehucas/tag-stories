@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { Megaphone, Gift, Users, Zap, ShieldCheck, TrendingUp } from "lucide-react";
 import { useT } from '@/lib/useT';
 
-export default function Landing() {
+export default function LandingPage() {
   const router = useRouter();
   const t = useT();
 
