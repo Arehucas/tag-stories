@@ -21,6 +21,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   // Obtén el provider del store global
   const provider = useProviderStore(state => state.provider);
   const [colorCode, setColorCode] = useState<{ r: number; g: number; b: number }[]>([]);
+  const setColorCodeStore = useImageStore(state => state.setColorCode);
   const t = useT();
 
   const steps = [
@@ -160,6 +161,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       if (!code.some(col => col.r === c.r && col.g === c.g && col.b === c.b)) code.push(c);
     }
     setColorCode(code);
+    setColorCodeStore(code);
   }, []);
 
   useEffect(() => {

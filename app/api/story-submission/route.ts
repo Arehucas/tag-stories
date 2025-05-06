@@ -20,4 +20,23 @@ export async function POST(req: NextRequest) {
   } catch (e: unknown) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const providerId = searchParams.get('providerId');
+    if (!providerId) {
+      return NextResponse.json({ error: 'Falta providerId' }, { status: 400 });
+    }
+    const db = await getDb();
+    const stories = await db
+      .collection('storySubmissions')
+      .find({ providerId, status: 'pending' })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return NextResponse.json(stories);
+  } catch (e: unknown) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+  }
 } 

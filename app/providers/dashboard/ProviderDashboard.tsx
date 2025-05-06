@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import { Copy } from 'lucide-react';
-import '@/lib/i18n';
+import ProviderStoryCardList from '@/components/ui/ProviderStoryCardList';
 
 interface Provider {
   nombre?: string;
@@ -25,6 +25,8 @@ export default function ProviderDashboard() {
   const [hydrated, setHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState(true);
+  const [stories, setStories] = useState<any[]>([]);
+  const [loadingStories, setLoadingStories] = useState(true);
 
   useEffect(() => {
     setHydrated(true);
@@ -64,6 +66,19 @@ export default function ProviderDashboard() {
       setLoadingProvider(false);
     }
   }, [status, session, router]);
+
+  useEffect(() => {
+    if (provider?.slug) {
+      setLoadingStories(true);
+      fetch(`/api/story-submission?providerId=${encodeURIComponent(provider.slug)}`)
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+          setStories(data);
+          setLoadingStories(false);
+        })
+        .catch(() => setLoadingStories(false));
+    }
+  }, [provider?.slug]);
 
   if (!hydrated || loadingProvider) {
     return (
@@ -109,6 +124,17 @@ export default function ProviderDashboard() {
           <div className="text-green-400 text-xs mt-1 animate-pulse">URL copiada a tu portapapeles, pégala donde quieras promocionarla</div>
         )}
       </div>
+      {/* Lista de stories pending */}
+      <div className="w-full max-w-md mt-6">
+        <h2 className="text-white text-lg font-semibold mb-2">Stories pendientes</h2>
+        {loadingStories ? (
+          <div className="flex justify-center py-8"><LoaderBolas /></div>
+        ) : (
+          <ProviderStoryCardList stories={stories} />
+        )}
+      </div>
+      {/* Botón cerrar sesión separado */}
+      <div style={{ height: '100px' }} />
       <button
         onClick={() => {
           if (demo) {
@@ -118,7 +144,7 @@ export default function ProviderDashboard() {
             signOut({ callbackUrl: "/" });
           }
         }}
-        className="text-white/70 hover:text-white underline text-base font-medium transition-colors"
+        className="px-6 py-2 rounded-full border border-white/30 text-white/90 bg-transparent hover:bg-white/10 transition text-base font-medium mt-0"
       >
         Cerrar sesión
       </button>

@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useRouter } from 'next/navigation';
-import '@/lib/i18n';
 
 export default function PreviewPage() {
   const provider = useProviderStore(state => state.provider);
@@ -18,6 +17,7 @@ export default function PreviewPage() {
   const croppedImage = useImageStore(state => state.croppedImage);
   const router = useRouter();
   const slug = typeof window !== 'undefined' ? window.location.pathname.split('/')[2] : '';
+  const colorCode = useImageStore(state => state.colorCode);
 
   // Redirigir si no hay imagen cropeada
   if (typeof window !== 'undefined' && !croppedImage) {
@@ -42,6 +42,14 @@ export default function PreviewPage() {
               className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
               onClick={async () => {
                 if (!croppedImage) return;
+                // Crear story en backend
+                if (slug && colorCode && colorCode.length === 4) {
+                  await fetch('/api/story-submission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ providerId: slug, colorCode }),
+                  });
+                }
                 // Convertir dataURL a Blob
                 function dataURLtoBlob(dataurl: string) {
                   const arr = dataurl.split(',');

@@ -137,5 +137,16 @@
       "title": "Completa tu perfil de local",
       "description": "Rellena los datos de tu local para empezar a premiar a tus clientes."
     }
+  },
+  "providerStories": {
+    "story": "Story",
+    "date": "Fecha y hora",
+    "status": "Estado",
+    "pending": "Pendiente de validar",
+    "validated": "Validada",
+    "redeemed": "Canjeada",
+    "colorCode": "Código de color",
+    "noStories": "No hay stories pendientes",
+    "copied": "Copiado al portapapeles"
   }
 } 
