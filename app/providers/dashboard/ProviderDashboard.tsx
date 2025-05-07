@@ -34,9 +34,6 @@ export default function ProviderDashboard() {
   const [loadingProvider, setLoadingProvider] = useState(true);
   const [stories, setStories] = useState<Story[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
-  const t = useTranslations('common');
-  const [igAutoValidation, setIgAutoValidation] = useState(false);
-  const [checkingIG, setCheckingIG] = useState(false);
   const [hasIGToken, setHasIGToken] = useState(false);
 
   useEffect(() => {
@@ -127,7 +124,7 @@ export default function ProviderDashboard() {
               type="checkbox"
               className="sr-only peer"
               checked={hasIGToken}
-              onChange={async (e) => {
+              onChange={async () => {
                 if (hasIGToken) {
                   // Desvincular IG
                   await fetch('/api/ig-connect/unlink', { method: 'POST' });
@@ -149,9 +146,6 @@ export default function ProviderDashboard() {
             <Instagram size={16} className="text-fuchsia-500" />
             <span>Para activar la validación automática, primero debes vincular tu cuenta de Instagram.</span>
           </div>
-        )}
-        {checkingIG && (
-          <div className="text-xs text-blue-500 animate-pulse">Vinculando cuenta de Instagram...</div>
         )}
       </div>
       <span className="text-white text-2xl font-bold mb-4">hola provider</span>
