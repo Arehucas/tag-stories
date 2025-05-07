@@ -8,15 +8,57 @@ import { Instagram, Clock, Copy } from "lucide-react";
 
 const secondaryBlue = "#3a86ff";
 
+// Añadir función utilitaria para copiar texto al portapapeles de forma robusta
+const copiarAlPortapapeles = async (texto: string) => {
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    try {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    } catch {
+      // Fallback si falla el clipboard moderno
+    }
+  }
+  // Fallback clásico
+  try {
+    const input = document.createElement('input');
+    input.value = texto;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Definición local de la interfaz Provider para tipado correcto
+interface Provider {
+  slug?: string;
+  nombre?: string;
+  direccion?: string;
+  ciudad?: string;
+  instagram_handle?: string;
+  logo_url?: string;
+  email?: string;
+  [key: string]: any;
+}
+
+// Definición local de la interfaz Story para tipado correcto
+interface Story {
+  createdAt: string | Date;
+  [key: string]: any;
+}
+
 export default function ProviderDashboard() {
   const { status, data: session } = useSession();
   const router = useRouter();
-  const [provider, setProvider] = useState(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [demo, setDemo] = useState(null);
   const [hydrated, setHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState(true);
-  const [stories, setStories] = useState([]);
+  const [stories, setStories] = useState<Story[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
   const [hasIGToken, setHasIGToken] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -134,7 +176,12 @@ export default function ProviderDashboard() {
         <div className="text-white text-2xl font-bold mb-4">Hola, {provider.nombre || provider.email || 'Provider'}</div>
         {/* Caja URL compartir */}
         <div className="w-full bg-[#18122b] rounded-xl p-5 mb-6 flex flex-col gap-2 border border-violet-950/60">
-          <label className="text-white/80 text-sm font-semibold mb-1">Tu URL para compartir</label>
+          <div className="flex items-center justify-between mb-1 w-full">
+            <label className="text-white/80 text-sm font-semibold truncate">Tu URL para compartir</label>
+            {copied && (
+              <span className="text-xs font-semibold text-blue-400 animate-fade-in-out flex-shrink-0 ml-2 whitespace-nowrap">URL Copiada!!</span>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <input
               type="text"
@@ -143,9 +190,9 @@ export default function ProviderDashboard() {
               className="flex-1 bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 text-sm font-mono outline-none"
             />
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (provider?.slug) {
-                  navigator.clipboard.writeText(`https://taun.me/p/${provider.slug}`);
+                  await copiarAlPortapapeles(`https://taun.me/p/${provider.slug}`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }
@@ -157,10 +204,18 @@ export default function ProviderDashboard() {
               <Copy className="w-5 h-5" />
             </button>
           </div>
-          {copied && (
-            <div className="text-green-400 text-xs mt-1 animate-pulse">URL copiada a tu portapapeles</div>
-          )}
         </div>
+        <style jsx>{`
+          @keyframes fade-in-out {
+            0% { opacity: 0; transform: translateY(-8px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-8px); }
+          }
+          .animate-fade-in-out {
+            animation: fade-in-out 2s cubic-bezier(0.4,0,0.2,1);
+          }
+        `}</style>
         {/* Validación IG */}
         <div className="w-full bg-gradient-to-br from-[#23243a] to-[#18122b] rounded-xl p-6 mb-8 flex flex-col gap-3 shadow-lg border border-violet-950/60">
           <div className="flex items-center gap-3">
