@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { getDb } from '@/lib/mongo';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const session = await getServerSession();
   if (!session || !session.user?.email) {
     return NextResponse.json({ hasIGToken: false });
