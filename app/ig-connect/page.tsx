@@ -4,19 +4,21 @@ import Link from 'next/link';
 
 export default function IGConnectPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 py-10">
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] pt-10 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-gray-100">
         <div className="bg-gradient-to-tr from-fuchsia-500 to-blue-500 rounded-full p-4 mb-2">
           <Instagram size={48} className="text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 text-center">¿Qué necesitas para vincular tu cuenta?</h1>
-        <p className="text-gray-700 text-center mb-2">Para vincular tu cuenta de Instagram con nuestra plataforma, sigue estos pasos:</p>
+        <h1 className="text-2xl font-bold text-gray-900 text-center">Vincula tu Instagram</h1>
+        <p className="text-gray-700 text-center mb-2">Estás a un paso de vincular tu cuenta y automatizar tu proceso</p>
         <div className="w-full bg-gray-50 rounded-lg p-4 mb-2">
-          <div className="font-semibold text-gray-800 mb-1">¿Qué necesitas para vincular tu cuenta?</div>
+          <div className="font-semibold text-gray-800 mb-1">Importante:</div>
           <ul className="list-disc pl-5 text-gray-600 text-sm">
-            <li>Cuenta de Instagram profesional o de creador de contenido</li>
-            <li>Permitir acceso a los mensajes de Instagram</li>
-            <li>Aceptar los permisos solicitados durante la vinculación</li>
+            <li>Este proceso es 100% seguro y no requiere que compartas tu contraseña</li>
+            <li>No requiere que compartas tu contraseña</li>
+            <li>Tu cuenta de Instagram debe ser de Profesional o de cCreador de cContenido</li>
+            <li>Permite acceso a los mensajes de Instagram</li>
+            <li>Acepta los permisos solicitados durante la vinculación</li>
           </ul>
         </div>
         <button

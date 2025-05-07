@@ -115,8 +115,8 @@ export default function ProviderDashboard() {
             <Instagram size={28} className="text-white" />
           </div>
           <div className="flex-1">
-            <div className="text-lg font-bold text-gray-900">Validación automática de stories</div>
-            <div className="text-sm text-gray-600">Activa la validación automática de stories mediante tu cuenta de Instagram.</div>
+            <div className="text-lg font-bold text-gray-900">Validación automática</div>
+            <div className="text-sm text-gray-600">Nosotros verificamos las stories por ti.</div>
           </div>
           <label className="inline-flex items-center cursor-pointer">
             <input
@@ -143,7 +143,7 @@ export default function ProviderDashboard() {
         {!hasIGToken && (
           <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
             <Instagram size={16} className="text-fuchsia-500" />
-            <span>Para activar la validación automática, primero debes vincular tu cuenta de Instagram.</span>
+            <span>Tu cuenta de IG aún no se ha vinculado</span>
           </div>
         )}
       </div>
