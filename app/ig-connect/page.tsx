@@ -2,10 +2,10 @@
 import { Instagram } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 
 export default function IGConnectPage() {
   const t = useTranslations('igValidation');
+  const IG_AUTH_URL = "https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=979575567711942&redirect_uri=https://taun.me/dashboard&response_type=code&scope=instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights";
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 py-10">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-gray-100">
@@ -25,7 +25,7 @@ export default function IGConnectPage() {
         <button
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-fuchsia-500 to-blue-500 text-white font-semibold py-3 rounded-xl text-lg shadow-lg hover:scale-105 transition-transform"
           onClick={() => {
-            signIn('instagram');
+            window.location.href = IG_AUTH_URL;
           }}
         >
           <Instagram size={22} />
