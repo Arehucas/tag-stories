@@ -2,6 +2,7 @@
 import { Instagram } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 export default function IGConnectPage() {
   const t = useTranslations('igValidation');
@@ -24,8 +25,7 @@ export default function IGConnectPage() {
         <button
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-fuchsia-500 to-blue-500 text-white font-semibold py-3 rounded-xl text-lg shadow-lg hover:scale-105 transition-transform"
           onClick={() => {
-            // Aquí se lanzará el proceso OAuth IG
-            window.location.href = '/api/auth/instagram';
+            signIn('instagram');
           }}
         >
           <Instagram size={22} />
