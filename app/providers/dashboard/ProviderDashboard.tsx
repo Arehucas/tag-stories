@@ -37,7 +37,7 @@ export default function ProviderDashboard() {
   const t = useTranslations('igValidation');
   const [igAutoValidation, setIgAutoValidation] = useState(false);
   const [checkingIG, setCheckingIG] = useState(false);
-  const hasIGToken = false; // TODO: reemplazar por consulta real
+  const [hasIGToken, setHasIGToken] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
@@ -90,6 +90,12 @@ export default function ProviderDashboard() {
         .catch(() => setLoadingStories(false));
     }
   }, [provider?.slug]);
+
+  useEffect(() => {
+    fetch('/api/ig-connect/status')
+      .then(res => res.json())
+      .then(data => setHasIGToken(!!data.hasIGToken));
+  }, []);
 
   if (!hydrated || loadingProvider) {
     return (
