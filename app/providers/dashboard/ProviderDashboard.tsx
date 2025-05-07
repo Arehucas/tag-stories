@@ -93,7 +93,7 @@ export default function ProviderDashboard() {
       .then(data => setHasIGToken(!!data.hasIGToken));
   }, []);
 
-  if (!hydrated || loadingProvider) {
+  if (!hydrated || loadingProvider || status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas />
@@ -108,6 +108,35 @@ export default function ProviderDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] pt-10 px-4">
+      <span className="text-white text-2xl font-bold mb-4">hola provider</span>
+      {/* URL para compartir */}
+      <div className="w-full max-w-md bg-[#23243a] rounded-xl p-4 mb-6 flex flex-col gap-2 border border-white/10">
+        <label className="text-white/80 text-sm font-semibold mb-1">Tu URL para compartir</label>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            readOnly
+            value={provider?.slug ? `https://taun.me/p/${provider.slug}` : ''}
+            className="flex-1 bg-[#181824] text-white px-3 py-2 rounded-lg border border-white/10 text-sm font-mono outline-none"
+          />
+          <button
+            onClick={() => {
+              if (provider?.slug) {
+                navigator.clipboard.writeText(`https://taun.me/p/${provider.slug}`);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }
+            }}
+            className="p-2 rounded-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white hover:scale-105 transition-transform"
+            title="Copiar URL"
+          >
+            <Copy size={18} />
+          </button>
+        </div>
+        {copied && (
+          <div className="text-green-400 text-xs mt-1 animate-pulse">URL copiada a tu portapapeles, pégala donde quieras promocionarla</div>
+        )}
+      </div>
       {/* Sección validación automática IG */}
       <div className="w-full max-w-md bg-white rounded-xl p-5 mb-8 flex flex-col gap-3 shadow-lg border border-gray-100">
         <div className="flex items-center gap-3">
@@ -116,7 +145,7 @@ export default function ProviderDashboard() {
           </div>
           <div className="flex-1">
             <div className="text-lg font-bold text-gray-900">Validación automática</div>
-            <div className="text-sm text-gray-600">Nosotros verificamos las stories por ti.</div>
+            <div className="text-sm text-gray-600">Validamos que el usuario suba la story y que cumpla con los requisitos</div>
           </div>
           <label className="inline-flex items-center cursor-pointer">
             <input
@@ -145,35 +174,6 @@ export default function ProviderDashboard() {
             <Instagram size={16} className="text-fuchsia-500" />
             <span>Tu cuenta de IG aún no se ha vinculado</span>
           </div>
-        )}
-      </div>
-      <span className="text-white text-2xl font-bold mb-4">hola provider</span>
-      {/* URL para compartir */}
-      <div className="w-full max-w-md bg-[#23243a] rounded-xl p-4 mb-6 flex flex-col gap-2 border border-white/10">
-        <label className="text-white/80 text-sm font-semibold mb-1">Tu URL para compartir</label>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            readOnly
-            value={provider?.slug ? `https://taun.me/p/${provider.slug}` : ''}
-            className="flex-1 bg-[#181824] text-white px-3 py-2 rounded-lg border border-white/10 text-sm font-mono outline-none"
-          />
-          <button
-            onClick={() => {
-              if (provider?.slug) {
-                navigator.clipboard.writeText(`https://taun.me/p/${provider.slug}`);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              }
-            }}
-            className="p-2 rounded-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white hover:scale-105 transition-transform"
-            title="Copiar URL"
-          >
-            <Copy size={18} />
-          </button>
-        </div>
-        {copied && (
-          <div className="text-green-400 text-xs mt-1 animate-pulse">URL copiada a tu portapapeles, pégala donde quieras promocionarla</div>
         )}
       </div>
       {/* Lista de stories pending */}

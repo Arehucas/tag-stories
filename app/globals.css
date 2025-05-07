@@ -535,3 +535,9 @@ body {
     width: 100%;
   }
 }
+
+@supports not (filter: url('#pink-glow')) {
+  .loader-wrapper-bolas .ball-bolas {
+    filter: blur(12px) !important;
+  }
+}
