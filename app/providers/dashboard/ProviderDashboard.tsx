@@ -34,7 +34,7 @@ export default function ProviderDashboard() {
   const [loadingProvider, setLoadingProvider] = useState(true);
   const [stories, setStories] = useState<Story[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
-  const t = useTranslations('igValidation');
+  const t = useTranslations('common');
   const [igAutoValidation, setIgAutoValidation] = useState(false);
   const [checkingIG, setCheckingIG] = useState(false);
   const [hasIGToken, setHasIGToken] = useState(false);
@@ -119,38 +119,39 @@ export default function ProviderDashboard() {
             <Instagram size={28} className="text-white" />
           </div>
           <div className="flex-1">
-            <div className="text-lg font-bold text-gray-900">{t('sectionTitle')}</div>
-            <div className="text-sm text-gray-600">{t('sectionDescription')}</div>
+            <div className="text-lg font-bold text-gray-900">Validación automática de stories</div>
+            <div className="text-sm text-gray-600">Activa la validación automática de stories mediante tu cuenta de Instagram.</div>
           </div>
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               className="sr-only peer"
-              checked={igAutoValidation}
+              checked={hasIGToken}
               onChange={async (e) => {
-                if (!hasIGToken) {
-                  setCheckingIG(true);
-                  // Simulación: aquí deberías consultar al backend si hay token IG
-                  setTimeout(() => {
-                    setCheckingIG(false);
-                    window.location.href = '/ig-connect';
-                  }, 800);
-                  return;
+                if (hasIGToken) {
+                  // Desvincular IG
+                  await fetch('/api/ig-connect/unlink', { method: 'POST' });
+                  setHasIGToken(false);
+                } else {
+                  router.push('/ig-connect');
                 }
-                setIgAutoValidation(e.target.checked);
               }}
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-fuchsia-500 peer-checked:to-blue-500 transition-all"></div>
+            <div className={`w-11 h-6 rounded-full transition-all ${
+              hasIGToken
+                ? 'bg-gradient-to-r from-fuchsia-500 to-blue-500'
+                : 'bg-gray-200'
+            }`}></div>
           </label>
         </div>
         {!hasIGToken && (
           <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
             <Instagram size={16} className="text-fuchsia-500" />
-            <span>{t('connectRequired')}</span>
+            <span>Para activar la validación automática, primero debes vincular tu cuenta de Instagram.</span>
           </div>
         )}
         {checkingIG && (
-          <div className="text-xs text-blue-500 animate-pulse">{t('connecting')}</div>
+          <div className="text-xs text-blue-500 animate-pulse">Vinculando cuenta de Instagram...</div>
         )}
       </div>
       <span className="text-white text-2xl font-bold mb-4">hola provider</span>

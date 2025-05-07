@@ -3,4 +3,3 @@ description:
 globs: 
 alwaysApply: true
 ---
-Every time a text is added it must be added to locales/es/common.json and referenced where it is used

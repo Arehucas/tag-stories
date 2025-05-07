@@ -165,5 +165,8 @@
     ],
     "successMessage": "¡Cuenta de Instagram vinculada correctamente!",
     "errorMessage": "No se pudo vincular la cuenta de Instagram. Intenta de nuevo."
-  }
+  },
+  "ig_sectionTitle": "Validación automática de stories",
+  "ig_sectionDescription": "Activa la validación automática de stories mediante tu cuenta de Instagram.",
+  "ig_connectRequired": "Para activar la validación automática, primero debes vincular tu cuenta de Instagram."
 } 
