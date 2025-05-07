@@ -25,7 +25,7 @@ export default function IGConnectPage() {
         <button
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-fuchsia-500 to-blue-500 text-white font-semibold py-3 rounded-xl text-lg shadow-lg hover:scale-105 transition-transform"
           onClick={() => {
-            window.location.href = IG_AUTH_URL;
+            window.location.href = "https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=979575567711942&redirect_uri=https://taun.me/dashboard&response_type=code&scope=instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights";
           }}
         >
           <Instagram size={22} />
