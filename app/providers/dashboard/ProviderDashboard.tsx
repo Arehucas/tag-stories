@@ -147,14 +147,13 @@ export default function ProviderDashboard() {
             <div className="text-lg font-bold text-gray-900">Validación automática</div>
             <div className="text-sm text-gray-600">Validamos que el usuario suba la story y que cumpla con los requisitos</div>
           </div>
-          <label className="inline-flex items-center cursor-pointer">
+          <label className="inline-flex items-center cursor-pointer select-none group" style={{ minWidth: 56, minHeight: 32 }}>
             <input
               type="checkbox"
               className="sr-only peer"
               checked={hasIGToken}
               onChange={async () => {
                 if (hasIGToken) {
-                  // Desvincular IG
                   await fetch('/api/ig-connect/unlink', { method: 'POST' });
                   setHasIGToken(false);
                 } else {
@@ -162,11 +161,31 @@ export default function ProviderDashboard() {
                 }
               }}
             />
-            <div className={`w-11 h-6 rounded-full transition-all ${
-              hasIGToken
-                ? 'bg-gradient-to-r from-fuchsia-500 to-blue-500'
-                : 'bg-gray-200'
-            }`}></div>
+            <span
+              className={`relative flex items-center w-14 h-8 rounded-full transition-colors duration-200
+                ${hasIGToken ? 'bg-green-500' : 'bg-gray-300'}`}
+              style={{ minWidth: 56, minHeight: 32 }}
+            >
+              <span
+                className={`absolute left-2 top-1/2 transform -translate-y-1/2 transition-opacity duration-200
+                  ${hasIGToken ? 'opacity-100' : 'opacity-0'}`}
+              >
+                {/* Check SVG */}
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10.5L9 14.5L15 7.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </span>
+              <span
+                className={`absolute right-2 top-1/2 transform -translate-y-1/2 transition-opacity duration-200
+                  ${!hasIGToken ? 'opacity-100' : 'opacity-0'}`}
+              >
+                {/* X SVG */}
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M6 6L14 14M14 6L6 14" stroke="#888" strokeWidth="2" strokeLinecap="round"/></svg>
+              </span>
+              <span
+                className={`absolute left-0 top-0 h-8 w-8 bg-white rounded-full shadow transition-transform duration-200 border border-gray-200
+                  ${hasIGToken ? 'translate-x-6' : 'translate-x-0'}`}
+                style={{ minWidth: 32, minHeight: 32 }}
+              />
+            </span>
           </label>
         </div>
         {!hasIGToken && (
