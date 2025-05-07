@@ -41,13 +41,13 @@ interface Provider {
   instagram_handle?: string;
   logo_url?: string;
   email?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Definición local de la interfaz Story para tipado correcto
 interface Story {
   createdAt: string | Date;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export default function ProviderDashboard() {
