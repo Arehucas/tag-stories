@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import common from '@/locales/es/common.json';
+import { NextIntlClientProvider } from 'next-intl';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,9 @@ export default function RootLayout({
           </div>
         </div>
         <div className="md:hidden">
-          {children}
+          <NextIntlClientProvider locale="es">
+            {children}
+          </NextIntlClientProvider>
         </div>
         {/* Filtro SVG global para LoaderBolas */}
         <svg width="0" height="0" style={{ position: "absolute" }}>

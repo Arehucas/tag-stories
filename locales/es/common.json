@@ -148,5 +148,22 @@
     "colorCode": "Código de color",
     "noStories": "No hay stories pendientes",
     "copied": "Copiado al portapapeles"
+  },
+  "igValidation": {
+    "sectionTitle": "Validación automática de stories",
+    "sectionDescription": "Activa la validación automática de stories mediante tu cuenta de Instagram.",
+    "switchLabel": "Validar stories automáticamente",
+    "connectRequired": "Para activar la validación automática, primero debes vincular tu cuenta de Instagram.",
+    "connectButton": "Vincular mi cuenta de IG",
+    "connected": "Cuenta vinculada",
+    "connecting": "Vinculando cuenta de Instagram...",
+    "requirementsTitle": "¿Qué necesitas para vincular tu cuenta?",
+    "requirementsList": [
+      "Cuenta de Instagram profesional o de creador de contenido",
+      "Permitir acceso a los mensajes de Instagram",
+      "Aceptar los permisos solicitados durante la vinculación"
+    ],
+    "successMessage": "¡Cuenta de Instagram vinculada correctamente!",
+    "errorMessage": "No se pudo vincular la cuenta de Instagram. Intenta de nuevo."
   }
 } 

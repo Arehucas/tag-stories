@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
-import { Copy } from 'lucide-react';
+import { Copy, Instagram } from 'lucide-react';
 import ProviderStoryCardList from '@/components/ui/ProviderStoryCardList';
+import { useTranslations } from 'next-intl';
 
 interface Provider {
   nombre?: string;
@@ -33,6 +34,10 @@ export default function ProviderDashboard() {
   const [loadingProvider, setLoadingProvider] = useState(true);
   const [stories, setStories] = useState<Story[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
+  const t = useTranslations('igValidation');
+  const [igAutoValidation, setIgAutoValidation] = useState(false);
+  const [checkingIG, setCheckingIG] = useState(false);
+  const hasIGToken = false; // TODO: reemplazar por consulta real
 
   useEffect(() => {
     setHydrated(true);
@@ -101,6 +106,47 @@ export default function ProviderDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] pt-10 px-4">
+      {/* Sección validación automática IG */}
+      <div className="w-full max-w-md bg-white rounded-xl p-5 mb-8 flex flex-col gap-3 shadow-lg border border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-tr from-fuchsia-500 to-blue-500 rounded-full p-2">
+            <Instagram size={28} className="text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="text-lg font-bold text-gray-900">{t('sectionTitle')}</div>
+            <div className="text-sm text-gray-600">{t('sectionDescription')}</div>
+          </div>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={igAutoValidation}
+              onChange={async (e) => {
+                if (!hasIGToken) {
+                  setCheckingIG(true);
+                  // Simulación: aquí deberías consultar al backend si hay token IG
+                  setTimeout(() => {
+                    setCheckingIG(false);
+                    window.location.href = '/ig-connect';
+                  }, 800);
+                  return;
+                }
+                setIgAutoValidation(e.target.checked);
+              }}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-fuchsia-500 peer-checked:to-blue-500 transition-all"></div>
+          </label>
+        </div>
+        {!hasIGToken && (
+          <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+            <Instagram size={16} className="text-fuchsia-500" />
+            <span>{t('connectRequired')}</span>
+          </div>
+        )}
+        {checkingIG && (
+          <div className="text-xs text-blue-500 animate-pulse">{t('connecting')}</div>
+        )}
+      </div>
       <span className="text-white text-2xl font-bold mb-4">hola provider</span>
       {/* URL para compartir */}
       <div className="w-full max-w-md bg-[#23243a] rounded-xl p-4 mb-6 flex flex-col gap-2 border border-white/10">
