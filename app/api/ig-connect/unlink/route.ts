@@ -10,7 +10,7 @@ export async function POST() {
   const db = await getDb();
   await db.collection('providers').updateOne(
     { email: session.user.email },
-    { $unset: { instagram_access_token: "" } }
+    { $set: { instagram_access_token: null } }
   );
   return NextResponse.json({ ok: true });
 } 
