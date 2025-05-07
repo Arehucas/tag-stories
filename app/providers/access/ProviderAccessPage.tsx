@@ -16,21 +16,21 @@ export default function ProviderAccess() {
   }, [status, router]);
 
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] flex flex-col items-center">
+    <div className="relative min-h-screen w-full bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center">
       {/* Fondo animado tipo hero */}
-      <div className="login-hero-bg">
-        <div className="login-hero-bg-inner" />
+      <div className="hero-gradient-bg" style={{ top: 0, left: 0, right: 0, height: 400, position: 'absolute', zIndex: 0 }}>
+        <div className="hero-gradient-bg-inner" />
       </div>
-      <section className="relative w-full flex flex-col items-center justify-start pt-12 pb-8 px-4 max-w-md mx-auto">
-        <h1 className="text-3xl font-extrabold text-white text-center leading-tight mb-3 drop-shadow-lg z-10">
+      <section className="relative w-full flex flex-col items-center justify-start pt-12 pb-8 px-4 max-w-md mx-auto z-10">
+        <h1 className="text-3xl font-extrabold text-white text-center leading-tight mb-3 drop-shadow-lg">
           {t('access.title')}
         </h1>
-        <p className="text-white/80 text-lg text-center mb-8 max-w-xs z-10 leading-tight">
+        <p className="text-white/80 text-lg text-center mb-8 max-w-xs">
           {t('access.description')}
         </p>
         <button
           onClick={() => signIn("google")}
-          className="btn-google-gradient w-full max-w-xs mb-4 z-10"
+          className="btn-google-gradient w-full max-w-xs mb-4"
         >
           <span>
             <svg width="28" height="28" viewBox="0 0 48 48" className="inline-block">
@@ -47,7 +47,7 @@ export default function ProviderAccess() {
         </button>
         {process.env.NODE_ENV === "development" && (
           <button
-            className="btn-google-gradient w-full max-w-xs mb-4 z-10"
+            className="btn-google-gradient w-full max-w-xs mb-4"
             onClick={async () => {
               // Guardar sesión demo
               const email = "demo@demo.com";
@@ -68,7 +68,7 @@ export default function ProviderAccess() {
         )}
       </section>
       {/* Sección de los 3 pasos (igual que landing) */}
-      <section className="w-full bg-[#23243a] py-10 px-4 flex flex-col gap-8 items-center">
+      <section className="w-full bg-[#18122b]/80 py-10 px-4 flex flex-col gap-8 items-center z-10" style={{ marginTop: 10 }}>
         <h2 className="text-2xl font-bold text-white text-center mb-2">{t('access.howItWorksTitle')}</h2>
         <div className="flex flex-col gap-0 w-full max-w-md">
           <div className="step-card">
@@ -95,8 +95,11 @@ export default function ProviderAccess() {
         </div>
       </section>
       {/* Footer */}
-      <footer className="w-full py-6 flex justify-center items-center bg-transparent">
-        <button onClick={() => router.push("/")} className="text-white/70 hover:text-white underline text-base font-medium transition-colors">
+      <footer className="w-full py-6 flex justify-center items-center bg-transparent z-10">
+        <button
+          onClick={() => router.push("/")}
+          className="px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg"
+        >
           {t('access.backToHome')}
         </button>
       </footer>
