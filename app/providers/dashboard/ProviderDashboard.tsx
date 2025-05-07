@@ -6,7 +6,6 @@ import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import { Copy, Instagram } from 'lucide-react';
 import ProviderStoryCardList from '@/components/ui/ProviderStoryCardList';
-import { useTranslations } from 'next-intl';
 
 interface Provider {
   nombre?: string;
