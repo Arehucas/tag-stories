@@ -8,6 +8,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ hasIGToken: false });
   }
   const db = await getDb();
-  const user = await db.collection('users').findOne({ email: session.user.email });
-  return NextResponse.json({ hasIGToken: !!user?.instagram_access_token });
+  const provider = await db.collection('providers').findOne({ email: session.user.email });
+  return NextResponse.json({ hasIGToken: !!provider?.instagram_access_token });
 } 

@@ -33,11 +33,16 @@ export async function POST(req: NextRequest) {
   if (!accessToken) {
     return NextResponse.json({ error: 'No se recibió access_token' }, { status: 400 });
   }
-  // Guardar el access token en el usuario
+  // Guardar el access token en el provider
   const db = await getDb();
-  await db.collection('users').updateOne(
+  await db.collection('providers').updateOne(
     { email: session.user.email },
     { $set: { instagram_access_token: accessToken } }
+  );
+  // Eliminar el campo en users si existe
+  await db.collection('users').updateOne(
+    { email: session.user.email },
+    { $unset: { instagram_access_token: "" } }
   );
   return NextResponse.json({ ok: true });
 } 
