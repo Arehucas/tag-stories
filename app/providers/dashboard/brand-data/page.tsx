@@ -37,8 +37,8 @@ export default function BrandData() {
       const demoSession = localStorage.getItem("demoSession");
       if (demoSession) {
         const demoUser = JSON.parse(demoSession);
-        if (demoUser?.user?.email) {
-          fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.user.email)}`)
+        if (demoUser?.provider?.email) {
+          fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.provider.email)}`)
             .then(res => res.ok ? res.json() : null)
             .then(data => {
               if (!data) {

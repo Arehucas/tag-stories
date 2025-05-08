@@ -27,6 +27,7 @@ export default function PLanding(props: Props) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const t = useT();
+  const [campaign, setCampaign] = useState<any>(null);
   const steps = [
     { title: t('upload_photo'), description: t('choose_or_take') },
     { title: t('adjust_image'), description: t('crop_and_adjust') },
@@ -50,6 +51,10 @@ export default function PLanding(props: Props) {
         .then((prov) => {
           setProvider(prov);
           useProviderStore.getState().setProvider(prov);
+          // Buscar campaña activa
+          fetch(`/api/provider/${slug}/campaign`).then(res => res.ok ? res.json() : null).then(camp => {
+            setCampaign(camp && !camp.error ? camp : null);
+          });
         })
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
@@ -92,6 +97,12 @@ export default function PLanding(props: Props) {
             {t('tag_and_win_reward')}
           </span>
         </p>
+        {/* Mensaje sutil de campaña (debajo, encima del botón) */}
+        {(!campaign || !campaign.isActive) && (
+          <div className="w-full mb-2 px-3 py-2 rounded-lg bg-white/10 text-white/70 text-sm text-center">
+            Actualmente @{provider?.instagram_handle} no tiene campaña activa y no hay recompensas por subir stories, pero puedes subirla igualmente.
+          </div>
+        )}
         <label className="w-full py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform text-center cursor-pointer">
           Selecciona una imagen
           <input type="file" accept="image/*" className="hidden" onChange={(e) => {

@@ -7,6 +7,7 @@ import LoaderBolas from "@/components/ui/LoaderBolas";
 import LoaderTable from "@/components/ui/LoaderTable";
 import { Instagram, Clock, Copy } from "lucide-react";
 import Image from 'next/image';
+import Link from "next/link";
 
 const secondaryBlue = "#3a86ff";
 
@@ -64,6 +65,7 @@ export default function ProviderDashboard() {
   const [loadingStories, setLoadingStories] = useState(true);
   const [hasIGToken, setHasIGToken] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [campaignActive, setCampaignActive] = useState<boolean | null>(null);
 
   useEffect(() => {
     setHydrated(true);
@@ -72,7 +74,7 @@ export default function ProviderDashboard() {
       if (demoSession) {
         const demoUser = JSON.parse(demoSession);
         setDemo(demoUser);
-        fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.user.email)}`)
+        fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.provider.email)}`)
           .then(res => res.ok ? res.json() : null)
           .then(data => {
             setProvider(data);
@@ -119,6 +121,21 @@ export default function ProviderDashboard() {
       .then(data => setHasIGToken(!!data.hasIGToken));
   }, []);
 
+  useEffect(() => {
+    // Comprobar campaña activa
+    if (provider?.slug) {
+      fetch(`/api/provider/${provider.slug}/campaign`)
+        .then(res => res.ok ? res.json() : null)
+        .then(camp => {
+          if (!camp || camp.error || !camp.isActive) {
+            setCampaignActive(false);
+          } else {
+            setCampaignActive(true);
+          }
+        });
+    }
+  }, [provider?.slug]);
+
   // Centralizo la comprobación de si el provider está completo
   const providerCompleto = provider && provider.nombre && provider.direccion && provider.ciudad && provider.instagram_handle && provider.logo_url;
 
@@ -161,6 +178,16 @@ export default function ProviderDashboard() {
               >
                 <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8M12 8v8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/></svg>
                 <span>Datos de marca</span>
+              </button>
+              <button
+                className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
+                onClick={() => {
+                  setMenuOpen(false);
+                  router.push('/providers/dashboard/campaign');
+                }}
+              >
+                <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/></svg>
+                <span>Campaña</span>
               </button>
               <div className="border-b border-violet-950/70 w-full mb-2" />
               {/* Aquí puedes añadir más opciones de menú si lo deseas */}
@@ -291,6 +318,18 @@ export default function ProviderDashboard() {
             </label>
           </div>
         </div>
+        {/* Warning campaña desactivada */}
+        {campaignActive === false && (
+          <Link href="/providers/dashboard/campaign" className="block mb-6 p-5 rounded-xl bg-gradient-to-r from-fuchsia-800 via-violet-900 to-violet-950 border border-violet-700 text-violet-100 font-semibold flex items-center gap-3 cursor-pointer hover:bg-violet-900/80 transition shadow-lg animate-fade-in-out">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="13,3 25,23 1,23" fill="#fde68a" />
+              <rect x="12" y="10" width="2" height="6" rx="1" fill="#222" />
+              <circle cx="13" cy="19" r="1.2" fill="#222" />
+            </svg>
+            <span className="flex-1">No tienes campaña activa: las stories de tus usuarios serán ignoradas.</span>
+            <svg width="22" height="22" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </Link>
+        )}
         {/* Lista de stories */}
         <div className="w-full mt-6">
           <h2 className="text-white text-lg font-semibold mb-2">Stories pendientes</h2>

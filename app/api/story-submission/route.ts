@@ -9,8 +9,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
     }
     const db = await getDb();
+    // Buscar campaña activa
+    const campaign = await db.collection('campaigns').findOne({ providerId, isActive: true });
+    if (!campaign) {
+      return NextResponse.json({ error: 'No hay campaña activa' }, { status: 403 });
+    }
     const submission = {
       providerId,
+      campaignId: campaign._id,
       colorCode, // array de 4 colores: [{r,g,b}]
       status: 'pending',
       createdAt: new Date(),

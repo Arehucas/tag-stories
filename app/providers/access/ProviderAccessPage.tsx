@@ -73,10 +73,16 @@ export default function ProviderAccess() {
           <button
             className="btn-google-gradient w-full max-w-xs mb-4"
             onClick={async () => {
-              // Guardar sesión demo
+              // Guardar sesión demo con provider completo
               const email = "demo@demo.com";
-              localStorage.setItem("demoSession", JSON.stringify({ user: { email, name: "Demo User" } }));
-              window.location.href = "/providers/dashboard";
+              const res = await fetch(`/api/provider/by-email?email=${encodeURIComponent(email)}`);
+              if (res.ok) {
+                const provider = await res.json();
+                localStorage.setItem("demoSession", JSON.stringify({ provider }));
+                window.location.href = "/providers/dashboard";
+              } else {
+                alert("No se encontró el provider demo en la BBDD.");
+              }
             }}
           >
             <span>
