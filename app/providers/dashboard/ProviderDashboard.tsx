@@ -121,7 +121,8 @@ export default function ProviderDashboard() {
   // Centralizo la comprobación de si el provider está completo
   const providerCompleto = provider && provider.nombre && provider.direccion && provider.ciudad && provider.instagram_handle && provider.logo_url;
 
-  if (!hydrated || loadingProvider || status === "loading") {
+  // Mostrar loader si aún no hay provider válido (al menos email)
+  if (!hydrated || loadingProvider || status === "loading" || !provider || !provider.email) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas />
@@ -129,8 +130,8 @@ export default function ProviderDashboard() {
     );
   }
 
-  // Solo mostrar Onboarding si la carga terminó y el provider no está completo
-  if (!providerCompleto) {
+  // Solo mostrar Onboarding si la carga terminó y el provider tiene email pero no está completo
+  if (provider.email && !providerCompleto) {
     return <OnboardingProvider provider={provider} />;
   }
 
