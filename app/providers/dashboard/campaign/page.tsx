@@ -4,19 +4,41 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import { Switch } from "@/components/ui/switch";
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+
+// Defino interfaces para los estados
+interface Provider {
+  // Define aquí los campos relevantes
+  nombre?: string;
+  logo_url?: string;
+  slug?: string;
+  // ...otros campos
+}
+interface Campaign {
+  _id?: string;
+  nombre?: string;
+  descripcion?: string;
+  isActive?: boolean;
+  requiredStories?: number;
+  // ...otros campos
+}
+interface Form {
+  nombre: string;
+  descripcion: string;
+  isActive: boolean;
+  requiredStories: number;
+}
 
 export default function CampaignDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [provider, setProvider] = useState<any>(null);
-  const [campaign, setCampaign] = useState<any>(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
+  const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState<any>({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
+  const [form, setForm] = useState<Form>({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [pendingStories, setPendingStories] = useState(0);
   const [hydrated, setHydrated] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -130,14 +152,6 @@ export default function CampaignDashboard() {
       });
   }, [status, session, hydrated]);
 
-  useEffect(() => {
-    if (campaign?._id) {
-      fetchPendingStories(campaign._id).then(setPendingStories);
-    } else {
-      setPendingStories(0);
-    }
-  }, [campaign?._id]);
-
   if (!hydrated) {
     return null;
   }
@@ -157,14 +171,6 @@ export default function CampaignDashboard() {
     setForm({ ...form, requiredStories: n });
   };
 
-  // Añadir función para obtener stories pendientes/tagged
-  const fetchPendingStories = async (campaignId: string) => {
-    const res = await fetch(`/api/campaign/${campaignId}/pending-stories`);
-    if (!res.ok) return 0;
-    const data = await res.json();
-    return data.count || 0;
-  };
-
   // Cambio de switch
   const handleSwitch = async (checked: boolean) => {
     if (!provider?.slug) return;
@@ -172,7 +178,6 @@ export default function CampaignDashboard() {
     if (!checked && campaign?._id) {
       const count = await fetchPendingStories(campaign._id);
       if (count > 0) {
-        setPendingStories(count);
         setShowDialog(true);
         return;
       }
@@ -231,6 +236,14 @@ export default function CampaignDashboard() {
       setTimeout(() => setError(null), 3000);
     }
     setSaving(false);
+  };
+
+  // Defino fetchPendingStories antes de su uso
+  const fetchPendingStories = async (campaignId: string) => {
+    const res = await fetch(`/api/campaign/${campaignId}/pending-stories`);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.count || 0;
   };
 
   if (loading) {

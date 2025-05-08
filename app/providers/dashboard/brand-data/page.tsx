@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import common from '@/locales/es/common.json';
+import Image from 'next/image';
 
 interface Provider {
   slug?: string;
@@ -183,7 +184,7 @@ export default function BrandData() {
             <label className="text-white/80 font-semibold">Logo</label>
             {logoPreview && !logoFile && (
               <div className="flex items-center gap-4">
-                <img src={logoPreview} alt="Logo actual" className="w-20 h-20 object-cover rounded-lg border border-violet-900 bg-white" />
+                <Image src={logoPreview} alt="Logo actual" className="w-20 h-20 object-cover rounded-lg border border-violet-900 bg-white" width={80} height={80} />
                 <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition">Cambiar logo</button>
               </div>
             )}

@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
-import { ObjectId } from 'mongodb';
+
+// Defino el tipo para update
+interface UpdateCampaign {
+  nombre?: string;
+  descripcion?: string;
+  numStories?: number;
+  updatedAt: Date;
+  isActive?: boolean;
+  requiredStories?: number;
+}
 
 // GET: Obtener campaña de un provider
 export async function GET(req: NextRequest, { params }: { params: Promise<{ providerId: string }> }) {
@@ -47,7 +56,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
     return NextResponse.json({ error: 'No hay campaña' }, { status: 404 });
   }
   const body = await req.json();
-  const update: any = { updatedAt: new Date() };
+  const update: UpdateCampaign = { updatedAt: new Date() };
   if (typeof body.nombre === 'string' && body.nombre.trim()) {
     update.nombre = body.nombre.trim();
   }

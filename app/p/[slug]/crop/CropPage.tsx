@@ -162,7 +162,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     }
     setColorCode(code);
     setColorCodeStore(code);
-  }, []);
+  }, [setColorCodeStore]);
 
   useEffect(() => {
     if (!originalImage) {

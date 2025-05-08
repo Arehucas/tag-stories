@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useImageStore } from '@/hooks/useImageStore';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import { useT } from '@/lib/useT';
+import Image from 'next/image';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -20,6 +21,11 @@ interface Provider {
   email?: string;
 }
 
+interface Campaign {
+  isActive?: boolean;
+  // otros campos si es necesario
+}
+
 export default function PLanding(props: Props) {
   const [slug, setSlug] = useState<string | null>(null);
   const [provider, setProvider] = useState<Provider | null>(null);
@@ -27,7 +33,7 @@ export default function PLanding(props: Props) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const t = useT();
-  const [campaign, setCampaign] = useState<any>(null);
+  const [campaign, setCampaign] = useState<Campaign | null>(null);
   const steps = [
     { title: t('upload_photo'), description: t('choose_or_take') },
     { title: t('adjust_image'), description: t('crop_and_adjust') },
@@ -59,7 +65,7 @@ export default function PLanding(props: Props) {
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
     });
-  }, [props.params]);
+  }, [props.params, clearImage, clearProvider, t]);
 
   if (loading) {
     return (
@@ -82,7 +88,7 @@ export default function PLanding(props: Props) {
         <div className="flex flex-col items-center w-full mt-0 mb-0">
           <div className="p-[2.5px] rounded-full bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 animate-gradient-x">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
-              <img src={provider?.logo_url || "/default-logo.png"} alt={provider?.nombre || "Logo"} width={80} height={80} className="object-cover w-full h-full" />
+              <Image src={provider?.logo_url || "/default-logo.png"} alt={provider?.nombre || "Logo"} width={80} height={80} className="object-cover w-full h-full" />
             </div>
           </div>
           <div className="text-white/80 text-base font-medium">@{provider?.instagram_handle}</div>
