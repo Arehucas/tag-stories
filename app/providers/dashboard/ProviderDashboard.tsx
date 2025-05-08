@@ -152,7 +152,19 @@ export default function ProviderDashboard() {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setMenuOpen(false)} />
           {/* Drawer */}
           <aside className="relative z-50 w-72 max-w-full h-full bg-gradient-to-br from-[#18122b] to-[#0a0618] shadow-2xl flex flex-col justify-between animate-slide-in-right">
-            <div className="flex flex-col gap-6 relative">
+            <div className="flex flex-col gap-6 relative" style={{ paddingTop: 100 }}>
+              {/* Nueva opción de menú: Datos de marca */}
+              <button
+                className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
+                onClick={() => {
+                  setMenuOpen(false);
+                  router.push('/providers/dashboard/brand-data');
+                }}
+              >
+                <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8M12 8v8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/></svg>
+                <span>Datos de marca</span>
+              </button>
+              <div className="border-b border-violet-950/70 w-full mb-2" />
               {/* Aquí puedes añadir más opciones de menú si lo deseas */}
             </div>
             <div className="p-6">
@@ -184,7 +196,11 @@ export default function ProviderDashboard() {
           </div>
         </nav>
         {/* Saludo */}
-        <div className="text-white text-2xl font-bold mb-4">Hola, {provider?.nombre || provider?.email || 'Provider'}</div>
+        <div className="text-white text-2xl font-bold">Hola, {provider?.nombre || provider?.email || 'Provider'}</div>
+        {/* Subtexto IG handler */}
+        <div className="text-white/80 text-sm font-semibold mb-4 opacity-50">
+          Tus usuarios mencionarán a: <span className="font-bold text-white">@{provider?.instagram_handle || 'usuario'}</span>
+        </div>
         {/* Caja URL compartir */}
         <div className="w-full bg-[#18122b] rounded-xl p-5 mb-6 flex flex-col gap-2 border border-violet-950/60">
           <div className="flex items-center justify-between mb-1 w-full">
@@ -263,7 +279,7 @@ export default function ProviderDashboard() {
                 </span>
                 <span className={`absolute left-0 top-0 h-8 w-8 bg-white rounded-full shadow transition-transform duration-200 border border-gray-200 ${hasIGToken ? 'translate-x-6' : 'translate-x-0'}`}
                   style={{ minWidth: 32, minHeight: 32 }}
-                />
+                ></span>
               </span>
             </label>
           </div>
@@ -305,12 +321,8 @@ export default function ProviderDashboard() {
             )}
           </div>
         </div>
-        <Separator />
+        <div className="my-8 border-t border-violet-900/60" />
       </div>
     </div>
   );
 }
-
-function Separator() {
-  return <div className="my-8 border-t border-violet-900/60" />;
-} 
