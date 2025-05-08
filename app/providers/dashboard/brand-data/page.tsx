@@ -183,7 +183,7 @@ export default function BrandData() {
             <label className="text-white/80 font-semibold">Logo</label>
             {logoPreview && !logoFile && (
               <div className="flex items-center gap-4">
-                <img src={logoPreview} alt="Logo actual" className="w-20 h-20 object-contain rounded-lg border border-violet-900 bg-white" />
+                <img src={logoPreview} alt="Logo actual" className="w-20 h-20 object-cover rounded-lg border border-violet-900 bg-white" />
                 <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition">Cambiar logo</button>
               </div>
             )}
