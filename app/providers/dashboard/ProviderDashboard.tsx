@@ -124,7 +124,17 @@ export default function ProviderDashboard() {
     );
   }
 
-  if (!provider || !provider.nombre || !provider.direccion || !provider.ciudad || !provider.instagram_handle || !provider.logo_url) {
+  // Solo mostrar Onboarding si loadingProvider es false y falta información del provider
+  if (!loadingProvider && (
+    !provider ||
+    (provider && (
+      !provider.nombre ||
+      !provider.direccion ||
+      !provider.ciudad ||
+      !provider.instagram_handle ||
+      !provider.logo_url
+    ))
+  )) {
     return <OnboardingProvider provider={provider} />;
   }
 
@@ -174,7 +184,7 @@ export default function ProviderDashboard() {
           </div>
         </nav>
         {/* Saludo */}
-        <div className="text-white text-2xl font-bold mb-4">Hola, {provider.nombre || provider.email || 'Provider'}</div>
+        <div className="text-white text-2xl font-bold mb-4">Hola, {provider?.nombre || provider?.email || 'Provider'}</div>
         {/* Caja URL compartir */}
         <div className="w-full bg-[#18122b] rounded-xl p-5 mb-6 flex flex-col gap-2 border border-violet-950/60">
           <div className="flex items-center justify-between mb-1 w-full">

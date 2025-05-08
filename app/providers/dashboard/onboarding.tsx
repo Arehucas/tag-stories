@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useT } from '@/lib/useT';
 import common from '@/locales/es/common.json';
+import LoaderBolas from "@/components/ui/LoaderBolas";
 
 interface Provider {
   nombre?: string;
@@ -117,147 +118,79 @@ export default function OnboardingProvider({ provider }: Props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] relative">
-        <div className="loader-wrapper">
-          <div className="ball" />
-          <div className="ball" />
-          <div className="ball" />
-        </div>
-        <svg width="0" height="0">
-          <defs>
-            <filter id="pink-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur" />
-              <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 28 -10" result="filter" />
-              <feComposite in="SourceGraphic" in2="filter" operator="atop" />
-            </filter>
-          </defs>
-        </svg>
-        <span className="text-white text-base text-center mt-5" style={{ paddingTop: 18 }}>{t('onboarding.loading')}</span>
-        <style jsx>{`
-          .loader-wrapper {
-            position: relative;
-            width: 60px;
-            height: 60px;
-            filter: url('#pink-glow');
-          }
-          .ball {
-            width: 30px;
-            height: 30px;
-            position: absolute;
-            top: 15px;
-            left: 15px;
-          }
-          .ball:before {
-            background: #f472b6;
-            border-radius: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            content: '';
-            display: block;
-          }
-          .ball:nth-child(1) {
-            animation: x-axis-lateral 2s infinite alternate ease-in-out;
-          }
-          .ball:nth-child(1):before {
-            animation: y-axis-lateral 1s infinite 0.1s alternate ease-in-out;
-          }
-          .ball:nth-child(2) {
-            animation: x-axis 2s infinite alternate ease-in-out;
-          }
-          .ball:nth-child(2):before {
-            animation: y-axis 1s infinite .5s alternate ease-in-out;
-          }
-          .ball:nth-child(3) {
-            animation: x-axis-lateral 2s infinite alternate ease;
-            left: 45px;
-            top: 45px;
-          }
-          .ball:nth-child(3):before {
-            animation: y-axis-lateral 1s infinite .4s alternate ease-in-out;
-          }
-          @keyframes x-axis {
-            0% { transform: translate(-48px, 0); }
-            100% { transform: translate(48px, 0); }
-          }
-          @keyframes y-axis {
-            0% { transform: translateY(21px); }
-            100% { transform: translateY(-33px) scale(.8); background: #f9a8d4;}
-          }
-          @keyframes x-axis-lateral {
-            0% { transform: translate(-18px, 0); }
-            100% { transform: translate(18px, 0); }
-          }
-          @keyframes y-axis-lateral {
-            0% { transform: translateY(6px); }
-            100% { transform: translateY(-30px); background: #f9a8d4;}
-          }
-        `}</style>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
+        <LoaderBolas />
+        <span className="text-white text-base text-center mt-5" style={{ paddingTop: 18 }}>Guardando los datos de tu marca...</span>
       </div>
     );
   }
 
+  // Nuevo look and feel
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] pt-10 px-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-md bg-[#23243a]/80 rounded-2xl p-6 flex flex-col gap-5 shadow-xl">
-        <h2 className="text-2xl font-bold text-white text-center mb-2">{t('onboarding.title')}</h2>
-        <div>
-          <label className="block text-white/80 mb-1">{t('onboarding.name')}</label>
-          <input type="text" className="w-full rounded-lg px-4 py-2 bg-neutral-900 text-white border border-white/10 focus:border-fuchsia-500 outline-none" value={nombre} onChange={e => setNombre(e.target.value)} required />
-        </div>
-        <div>
-          <label className="block text-white/80 mb-1">{t('onboarding.address')}</label>
-          <input type="text" className="w-full rounded-lg px-4 py-2 bg-neutral-900 text-white border border-white/10 focus:border-fuchsia-500 outline-none" value={direccion} onChange={e => setDireccion(e.target.value)} required />
-        </div>
-        <div>
-          <label className="block text-white/80 mb-1">{t('onboarding.city')}</label>
-          <input type="text" className="w-full rounded-lg px-4 py-2 bg-neutral-900 text-white border border-white/10 focus:border-fuchsia-500 outline-none" value={ciudad} onChange={e => setCiudad(e.target.value)} required />
-        </div>
-        <div>
-          <label className="block text-white/80 mb-1">{t('onboarding.instagram')}</label>
-          <div className="flex items-center">
-            <span className="px-3 py-2 bg-neutral-800 text-white rounded-l-lg select-none">@</span>
-            <input
-              type="text"
-              className="w-full rounded-r-lg px-4 py-2 bg-neutral-900 text-white border border-white/10 focus:border-fuchsia-500 outline-none"
-              value={instagram.replace(/^@+/, "")}
-              onChange={e => setInstagram(e.target.value.replace(/^@+/, ""))}
-              pattern="[a-zA-Z0-9._]+"
-              required
-              placeholder="usuario"
-              autoComplete="off"
-            />
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
+      {/* Animación de fondo tipo hero-gradient-bg */}
+      <div className="hero-gradient-bg" style={{ top: 0, left: 0, right: 0, height: 400, position: 'absolute', zIndex: 0 }}>
+        <div className="hero-gradient-bg-inner" />
+      </div>
+      <div className="w-full max-w-lg relative z-10">
+        <form onSubmit={handleSubmit} className="w-full bg-[#18122b] rounded-2xl p-8 flex flex-col gap-6 shadow-2xl border border-violet-950/60">
+          <h2 className="text-2xl font-bold text-white text-center mb-2 tracking-wide">{t('onboarding.title')}</h2>
+          <div>
+            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.name')}</label>
+            <input type="text" className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none" value={nombre} onChange={e => setNombre(e.target.value)} required />
           </div>
-          <span className="text-xs text-white/50">{t('onboarding.instagram_note')}</span>
-        </div>
-        <div>
-          <label className="block text-white/80 mb-1">{t('onboarding.logo')}</label>
-          <div className="text-xs text-white/60 mb-2">{t('onboarding.logo_note')}</div>
-          <button
-            type="button"
-            className="w-full border-2 border-white/30 rounded-lg py-2 px-4 text-white bg-transparent hover:border-fuchsia-500 transition-colors mb-2"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {logo ? logo.name : t('onboarding.select_file')}
+          <div>
+            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.address')}</label>
+            <input type="text" className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none" value={direccion} onChange={e => setDireccion(e.target.value)} required />
+          </div>
+          <div>
+            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.city')}</label>
+            <input type="text" className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none" value={ciudad} onChange={e => setCiudad(e.target.value)} required />
+          </div>
+          <div>
+            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.instagram')}</label>
+            <div className="flex items-center">
+              <span className="px-3 py-2 bg-[#23243a] text-white rounded-l-lg select-none">@</span>
+              <input
+                type="text"
+                className="w-full rounded-r-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none"
+                value={instagram.replace(/^@+/, "")}
+                onChange={e => setInstagram(e.target.value.replace(/^@+/, ""))}
+                pattern="[a-zA-Z0-9._]+"
+                required
+                placeholder="usuario"
+                autoComplete="off"
+              />
+            </div>
+            <span className="text-xs text-white/50">{t('onboarding.instagram_note')}</span>
+          </div>
+          <div>
+            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.logo')}</label>
+            <div className="text-xs text-white/60 mb-2">{t('onboarding.logo_note')}</div>
+            <button
+              type="button"
+              className="w-full border-2 border-violet-950/60 rounded-lg py-2 px-4 text-white bg-[#23243a] hover:border-fuchsia-500 transition-colors mb-2 font-medium"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {logo ? logo.name : t('onboarding.select_file')}
+            </button>
+            <input
+              type="file"
+              accept="image/png,image/jpeg"
+              ref={fileInputRef}
+              onChange={handleLogoChange}
+              className="hidden"
+            />
+            {logoUrl && !logo && (
+              <Image src={logoUrl} alt="Logo actual" width={64} height={64} className="h-16 mt-2 rounded bg-white/10 object-contain" />
+            )}
+          </div>
+          {error && <div className="text-red-400 text-sm text-center font-semibold bg-red-900/30 rounded-lg py-2 px-3 border border-red-700/30">{error}</div>}
+          <button type="submit" className="w-full py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-[#3a86ff] to-[#00f2ea] text-white shadow-lg hover:scale-[1.03] transition-transform mt-2 border-none outline-none" disabled={loading}>
+            {loading ? t('onboarding.saving') : t('onboarding.save_and_continue')}
           </button>
-          <input
-            type="file"
-            accept="image/png,image/jpeg"
-            ref={fileInputRef}
-            onChange={handleLogoChange}
-            className="hidden"
-          />
-          {logoUrl && !logo && (
-            <Image src={logoUrl} alt="Logo actual" width={64} height={64} className="h-16 mt-2 rounded bg-white/10 object-contain" />
-          )}
-        </div>
-        {error && <div className="text-red-400 text-sm text-center">{error}</div>}
-        <button type="submit" className="btn-gradient-border w-full py-3 rounded-xl font-bold text-lg bg-neutral-900 text-white shadow-lg hover:bg-neutral-800 transition-colors mt-2" disabled={loading}>
-          {loading ? t('onboarding.saving') : t('onboarding.save_and_continue')}
-        </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 } 
