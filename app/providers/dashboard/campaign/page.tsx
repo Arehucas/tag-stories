@@ -157,13 +157,13 @@ export default function CampaignDashboard() {
   }
 
   // Cambio de nombre
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, nombre: e.target.value });
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, nombre: event.target.value });
   };
 
   // Cambio de descripción
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, descripcion: e.target.value });
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, descripcion: event.target.value });
   };
 
   // Cambio de stories
