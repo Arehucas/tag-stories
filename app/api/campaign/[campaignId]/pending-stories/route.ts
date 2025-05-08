@@ -3,10 +3,12 @@ import { getDb } from '@/lib/mongo';
 import { ObjectId } from 'mongodb';
 
 // DELETE: Borra stories pendientes asociadas a una campaña
-export async function DELETE(req: NextRequest, context: { params: { campaignId: string } }) {
-  const { campaignId } = context.params;
+export async function DELETE(req: NextRequest) {
+  const url = new URL(req.url);
+  const segments = url.pathname.split('/');
+  const campaignId = segments[segments.length - 2];
   const db = await getDb();
-  if (!ObjectId.isValid(campaignId)) {
+  if (!campaignId || !ObjectId.isValid(campaignId)) {
     return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
   }
   const result = await db.collection('storySubmissions').deleteMany({ campaignId: new ObjectId(campaignId), status: 'pending' });
@@ -14,10 +16,12 @@ export async function DELETE(req: NextRequest, context: { params: { campaignId: 
 }
 
 // GET: Devuelve el número de stories en estado 'pending' o 'tagged' para la campaña
-export async function GET(req: NextRequest, context: { params: { campaignId: string } }) {
-  const { campaignId } = context.params;
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const segments = url.pathname.split('/');
+  const campaignId = segments[segments.length - 2];
   const db = await getDb();
-  if (!ObjectId.isValid(campaignId)) {
+  if (!campaignId || !ObjectId.isValid(campaignId)) {
     return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
   }
   const count = await db.collection('storySubmissions').countDocuments({
