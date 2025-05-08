@@ -50,6 +50,9 @@ interface Provider {
 // Definición local de la interfaz Story para tipado correcto
 interface Story {
   createdAt: string | Date;
+  campaignName?: string;
+  campaignNombre?: string;
+  campaignTitle?: string;
   [key: string]: unknown;
 }
 
@@ -66,6 +69,7 @@ export default function ProviderDashboard() {
   const [hasIGToken, setHasIGToken] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [campaignActive, setCampaignActive] = useState<boolean | null>(null);
+  const [campaignNames, setCampaignNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setHydrated(true);
@@ -135,6 +139,20 @@ export default function ProviderDashboard() {
         });
     }
   }, [provider?.slug]);
+
+  // Efecto para obtener nombres de campañas de las stories
+  useEffect(() => {
+    const fetchCampaignNames = async () => {
+      const ids = Array.from(new Set(stories.map(s => s.campaignId?.toString()).filter(Boolean)));
+      if (ids.length === 0) return;
+      const res = await fetch(`/api/campaign-names?ids=${ids.join(",")}`);
+      if (res.ok) {
+        const data = await res.json();
+        setCampaignNames(data);
+      }
+    };
+    if (stories.length > 0) fetchCampaignNames();
+  }, [stories]);
 
   // Centralizo la comprobación de si el provider está completo
   const providerCompleto = provider && provider.nombre && provider.direccion && provider.ciudad && provider.instagram_handle && provider.logo_url;
@@ -357,7 +375,9 @@ export default function ProviderDashboard() {
                           {`${day}/${month}/${year}`}
                           <span className="font-normal text-white/50">· {hour}:{min}h</span>
                         </div>
-                        <div className="text-xs text-gray-400">Pendiente de validación</div>
+                        <div className="text-xs text-gray-400">
+                          {campaignNames[String(story.campaignId)] || 'Sin campaña'}
+                        </div>
                       </div>
                       <button className="text-sm font-bold transition" style={{ color: secondaryBlue }}>Ver</button>
                     </div>

@@ -159,7 +159,7 @@ export default function CampaignDashboard() {
 
   // Añadir función para obtener stories pendientes/tagged
   const fetchPendingStories = async (campaignId: string) => {
-    const res = await fetch(`/api/campaign/${campaignId}/pending-stories/count`);
+    const res = await fetch(`/api/campaign/${campaignId}/pending-stories`);
     if (!res.ok) return 0;
     const data = await res.json();
     return data.count || 0;
