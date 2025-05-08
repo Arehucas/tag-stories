@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { useT } from '@/lib/useT';
@@ -8,6 +8,13 @@ export default function ProviderAccess() {
   const router = useRouter();
   const { status } = useSession();
   const t = useT();
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsLocalhost(window.location.hostname === 'localhost');
+    }
+  }, []);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -18,10 +25,27 @@ export default function ProviderAccess() {
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center">
       {/* Fondo animado tipo hero */}
-      <div className="hero-gradient-bg" style={{ top: 0, left: 0, right: 0, height: 400, position: 'absolute', zIndex: 0 }}>
+      <div
+        className="hero-gradient-bg"
+        style={{
+          top: 0,
+          left: 0,
+          right: 0,
+          height: isLocalhost ? 400 : 335,
+          maxHeight: isLocalhost ? 400 : 335,
+          position: 'absolute',
+          zIndex: 0,
+        }}
+      >
         <div className="hero-gradient-bg-inner" />
       </div>
-      <section className="relative w-full flex flex-col items-center justify-start pt-12 pb-8 px-4 max-w-md mx-auto z-10">
+      <section
+        className="relative w-full flex flex-col items-center justify-start pt-12 pb-8 px-4 max-w-md mx-auto z-10"
+        style={{
+          height: isLocalhost ? 400 : 335,
+          maxHeight: isLocalhost ? 400 : 335,
+        }}
+      >
         <h1 className="text-3xl font-extrabold text-white text-center leading-tight mb-3 drop-shadow-lg">
           {t('access.title')}
         </h1>
@@ -68,7 +92,7 @@ export default function ProviderAccess() {
         )}
       </section>
       {/* Sección de los 3 pasos (igual que landing) */}
-      <section className="w-full bg-[#18122b]/80 py-10 px-4 flex flex-col gap-8 items-center z-10" style={{ marginTop: 10 }}>
+      <section className="w-full bg-[#18122b]/80 py-10 px-4 flex flex-col gap-8 items-center z-10">
         <h2 className="text-2xl font-bold text-white text-center mb-2">{t('access.howItWorksTitle')}</h2>
         <div className="flex flex-col gap-0 w-full max-w-md">
           <div className="step-card">
