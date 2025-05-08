@@ -6,6 +6,7 @@ import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import LoaderTable from "@/components/ui/LoaderTable";
 import { Instagram, Clock, Copy } from "lucide-react";
+import Image from 'next/image';
 
 const secondaryBlue = "#3a86ff";
 
@@ -183,20 +184,29 @@ export default function ProviderDashboard() {
         </div>
       )}
       <div className="w-full max-w-lg relative z-10">
-        {/* Navbar */}
-        <nav className="flex items-center justify-between px-2 py-2 mb-8">
-          <div className="text-white font-bold text-xl tracking-wide select-none">Taun.me</div>
+        {/* Navbar superior fijo */}
+        <div className="w-full fixed top-0 left-0 z-30 bg-transparent flex flex-col items-center justify-center" style={{paddingTop: 20, paddingBottom: 40}}>
+          <Image
+            src="/logos/logo-taun-texto-blanco.svg"
+            alt="Taun.me logo"
+            width={90}
+            height={18}
+            priority
+            style={{ marginBottom: 10, display: 'block', opacity: 0.4 }}
+          />
+          <div style={{ width: '75%', height: 2, background: 'rgba(229,231,235,0.1)', borderRadius: 1, margin: '0 auto' }} />
+        </div>
+        {/* Saludo y subtítulo debajo del navbar */}
+        <div className="flex items-center justify-between px-2 py-2 mt-10 mb-8 w-full">
+          <div className="flex flex-col">
+            <span className="text-white text-2xl font-bold leading-tight">Hola, {provider?.nombre || provider?.email || 'Provider'}</span>
+            <span className="text-white/80 text-sm font-semibold opacity-50">Tus usuarios mencionarán a: <span className="font-bold text-white">@{provider?.instagram_handle || 'usuario'}</span></span>
+          </div>
           <div className="flex items-center gap-3">
             <button className="text-gray-400 hover:text-white" onClick={() => setMenuOpen(true)}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
           </div>
-        </nav>
-        {/* Saludo */}
-        <div className="text-white text-2xl font-bold">Hola, {provider?.nombre || provider?.email || 'Provider'}</div>
-        {/* Subtexto IG handler */}
-        <div className="text-white/80 text-sm font-semibold mb-4 opacity-50">
-          Tus usuarios mencionarán a: <span className="font-bold text-white">@{provider?.instagram_handle || 'usuario'}</span>
         </div>
         {/* Caja URL compartir */}
         <div className="w-full bg-[#18122b] rounded-xl p-5 mb-6 flex flex-col gap-2 border border-violet-950/60">
