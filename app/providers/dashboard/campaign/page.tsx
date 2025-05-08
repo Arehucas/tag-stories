@@ -41,6 +41,7 @@ export default function CampaignDashboard() {
   const [showDialog, setShowDialog] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
@@ -263,68 +264,89 @@ export default function CampaignDashboard() {
           </button>
           <h1 className="text-2xl font-bold text-white">Campaña</h1>
         </div>
-        {/* Caja de activar campaña */}
-        <div className="bg-[#18122b] rounded-xl p-6 flex items-center justify-between border border-violet-950/60 shadow-lg">
-          <label className="text-white/80 font-semibold">Activar campaña</label>
-          <Switch checked={form.isActive} onCheckedChange={handleSwitch} disabled={saving || !form.nombre.trim()} />
-        </div>
-        {/* Caja principal de datos de campaña */}
-        <form className="bg-[#18122b] rounded-xl p-8 flex flex-col gap-6 border border-violet-950/60 shadow-lg">
-          <div className="flex flex-col gap-2">
-            <label className="text-white/80 font-semibold">Nombre de la campaña</label>
-            <input
-              name="nombre"
-              value={form.nombre}
-              onChange={handleNameChange}
-              required
-              className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none"
-              disabled={saving}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-white/80 font-semibold">Descripción</label>
-            <textarea
-              name="descripcion"
-              value={form.descripcion}
-              onChange={handleDescriptionChange}
-              rows={3}
-              className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none resize-none"
-              disabled={saving}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-white/80 font-semibold">Stories para recompensa</label>
-            <div className="flex gap-2">
-              {[1,2,5,10,20].map(n => (
-                <button
-                  key={n}
-                  type="button"
-                  className={`px-4 py-2 rounded-lg border ${form.requiredStories === n ? 'bg-blue-700 text-white border-blue-700' : 'bg-[#0a0618] text-white/50 border-violet-950/60'} transition`}
-                  disabled={n !== 1}
-                  tabIndex={n === 1 ? 0 : -1}
-                  onClick={() => handleStoriesChange(n)}
-                >
-                  {n}
-                </button>
-              ))}
+        {campaign && (
+          <>
+            {/* Caja de activar campaña */}
+            <div className="bg-[#18122b] rounded-xl p-6 flex items-center justify-between border border-violet-950/60 shadow-lg">
+              <label className="text-white/80 font-semibold">Activar campaña</label>
+              <Switch checked={form.isActive} onCheckedChange={handleSwitch} disabled={saving || !form.nombre.trim()} />
             </div>
-            <span className="text-xs text-white/50">Por ahora solo 1 disponible</span>
-          </div>
-          <button
-            type="button"
-            className="mt-8 px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg w-full"
-            onClick={handleSave}
-            disabled={saving || !form.nombre.trim()}
-          >
-            {saving ? 'Guardando cambios...' : 'Guardar cambios'}
-          </button>
-          {success && (
-            <div className="mt-4 text-center text-blue-400 bg-blue-950/60 rounded-lg py-2 px-4 animate-fade-in-out">
-              Se han guardado los cambios correctamente
+          </>
+        )}
+        {(campaign || showNewForm) && (
+          <form className="bg-[#18122b] rounded-xl p-8 flex flex-col gap-6 border border-violet-950/60 shadow-lg">
+            <div className="flex flex-col gap-2">
+              <label className="text-white/80 font-semibold">Nombre de la campaña</label>
+              <input
+                name="nombre"
+                value={form.nombre}
+                onChange={handleNameChange}
+                required
+                className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none"
+                disabled={saving}
+              />
             </div>
-          )}
-          {error && <div className="text-red-400 text-sm mt-2">{error}</div>}
-        </form>
+            <div className="flex flex-col gap-2">
+              <label className="text-white/80 font-semibold">Descripción</label>
+              <textarea
+                name="descripcion"
+                value={form.descripcion}
+                onChange={handleDescriptionChange}
+                rows={3}
+                className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none resize-none"
+                disabled={saving}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-white/80 font-semibold">Stories para recompensa</label>
+              <div className="flex gap-2">
+                {[1,2,5,10,20].map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`px-4 py-2 rounded-lg border ${form.requiredStories === n ? 'bg-blue-700 text-white border-blue-700' : 'bg-[#0a0618] text-white/50 border-violet-950/60'} transition`}
+                    disabled={n !== 1}
+                    tabIndex={n === 1 ? 0 : -1}
+                    onClick={() => handleStoriesChange(n)}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs text-white/50">Por ahora solo 1 disponible</span>
+            </div>
+            <button
+              type="button"
+              className="mt-8 px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg w-full"
+              onClick={handleSave}
+              disabled={saving || !form.nombre.trim()}
+            >
+              {saving ? 'Guardando cambios...' : 'Guardar cambios'}
+            </button>
+            {success && (
+              <div className="mt-4 text-center text-blue-400 bg-blue-950/60 rounded-lg py-2 px-4 animate-fade-in-out">
+                Se han guardado los cambios correctamente
+              </div>
+            )}
+            {error && <div className="text-red-400 text-sm mt-2">{error}</div>}
+          </form>
+        )}
+        {!campaign && !showNewForm && (
+          <div className="bg-blue-950/70 border border-blue-700 rounded-xl p-8 flex flex-col gap-4 items-center shadow-lg mb-8 animate-fade-in-out">
+            <div className="flex items-center gap-2">
+              <svg width="28" height="28" fill="none" stroke="#3a86ff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#3a86ff" strokeWidth="2" fill="#3a86ff" opacity="0.15"/><path d="M12 8v4" stroke="#3a86ff" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="16" r="1.2" fill="#3a86ff"/></svg>
+              <span className="text-blue-300 text-lg font-semibold">No hay campañas activas</span>
+            </div>
+            <div className="text-blue-100 text-center text-base">Debes tener una campaña activa para que las stories de tus usuarios puedan ser validadas y puedas validar sus recompensas</div>
+            <button
+              className="mt-2 px-6 py-3 rounded-full border border-blue-700 text-blue-100 bg-gradient-to-r from-blue-900 to-blue-800 hover:bg-blue-800/80 transition text-base font-medium shadow-lg"
+              onClick={() => { setShowNewForm(true); setForm({ nombre: '', descripcion: '', isActive: false, requiredStories: 1 }); }}
+              disabled={saving}
+            >
+              Crear campaña
+            </button>
+          </div>
+        )}
         {/* Dialogo de confirmación al desactivar */}
         <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
           <AlertDialogContent>
@@ -340,22 +362,6 @@ export default function CampaignDashboard() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        {!campaign && (
-          <div className="bg-blue-950/70 border border-blue-700 rounded-xl p-8 flex flex-col gap-4 items-center shadow-lg mb-8 animate-fade-in-out">
-            <div className="flex items-center gap-2">
-              <svg width="28" height="28" fill="none" stroke="#3a86ff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#3a86ff" strokeWidth="2" fill="#3a86ff" opacity="0.15"/><path d="M12 8v4" stroke="#3a86ff" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="16" r="1.2" fill="#3a86ff"/></svg>
-              <span className="text-blue-300 text-lg font-semibold">No hay campañas activas</span>
-            </div>
-            <div className="text-blue-100 text-center text-base">Crea una campaña para que tus usuarios puedan subir stories y recibir recompensas.</div>
-            <button
-              className="mt-2 px-6 py-3 rounded-full border border-blue-700 text-blue-100 bg-gradient-to-r from-blue-900 to-blue-800 hover:bg-blue-800/80 transition text-base font-medium shadow-lg"
-              onClick={() => handleSave()}
-              disabled={saving}
-            >
-              Crear campaña
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
