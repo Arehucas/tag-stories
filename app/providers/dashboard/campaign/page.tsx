@@ -135,7 +135,7 @@ export default function CampaignDashboard() {
               );
               setLoading(false);
             })
-            .catch((e) => {
+            .catch(() => {
               setLoading(false);
               setCampaign(null);
               setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
@@ -144,7 +144,7 @@ export default function CampaignDashboard() {
           setLoading(false);
         }
       })
-      .catch((e) => {
+      .catch(() => {
         setProvider(null);
         setCampaign(null);
         setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
