@@ -76,7 +76,8 @@ export default function ProviderDashboard() {
           .then(data => {
             setProvider(data);
             setLoadingProvider(false);
-          });
+          })
+          .catch(() => setLoadingProvider(false));
         return;
       }
     }
@@ -91,7 +92,8 @@ export default function ProviderDashboard() {
         .then(data => {
           setProvider(data);
           setLoadingProvider(false);
-        });
+        })
+        .catch(() => setLoadingProvider(false));
     } else {
       setLoadingProvider(false);
     }
@@ -116,6 +118,9 @@ export default function ProviderDashboard() {
       .then(data => setHasIGToken(!!data.hasIGToken));
   }, []);
 
+  // Centralizo la comprobación de si el provider está completo
+  const providerCompleto = provider && provider.nombre && provider.direccion && provider.ciudad && provider.instagram_handle && provider.logo_url;
+
   if (!hydrated || loadingProvider || status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
@@ -124,17 +129,8 @@ export default function ProviderDashboard() {
     );
   }
 
-  // Solo mostrar Onboarding si loadingProvider es false y falta información del provider
-  if (!loadingProvider && (
-    !provider ||
-    (provider && (
-      !provider.nombre ||
-      !provider.direccion ||
-      !provider.ciudad ||
-      !provider.instagram_handle ||
-      !provider.logo_url
-    ))
-  )) {
+  // Si no hay provider completo, muestro Onboarding
+  if (!providerCompleto) {
     return <OnboardingProvider provider={provider} />;
   }
 
