@@ -129,7 +129,7 @@ export default function ProviderDashboard() {
     );
   }
 
-  // Si no hay provider completo, muestro Onboarding
+  // Solo mostrar Onboarding si la carga terminó y el provider no está completo
   if (!providerCompleto) {
     return <OnboardingProvider provider={provider} />;
   }
