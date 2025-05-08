@@ -3,9 +3,9 @@ import { getDb } from '@/lib/mongo';
 import { ObjectId } from 'mongodb';
 
 // DELETE: Borra stories pendientes asociadas a una campaña
-export async function DELETE(req: NextRequest, { params }: { params: { campaignId: string } }) {
+export async function DELETE(req: NextRequest, context: { params: { campaignId: string } }) {
+  const { campaignId } = context.params;
   const db = await getDb();
-  const campaignId = params.campaignId;
   if (!ObjectId.isValid(campaignId)) {
     return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
   }
@@ -14,9 +14,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { campaignI
 }
 
 // GET: Devuelve el número de stories en estado 'pending' o 'tagged' para la campaña
-export async function GET(req: NextRequest, { params }: { params: { campaignId: string } }) {
+export async function GET(req: NextRequest, context: { params: { campaignId: string } }) {
+  const { campaignId } = context.params;
   const db = await getDb();
-  const campaignId = params.campaignId;
   if (!ObjectId.isValid(campaignId)) {
     return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
   }
