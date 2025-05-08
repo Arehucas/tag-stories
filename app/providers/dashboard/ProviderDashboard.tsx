@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
+import LoaderTable from "@/components/ui/LoaderTable";
 import { Instagram, Clock, Copy } from "lucide-react";
 
 const secondaryBlue = "#3a86ff";
@@ -262,7 +263,7 @@ export default function ProviderDashboard() {
           <h2 className="text-white text-lg font-semibold mb-2">Stories pendientes</h2>
           <div className="flex flex-col gap-4">
             {loadingStories ? (
-              <div className="flex justify-center py-8"><LoaderBolas /></div>
+              <div className="flex justify-center py-8"><LoaderTable /></div>
             ) : (
               stories.length === 0 ? (
                 <div className="text-gray-400 text-center py-8">No hay stories pendientes</div>
