@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Gift, Users, Zap, ShieldCheck, TrendingUp, Star, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import styles from './LandingRework.module.css';
+import { useT } from '@/lib/useT';
+import common from '@/locales/es/common.json';
 
 const CLIENT_LOGOS = [
   "/logos/logo-taun-texto-blanco.svg",
@@ -36,6 +38,9 @@ const FAQS = [
 
 export default function LandingRework() {
   const router = useRouter();
+  const t = useT();
+  const testimonials = common.landing_rework.testimonials;
+  const faqs = common.landing_rework.faqs;
 
   return (
     <main className={`w-full min-h-screen flex flex-col items-center bg-[#0a0618] px-0 pb-12 relative overflow-x-hidden ${styles.landingBody}`}>
@@ -58,17 +63,17 @@ export default function LandingRework() {
             />
             <div style={{ width: '75%', height: 2, background: 'rgba(229,231,235,0.1)', borderRadius: 1, margin: '0 auto' }} />
           </div>
-          <h1 className="text-4xl font-extrabold text-white text-center leading-tight mb-2">Automatiza tus recompensas en Instagram</h1>
-          <p className="text-white/80 text-lg text-center mb-4 max-w-md mx-auto">Convierte a tus clientes en embajadores de marca. Valida stories, premia automáticamente y haz crecer tu comunidad.</p>
+          <h1 className="text-4xl font-extrabold text-white text-center leading-tight mb-2">{t('landing_rework.hero_title')}</h1>
+          <p className="text-white/80 text-lg text-center mb-4 max-w-md mx-auto">{t('landing_rework.hero_desc')}</p>
           <div className="w-full max-w-xs mb-2 mx-auto">
             <button
               onClick={() => router.push("/providers/access")}
               className={styles.landingBtn}
             >
-              ¡Quiero probarlo ya!
+              {t('landing_rework.cta_try')}
             </button>
           </div>
-          <span className="text-xs text-white/60 mx-auto mt-[-8px]">Sin tarjeta, sin compromiso</span>
+          <span className="text-xs text-white/60 mx-auto mt-[-8px]">{t('landing_rework.cta_note_card')}</span>
         </div>
       </section>
 
@@ -145,7 +150,7 @@ export default function LandingRework() {
           <span className="font-semibold text-white text-lg mb-1">María López</span>
           <span className="text-white/80 text-base mb-1">MarcaX</span>
           <span className="text-white/60 text-sm mb-3">CMO</span>
-          <p className="text-white text-base text-center mb-0">“La plataforma nos ayudó a aumentar la visibilidad y automatizar las recompensas. ¡Súper recomendable!”</p>
+          <p className="text-white text-base text-center mb-0">"La plataforma nos ayudó a aumentar la visibilidad y automatizar las recompensas. ¡Súper recomendable!"</p>
         </div>
         {/* 4.5 estrellas */}
         <div className="flex-1 rounded-xl bg-[#23243a] border border-violet-900 shadow-lg p-7 flex flex-col items-center max-w-xs mx-auto">
@@ -158,7 +163,7 @@ export default function LandingRework() {
           <span className="font-semibold text-white text-lg mb-1">Juan Pérez</span>
           <span className="text-white/80 text-base mb-1">EmpresaY</span>
           <span className="text-white/60 text-sm mb-3">Growth Manager</span>
-          <p className="text-white text-base text-center mb-0">“El proceso es simple y los resultados se ven en las métricas. Excelente soporte y experiencia.”</p>
+          <p className="text-white text-base text-center mb-0">"El proceso es simple y los resultados se ven en las métricas. Excelente soporte y experiencia."</p>
         </div>
       </section>
 

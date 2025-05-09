@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import common from '@/locales/es/common.json';
 import Image from 'next/image';
+import { useT } from '@/lib/useT';
 
 interface Provider {
   slug?: string;
@@ -29,6 +30,7 @@ export default function BrandData() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useT();
 
   useEffect(() => {
     if (status === "loading") return;
@@ -147,7 +149,7 @@ export default function BrandData() {
           <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300">
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
-          <h1 className="text-2xl font-bold text-white">Datos de Marca</h1>
+          <h1 className="text-2xl font-bold text-white">{t('dashboard.brand_data_title')}</h1>
         </div>
         <form className="bg-[#18122b] rounded-xl p-8 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">

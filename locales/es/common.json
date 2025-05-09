@@ -9,7 +9,11 @@
   "no_image_selected": "No se ha seleccionado imagen",
   "done": "Listo",
   "upload_another": "Subir otra foto",
-  "not_found": "No se encontró el local",
+  "not_found": {
+    "title": "Página no encontrada",
+    "description": "La página que buscas no existe.",
+    "back": "Volver al inicio"
+  },
   "downloaded_alert": "Imagen descargada, compártela con stories de Instagram",
   "best_photo": "¡Sube tu mejor foto!",
   "tag_and_win_1": "Etiqueta en una story de Instagram a ",
@@ -19,7 +23,6 @@
   "choose_file": "Elige archivo",
   "loading": "Cargando...",
   "onboarding": {
-    "loading": "Cargando información del proveedor...",
     "title": "Completa tu perfil de marca",
     "name": "Nombre de la marca o establecimiento *",
     "address": "Dirección *",
@@ -28,10 +31,15 @@
     "instagram_note": "No incluyas el @, solo el usuario.",
     "logo": "Logo de la marca *",
     "logo_note": "Recomendado un PNG cuadrado con transparencia de al menos 512x512px.",
-    "select_file": "Seleccionar logo",
-    "saving": "Guardando...",
+    "saving": "Guardando los datos de tu marca...",
     "save_and_continue": "Guardar y continuar",
-    "description": "Rellena los datos de tu local para empezar a premiar a tus clientes."
+    "error_required_fields": "Todos los campos son obligatorios",
+    "error_invalid_instagram": "El usuario de Instagram no debe contener @ ni caracteres especiales",
+    "error_upload_logo": "Error subiendo el logo",
+    "error_save": "Error guardando los datos",
+    "logo_preview_alt": "Vista previa del logo",
+    "change_logo": "Cambiar logo",
+    "select_logo": "Seleccionar logo"
   },
   "access": {
     "title": "Acceso para Providers",
@@ -168,5 +176,75 @@
   },
   "ig_sectionTitle": "Validación automática de stories",
   "ig_sectionDescription": "Activa la validación automática de stories mediante tu cuenta de Instagram.",
-  "ig_connectRequired": "Para activar la validación automática, primero debes vincular tu cuenta de Instagram."
+  "ig_connectRequired": "Para activar la validación automática, primero debes vincular tu cuenta de Instagram.",
+  "dashboard": {
+    "hello": "Hola, {{name}}",
+    "mention": "Tus usuarios mencionarán a:",
+    "user_fallback": "usuario",
+    "share_url_label": "Tu URL para compartir",
+    "url_copied": "URL copiada!",
+    "copy_url": "Copiar URL",
+    "brand_data_title": "Datos de Marca"
+  },
+  "landing_rework": {
+    "hero_title": "Automatiza tus recompensas en Instagram",
+    "hero_desc": "Convierte a tus clientes en embajadores de marca. Valida stories, premia automáticamente y haz crecer tu comunidad.",
+    "trusted_by": "Confían en nosotros",
+    "cta_title": "¿Listo para empezar?",
+    "cta_button": "Crear cuenta gratis",
+    "cta_note": "Sin compromiso. Cancela cuando quieras.",
+    "footer": "Todos los derechos reservados.",
+    "testimonials": [
+      {
+        "name": "María López",
+        "company": "MarcaX",
+        "role": "CMO",
+        "text": "La plataforma nos ayudó a aumentar la visibilidad y automatizar las recompensas. ¡Súper recomendable!"
+      },
+      {
+        "name": "Juan Pérez",
+        "company": "EmpresaY",
+        "role": "Growth Manager",
+        "text": "El proceso es simple y los resultados se ven en las métricas. Excelente soporte y experiencia."
+      }
+    ],
+    "faqs": [
+      { "q": "¿Cómo funciona la automatización?", "a": "El sistema valida stories y entrega recompensas automáticamente según tus reglas." },
+      { "q": "¿Puedo cancelar en cualquier momento?", "a": "Sí, puedes cancelar tu cuenta cuando quieras sin compromiso." }
+    ],
+    "cta_try": "¡Quiero probarlo ya!",
+    "cta_note_card": "Sin tarjeta, sin compromiso"
+  },
+  "ig_connect": {
+    "title": "Vincula tu Instagram",
+    "desc": "Estás a un paso de vincular tu cuenta y automatizar tu proceso",
+    "important": "Importante:",
+    "requirements": [
+      "Este proceso es 100% seguro y no requiere que compartas tu contraseña",
+      "No requiere que compartas tu contraseña",
+      "Tu cuenta de Instagram debe ser de Profesional o de Creador de Contenido",
+      "Permite acceso a los mensajes de Instagram",
+      "Acepta los permisos solicitados durante la vinculación"
+    ],
+    "connect_button": "Vincular mi cuenta de IG"
+  },
+  "public_stories": {
+    "no_active_campaign": "Actualmente @{handle} no tiene campaña activa y no hay recompensas por subir stories, pero puedes subirla igualmente.",
+    "select_image": "Selecciona una imagen",
+    "no_image": "No hay imagen",
+    "share_instagram": "Compartir en Instagram",
+    "upload_another": "Subir otra foto"
+  },
+  "campaign": {
+    "no_active": "No hay campañas activas",
+    "need_active": "Debes tener una campaña activa para que las stories de tus usuarios puedan ser validadas y puedas validar sus recompensas",
+    "create": "Crear campaña",
+    "confirm_title": "¿Estás seguro?",
+    "confirm_desc": "Si desactivas una campaña en curso con stories pendientes de canjear, las stories se borrarán y no se podrán recuperar.",
+    "cancel": "Cancelar",
+    "confirm_action": "Sí, borrar y desactivar",
+    "error_update": "Error al actualizar el estado de la campaña",
+    "error_save": "Error al guardar la campaña",
+    "error_load": "No se pudo cargar el provider. Revisa que el email esté bien y que el provider tenga slug."
+  }
 } 

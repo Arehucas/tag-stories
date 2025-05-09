@@ -8,6 +8,7 @@ import LoaderTable from "@/components/ui/LoaderTable";
 import { Instagram, Clock, Copy } from "lucide-react";
 import Image from 'next/image';
 import Link from "next/link";
+import { useT } from '@/lib/useT';
 
 const secondaryBlue = "#3a86ff";
 
@@ -59,6 +60,7 @@ interface Story {
 export default function ProviderDashboard() {
   const { status, data: session } = useSession();
   const router = useRouter();
+  const t = useT();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [demo, setDemo] = useState(null);
   const [hydrated, setHydrated] = useState(false);
@@ -245,8 +247,8 @@ export default function ProviderDashboard() {
         {/* Saludo y subtítulo debajo del navbar */}
         <div className="flex items-center justify-between px-2 py-2 mt-10 mb-8 w-full">
           <div className="flex flex-col">
-            <span className="text-white text-2xl font-bold leading-tight">Hola, {provider?.nombre || provider?.email || 'Provider'}</span>
-            <span className="text-white/80 text-sm font-semibold opacity-50">Tus usuarios mencionarán a: <span className="font-bold text-white">@{provider?.instagram_handle || 'usuario'}</span></span>
+            <span className="text-white text-2xl font-bold leading-tight">{t('dashboard.hello').replace('{{name}}', provider?.nombre || provider?.email || t('dashboard.user_fallback'))}</span>
+            <span className="text-white/80 text-sm font-semibold opacity-50">{t('dashboard.mention')} <span className="font-bold text-white">@{provider?.instagram_handle || t('dashboard.user_fallback')}</span></span>
           </div>
           <div className="flex items-center gap-3">
             <button className="text-gray-400 hover:text-white" onClick={() => setMenuOpen(true)}>
@@ -257,29 +259,30 @@ export default function ProviderDashboard() {
         {/* Caja URL compartir */}
         <div className="w-full bg-[#18122b] rounded-xl p-5 mb-6 flex flex-col gap-2 border border-violet-950/60">
           <div className="flex items-center justify-between mb-1 w-full">
-            <label className="text-white/80 text-sm font-semibold truncate">Tu URL para compartir</label>
+            <label className="text-white/80 text-sm font-semibold truncate">{t('dashboard.share_url_label')}</label>
             {copied && (
-              <span className="text-xs font-semibold text-blue-400 animate-fade-in-out flex-shrink-0 ml-2 whitespace-nowrap">URL Copiada!!</span>
+              <span className="text-xs font-semibold text-blue-400 animate-fade-in-out flex-shrink-0 ml-2 whitespace-nowrap">{t('dashboard.url_copied')}</span>
             )}
           </div>
           <div className="flex items-center gap-2">
             <input
               type="text"
               readOnly
-              value={provider?.slug ? `https://taun.me/p/${provider.slug}` : ''}
+              value={provider?.slug ? `${typeof window !== 'undefined' ? window.location.origin : 'https://taun.me'}/p/${provider.slug}` : ''}
               className="flex-1 bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 text-sm font-mono outline-none"
             />
             <button
               onClick={async () => {
                 if (provider?.slug) {
-                  await copiarAlPortapapeles(`https://taun.me/p/${provider.slug}`);
+                  const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://taun.me'}/p/${provider.slug}`;
+                  await copiarAlPortapapeles(url);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }
               }}
               className="p-2 rounded-lg text-white hover:scale-105 transition-transform"
               style={{ background: `linear-gradient(90deg, ${secondaryBlue} 0%, #00f2ea 100%)` }}
-              title="Copiar URL"
+              title={t('dashboard.copy_url')}
             >
               <Copy className="w-5 h-5" />
             </button>

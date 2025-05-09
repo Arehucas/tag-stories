@@ -88,11 +88,11 @@ export default function OnboardingProvider({ provider }: Props) {
     e.preventDefault();
     setError("");
     if (!nombre || !direccion || !ciudad || !instagram || !logo && !logoUrl) {
-      setError("Todos los campos son obligatorios");
+      setError(t('onboarding.error_required_fields'));
       return;
     }
     if (!instagramRegex.test(instagram)) {
-      setError("El usuario de Instagram no debe contener @ ni caracteres especiales");
+      setError(t('onboarding.error_invalid_instagram'));
       return;
     }
     setLoading(true);
@@ -104,7 +104,7 @@ export default function OnboardingProvider({ provider }: Props) {
       const res = await fetch("/api/upload-logo", { method: "POST", body: formData });
       const data = await res.json();
       if (!data.url) {
-        setError("Error subiendo el logo");
+        setError(t('onboarding.error_upload_logo'));
         setLoading(false);
         return;
       }
@@ -124,7 +124,7 @@ export default function OnboardingProvider({ provider }: Props) {
       }),
     });
     if (!res.ok) {
-      setError("Error guardando los datos");
+      setError(t('onboarding.error_save'));
       setLoading(false);
       return;
     }
@@ -136,7 +136,7 @@ export default function OnboardingProvider({ provider }: Props) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
-        <LoaderBolas text="Guardando los datos de tu marca..." />
+        <LoaderBolas text={t('onboarding.saving')} />
       </div>
     );
   }
@@ -185,13 +185,13 @@ export default function OnboardingProvider({ provider }: Props) {
             <div className="text-xs text-white/60 mb-2">{t('onboarding.logo_note')}</div>
             {logoPreview ? (
               <div className="flex items-center gap-4 mb-2">
-                <Image src={logoPreview} alt="Logo preview" width={64} height={64} className="h-16 w-16 rounded-lg bg-white/10 object-contain" />
-                <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">Cambiar logo</button>
+                <Image src={logoPreview} alt={t('onboarding.logo_preview_alt')} width={64} height={64} className="h-16 w-16 rounded-lg bg-white/10 object-contain" />
+                <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">{t('onboarding.change_logo')}</button>
               </div>
             ) : (
               <div className="flex items-center gap-4 mb-2">
                 <div style={{ width: 64, height: 64, background: '#23243a', borderRadius: '12px' }} />
-                <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">Seleccionar logo</button>
+                <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">{t('onboarding.select_logo')}</button>
               </div>
             )}
             <input

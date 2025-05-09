@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { useT } from '@/lib/useT';
 
 // Defino interfaces para los estados
 interface Provider {
@@ -42,6 +43,7 @@ export default function CampaignDashboard() {
   const [hydrated, setHydrated] = useState(false);
   const [success, setSuccess] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     setHydrated(true);
@@ -196,7 +198,7 @@ export default function CampaignDashboard() {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } else {
-      setError("Error al actualizar el estado de la campaña");
+      setError(t('campaign.error_update'));
       setTimeout(() => setError(null), 3000);
     }
     setSaving(false);
@@ -233,7 +235,7 @@ export default function CampaignDashboard() {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } else {
-      setError("Error al guardar la campaña");
+      setError(t('campaign.error_save'));
       setTimeout(() => setError(null), 3000);
     }
     setSaving(false);
@@ -252,7 +254,7 @@ export default function CampaignDashboard() {
   }
 
   if (!provider) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] text-white text-lg">No se pudo cargar el provider. Revisa que el email esté bien y que el provider tenga slug.</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] text-white text-lg">{t('campaign.error_load')}</div>;
   }
 
   return (
@@ -335,15 +337,15 @@ export default function CampaignDashboard() {
           <div className="bg-blue-950/70 border border-blue-700 rounded-xl p-8 flex flex-col gap-4 items-center shadow-lg mb-8 animate-fade-in-out">
             <div className="flex items-center gap-2">
               <svg width="28" height="28" fill="none" stroke="#3a86ff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#3a86ff" strokeWidth="2" fill="#3a86ff" opacity="0.15"/><path d="M12 8v4" stroke="#3a86ff" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="16" r="1.2" fill="#3a86ff"/></svg>
-              <span className="text-blue-300 text-lg font-semibold">No hay campañas activas</span>
+              <span className="text-blue-300 text-lg font-semibold">{t('campaign.no_active')}</span>
             </div>
-            <div className="text-blue-100 text-center text-base">Debes tener una campaña activa para que las stories de tus usuarios puedan ser validadas y puedas validar sus recompensas</div>
+            <div className="text-blue-100 text-center text-base">{t('campaign.need_active')}</div>
             <button
               className="mt-2 px-6 py-3 rounded-full border border-blue-700 text-blue-100 bg-gradient-to-r from-blue-900 to-blue-800 hover:bg-blue-800/80 transition text-base font-medium shadow-lg"
               onClick={() => { setShowNewForm(true); setForm({ nombre: '', descripcion: '', isActive: false, requiredStories: 1 }); }}
               disabled={saving}
             >
-              Crear campaña
+              {t('campaign.create')}
             </button>
           </div>
         )}
@@ -351,14 +353,14 @@ export default function CampaignDashboard() {
         <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+              <AlertDialogTitle>{t('campaign.confirm_title')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Si desactivas una campaña en curso con stories pendientes de canjear, las stories se borrarán y no se podrán recuperar.
+                {t('campaign.confirm_desc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleConfirmDesactivar}>Sí, borrar y desactivar</AlertDialogAction>
+              <AlertDialogCancel>{t('campaign.cancel')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmDesactivar}>{t('campaign.confirm_action')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

@@ -6,6 +6,7 @@ import { useProviderStore } from '@/hooks/useProviderStore';
 import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useRouter } from 'next/navigation';
 import { use } from "react";
+import { useT } from '@/lib/useT';
 
 export default function PreviewPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -20,6 +21,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   ];
 
   const router = useRouter();
+  const t = useT();
 
   // Restaurar imagen y provider desde localStorage si no están en el store
   // Solo en cliente
@@ -67,7 +69,9 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
               {croppedImage ? (
                 <Image src={croppedImage} alt="Preview" fill />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">No hay imagen</div>
+                <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">
+                  {t('public_stories.no_image')}
+                </div>
               )}
             </div>
             <button
@@ -128,7 +132,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                 }, 0);
               }}
             >
-              Compartir en Instagram
+              {t('public_stories.share_instagram')}
             </button>
           </div>
         </div>
@@ -139,7 +143,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
           className="w-full max-w-xs mt-5 border border-white/40 text-white/80 rounded-xl px-6 py-2 hover:bg-white/10 transition"
           onClick={() => router.push(`/p/${slug}`)}
         >
-          Subir otra foto
+          {t('public_stories.upload_another')}
         </button>
       </div>
     </div>

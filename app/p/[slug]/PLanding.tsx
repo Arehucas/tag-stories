@@ -7,6 +7,7 @@ import { useImageStore } from '@/hooks/useImageStore';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import { useT } from '@/lib/useT';
 import Image from 'next/image';
+import common from '@/locales/es/common.json';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -113,11 +114,11 @@ export default function PLanding({ params }: Props) {
         {/* Mensaje sutil de campaña (debajo, encima del botón) */}
         {(!campaign || !campaign.isActive) && (
           <div className="w-full mb-2 px-3 py-2 rounded-lg bg-white/10 text-white/70 text-sm text-center">
-            Actualmente @{provider?.instagram_handle} no tiene campaña activa y no hay recompensas por subir stories, pero puedes subirla igualmente.
+            {t('public_stories.no_active_campaign').replace('{handle}', provider?.instagram_handle || '')}
           </div>
         )}
         <label className="w-full py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform text-center cursor-pointer">
-          Selecciona una imagen
+          {t('public_stories.select_image')}
           <input type="file" accept="image/*" className="hidden" onChange={(e) => {
             clearImage();
             const file = e.target.files?.[0];

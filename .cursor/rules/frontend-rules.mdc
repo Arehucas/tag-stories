@@ -3,3 +3,4 @@ description:
 globs: 
 alwaysApply: true
 ---
+Every time you insert a string of text into the frontend, check [README.md](mdc:locales/README.md) to ensure it meets the conditions.
