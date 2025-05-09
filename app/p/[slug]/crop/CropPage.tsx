@@ -142,7 +142,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     if (img) setOriginalImage(img);
     const prov = localStorage.getItem('taun_provider');
     if (prov) setProvider(JSON.parse(prov));
-  }, []);
+  }, [setOriginalImage, setProvider]);
 
   useEffect(() => {
     if (!originalImage) {

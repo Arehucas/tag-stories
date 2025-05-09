@@ -7,7 +7,6 @@ import { useImageStore } from '@/hooks/useImageStore';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import { useT } from '@/lib/useT';
 import Image from 'next/image';
-import { use } from "react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -69,7 +68,7 @@ export default function PLanding({ params }: Props) {
         .finally(() => setLoading(false));
     });
     return () => { isMounted = false; };
-  }, [params]);
+  }, [params, clearImage, clearProvider]);
 
   if (loading) {
     return (
