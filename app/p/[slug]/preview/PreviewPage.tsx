@@ -84,7 +84,6 @@ export default function PreviewPage() {
                 document.body.removeChild(a);
                 setTimeout(() => {
                   URL.revokeObjectURL(url);
-                  alert('Imagen descargada! Compártela en Stories de IG');
                 }, 200);
               }}
             >

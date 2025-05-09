@@ -258,7 +258,7 @@ export default function CampaignDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
       <div className="w-full max-w-lg relative z-10 flex flex-col gap-8">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3">
           <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300">
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
