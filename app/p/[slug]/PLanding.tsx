@@ -7,7 +7,6 @@ import { useImageStore } from '@/hooks/useImageStore';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import { useT } from '@/lib/useT';
 import Image from 'next/image';
-import common from '@/locales/es/common.json';
 
 interface Props {
   params: Promise<{ slug: string }>;

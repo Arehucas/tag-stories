@@ -39,8 +39,6 @@ const FAQS = [
 export default function LandingRework() {
   const router = useRouter();
   const t = useT();
-  const testimonials = common.landing_rework.testimonials;
-  const faqs = common.landing_rework.faqs;
 
   return (
     <main className={`w-full min-h-screen flex flex-col items-center bg-[#0a0618] px-0 pb-12 relative overflow-x-hidden ${styles.landingBody}`}>
@@ -150,7 +148,7 @@ export default function LandingRework() {
           <span className="font-semibold text-white text-lg mb-1">María López</span>
           <span className="text-white/80 text-base mb-1">MarcaX</span>
           <span className="text-white/60 text-sm mb-3">CMO</span>
-          <p className="text-white text-base text-center mb-0">"La plataforma nos ayudó a aumentar la visibilidad y automatizar las recompensas. ¡Súper recomendable!"</p>
+          <p className="text-white text-base text-center mb-0">&quot;La plataforma nos ayudó a aumentar la visibilidad y automatizar las recompensas. ¡Súper recomendable!&quot;</p>
         </div>
         {/* 4.5 estrellas */}
         <div className="flex-1 rounded-xl bg-[#23243a] border border-violet-900 shadow-lg p-7 flex flex-col items-center max-w-xs mx-auto">
@@ -163,7 +161,7 @@ export default function LandingRework() {
           <span className="font-semibold text-white text-lg mb-1">Juan Pérez</span>
           <span className="text-white/80 text-base mb-1">EmpresaY</span>
           <span className="text-white/60 text-sm mb-3">Growth Manager</span>
-          <p className="text-white text-base text-center mb-0">"El proceso es simple y los resultados se ven en las métricas. Excelente soporte y experiencia."</p>
+          <p className="text-white text-base text-center mb-0">&quot;El proceso es simple y los resultados se ven en las métricas. Excelente soporte y experiencia.&quot;</p>
         </div>
       </section>
 
