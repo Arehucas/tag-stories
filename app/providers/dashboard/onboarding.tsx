@@ -36,6 +36,7 @@ export default function OnboardingProvider({ provider }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(provider?.email || "");
   const t = useT();
+  const [logoPreview, setLogoPreview] = useState<string | null>(logoUrl || null);
 
   // Expresión regular: solo letras, números, puntos y guiones bajos, sin @
   const instagramRegex = /^[a-zA-Z0-9._]+$/;
@@ -46,8 +47,19 @@ export default function OnboardingProvider({ provider }: Props) {
       const demoSession = localStorage.getItem("demoSession");
       if (demoSession) {
         const demoUser = JSON.parse(demoSession);
-        if (demoUser.user.email) setEmail(demoUser.user.email);
-        return;
+        // Soportar ambos formatos: { provider: { email } } y { user: { email } }
+        if (demoUser.user && demoUser.user.email) {
+          setEmail(demoUser.user.email);
+          return;
+        }
+        if (demoUser.provider && demoUser.provider.email) {
+          setEmail(demoUser.provider.email);
+          return;
+        }
+        if (demoUser.email) {
+          setEmail(demoUser.email);
+          return;
+        }
       }
     }
     // Si no es demo, usar el email del provider prop
@@ -64,7 +76,12 @@ export default function OnboardingProvider({ provider }: Props) {
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setLogo(e.target.files[0]);
+      setLogoPreview(URL.createObjectURL(e.target.files[0]));
     }
+  };
+
+  const handleLogoButton = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,9 +135,8 @@ export default function OnboardingProvider({ provider }: Props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
-        <LoaderBolas />
-        <span className="text-white text-base text-center mt-5" style={{ paddingTop: 18 }}>Guardando los datos de tu marca...</span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
+        <LoaderBolas text="Guardando los datos de tu marca..." />
       </div>
     );
   }
@@ -167,13 +183,17 @@ export default function OnboardingProvider({ provider }: Props) {
           <div>
             <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.logo')}</label>
             <div className="text-xs text-white/60 mb-2">{t('onboarding.logo_note')}</div>
-            <button
-              type="button"
-              className="w-full border-2 border-violet-950/60 rounded-lg py-2 px-4 text-white bg-[#23243a] hover:border-fuchsia-500 transition-colors mb-2 font-medium"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {logo ? logo.name : t('onboarding.select_file')}
-            </button>
+            {logoPreview ? (
+              <div className="flex items-center gap-4 mb-2">
+                <Image src={logoPreview} alt="Logo preview" width={64} height={64} className="h-16 w-16 rounded-lg bg-white/10 object-contain" />
+                <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">Cambiar logo</button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 mb-2">
+                <div style={{ width: 64, height: 64, background: '#23243a', borderRadius: '12px' }} />
+                <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">Seleccionar logo</button>
+              </div>
+            )}
             <input
               type="file"
               accept="image/png,image/jpeg"
@@ -181,15 +201,20 @@ export default function OnboardingProvider({ provider }: Props) {
               onChange={handleLogoChange}
               className="hidden"
             />
-            {logoUrl && !logo && (
-              <Image src={logoUrl} alt="Logo actual" width={64} height={64} className="h-16 mt-2 rounded bg-white/10 object-contain" />
-            )}
-            {!logoUrl && !logo && (
-              <div style={{ width: 64, height: 64, background: '#2563eb', borderRadius: '50%', marginTop: 8 }} />
-            )}
           </div>
           {error && <div className="text-red-400 text-sm text-center font-semibold bg-red-900/30 rounded-lg py-2 px-3 border border-red-700/30">{error}</div>}
-          <button type="submit" className="w-full py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-[#3a86ff] to-[#00f2ea] text-white shadow-lg hover:scale-[1.03] transition-transform mt-2 border-none outline-none" disabled={loading}>
+          <button
+            type="submit"
+            className="w-full py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-[#3a86ff] to-[#00f2ea] text-white shadow-lg hover:scale-[1.03] transition-transform mt-2 border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={
+              loading ||
+              !nombre ||
+              !direccion ||
+              !ciudad ||
+              !instagram ||
+              !(logo || logoPreview)
+            }
+          >
             {loading ? t('onboarding.saving') : t('onboarding.save_and_continue')}
           </button>
         </form>
