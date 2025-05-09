@@ -81,7 +81,7 @@ export default function ProviderDashboard() {
         fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.provider.email)}`)
           .then(res => res.ok ? res.json() : null)
           .then(data => {
-            setProvider(data);
+            setProvider(data || { email: demoUser.provider.email });
             setLoadingProvider(false);
           })
           .catch(() => setLoadingProvider(false));
@@ -94,10 +94,11 @@ export default function ProviderDashboard() {
       return;
     }
     if (status === "authenticated" && session?.user?.email) {
-      fetch(`/api/provider/by-email?email=${encodeURIComponent(session.user.email)}`)
+      const userEmail = session && session.user ? session.user.email : undefined;
+      fetch(`/api/provider/by-email?email=${encodeURIComponent(userEmail || "")}`)
         .then(res => res.ok ? res.json() : null)
         .then(data => {
-          setProvider(data);
+          setProvider(data || (userEmail ? { email: userEmail } : null));
           setLoadingProvider(false);
         })
         .catch(() => setLoadingProvider(false));
