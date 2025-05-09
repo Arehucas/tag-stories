@@ -1,9 +1,9 @@
 import common from '@/locales/es/common.json';
-import LandingPage from './LandingPage';
+import LandingRework from './LandingRework';
 
 export const metadata = {
   title: common.metadata.landing.title,
   description: common.metadata.landing.description,
 };
 
-export default LandingPage; 
+export default LandingRework; 

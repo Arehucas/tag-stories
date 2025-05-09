@@ -1,0 +1,56 @@
+/* Estilos exclusivos para la landing rework */
+.landingBody {
+  background: #0a0618;
+}
+
+.landingBtn {
+  width: 100%;
+  max-width: 340px;
+  min-height: 56px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  color: rgba(255,255,255,0.95);
+  border-radius: 50px;
+  background: linear-gradient(-45deg, #FFA63D, #FF3D77, #338AFF, #3CF0C5);
+  background-size: 600%;
+  animation: landingAnime 16s linear infinite;
+  box-shadow: 0 2px 16px 0 rgba(58,134,255,0.10);
+  border: none;
+  outline: none;
+  transition: filter 0.2s, box-shadow 0.2s;
+}
+.landingBtn:active, .landingBtn:focus {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 32px 0 rgba(58,134,255,0.18);
+}
+
+.landingBtnGlow {
+  position: absolute;
+  margin-top: -70px;
+  z-index: -1;
+  filter: blur(30px);
+  opacity: 0.8;
+  width: 300px;
+  height: 100px;
+  background: linear-gradient(-45deg, #FFA63D, #FF3D77, #338AFF, #3CF0C5);
+  background-size: 600%;
+  animation: landingAnime 16s linear infinite;
+  border-radius: 50px;
+}
+
+@keyframes landingAnime {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.landing-hero-gradient-bg-inner {
+  width: 700px !important;
+  height: 500px !important;
+} 
