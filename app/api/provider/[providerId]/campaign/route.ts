@@ -38,7 +38,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
     providerId,
     nombre: body.nombre,
     descripcion: typeof body.descripcion === 'string' ? body.descripcion : '',
-    isActive: false,
+    isActive: true,
     requiredStories: body.requiredStories ?? 1,
     createdAt: new Date(),
     updatedAt: new Date(),

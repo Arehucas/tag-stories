@@ -76,21 +76,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                 if (!croppedImage) return;
                 // Guardar en localStorage para persistencia
                 localStorage.setItem('taun_cropped_image', croppedImage);
-                // Subir imagen a Cloudinary vía backend
-                const url = await subirImagenViaBackend(croppedImage);
-                if (!url) {
-                  alert('Error subiendo la imagen');
-                  return;
-                }
-                // Crear story en backend
-                if (slug && url) {
-                  await fetch('/api/story-submission', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ providerId: slug, imageUrl: url }),
-                  });
-                }
-                // Compartir o descargar como antes
+                // Compartir o descargar como antes (INSTANTÁNEO)
                 function dataURLtoBlob(dataurl: string) {
                   const arr = dataurl.split(',');
                   const match = arr[0].match(/:(.*?);/);
@@ -109,22 +95,37 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                     await navigator.share({
                       files: [file]
                     });
-                    return;
                   } catch {
                     // Si el usuario cancela o falla, sigue con la descarga
                   }
+                } else {
+                  // Fallback: descarga automática
+                  const urlDescarga = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = urlDescarga;
+                  a.download = fileName;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  setTimeout(() => {
+                    URL.revokeObjectURL(urlDescarga);
+                  }, 200);
                 }
-                // Fallback: descarga automática
-                const urlDescarga = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = urlDescarga;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => {
-                  URL.revokeObjectURL(urlDescarga);
-                }, 200);
+                // SUBIDA Y REGISTRO EN SEGUNDO PLANO
+                setTimeout(async () => {
+                  const url = await subirImagenViaBackend(croppedImage);
+                  if (!url) {
+                    // Opcional: notifica al usuario si falla la subida
+                    return;
+                  }
+                  if (slug && url) {
+                    await fetch('/api/story-submission', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ providerId: slug, imageUrl: url }),
+                    });
+                  }
+                }, 0);
               }}
             >
               Compartir en Instagram

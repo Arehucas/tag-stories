@@ -71,13 +71,13 @@ export default function CampaignDashboard() {
                 ? {
                     nombre: camp.nombre || "",
                     descripcion: camp.descripcion || "",
-                    isActive: camp.isActive,
+                    isActive: camp.isActive === undefined ? true : camp.isActive,
                     requiredStories: camp.requiredStories ?? 1,
                   }
                 : {
                     nombre: "",
                     descripcion: "",
-                    isActive: false,
+                    isActive: true,
                     requiredStories: 1,
                   }
               );
@@ -124,13 +124,13 @@ export default function CampaignDashboard() {
                 ? {
                     nombre: camp.nombre || "",
                     descripcion: camp.descripcion || "",
-                    isActive: camp.isActive,
+                    isActive: camp.isActive === undefined ? true : camp.isActive,
                     requiredStories: camp.requiredStories ?? 1,
                   }
                 : {
                     nombre: "",
                     descripcion: "",
-                    isActive: false,
+                    isActive: true,
                     requiredStories: 1,
                   }
               );
