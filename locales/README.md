@@ -64,6 +64,35 @@
 2. Mantén la misma estructura de claves que en el archivo original.
 3. El sistema de traducción debe detectar el idioma y cargar el archivo adecuado automáticamente.
 
+## Buenas prácticas y lecciones aprendidas
+
+- **No uses nunca `react-i18next` ni dependencias externas de i18n:**
+  Solo el hook `useT` es compatible con Vercel y Next.js en este proyecto.
+
+- **No dejes cadenas hardcodeadas en el frontend:**
+  Todas las cadenas visibles deben estar en los archivos de traducción y accederse vía `t()`.
+
+- **Evita imports innecesarios:**
+  No importes archivos de traducción (`common.json`) si solo necesitas textos simples. Usa siempre el hook.
+
+- **Escapa correctamente las comillas en JSX:**
+  Usa `&quot;` en vez de comillas dobles sin escapar para evitar errores de linting (`react/no-unescaped-entities`).
+
+- **No dejes claves no usadas:**
+  Limpia los archivos de traducción eliminando claves que ya no se usan en el código.
+
+- **Agrupa por contexto:**
+  Organiza las claves por sección funcional (ej: `onboarding`, `dashboard`, `landing_rework`, etc) para facilitar el mantenimiento.
+
+- **Evita duplicados:**
+  Si un texto se repite en varias partes, usa una sola clave y reutilízala.
+
+- **Revisa los textos en contexto:**
+  Antes de dar por buena una traducción, comprueba que el texto se ve bien en la interfaz y no se corta ni desborda.
+
+- **Mantén el README actualizado:**
+  Si cambias la estructura de los archivos de traducción o la forma de internacionalizar, documenta el cambio aquí.
+
 ---
 
 **Resumen:**
