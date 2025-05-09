@@ -4,7 +4,6 @@ import { Gift, Users, Zap, ShieldCheck, TrendingUp, Star, MessageCircle } from "
 import { useRouter } from "next/navigation";
 import styles from './LandingRework.module.css';
 import { useT } from '@/lib/useT';
-import common from '@/locales/es/common.json';
 
 const CLIENT_LOGOS = [
   "/logos/logo-taun-texto-blanco.svg",
