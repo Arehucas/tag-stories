@@ -5,7 +5,6 @@ import { useT } from '@/lib/useT';
 interface Story {
   createdAt: string | Date;
   status: "pending" | "validated" | "redeemed";
-  colorCode: { r: number; g: number; b: number }[];
 }
 
 interface ProviderStoryCardListProps {
@@ -22,7 +21,7 @@ const ProviderStoryCardList: FC<ProviderStoryCardListProps> = ({ stories }) => {
   return (
     <div className="flex flex-col gap-4">
       {stories.map((story, idx) => (
-        <ProviderStoryCard key={idx} {...story} />
+        <ProviderStoryCard key={idx} createdAt={story.createdAt} />
       ))}
     </div>
   );

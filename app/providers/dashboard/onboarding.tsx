@@ -184,6 +184,9 @@ export default function OnboardingProvider({ provider }: Props) {
             {logoUrl && !logo && (
               <Image src={logoUrl} alt="Logo actual" width={64} height={64} className="h-16 mt-2 rounded bg-white/10 object-contain" />
             )}
+            {!logoUrl && !logo && (
+              <div style={{ width: 64, height: 64, background: '#2563eb', borderRadius: '50%', marginTop: 8 }} />
+            )}
           </div>
           {error && <div className="text-red-400 text-sm text-center font-semibold bg-red-900/30 rounded-lg py-2 px-3 border border-red-700/30">{error}</div>}
           <button type="submit" className="w-full py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-[#3a86ff] to-[#00f2ea] text-white shadow-lg hover:scale-[1.03] transition-transform mt-2 border-none outline-none" disabled={loading}>

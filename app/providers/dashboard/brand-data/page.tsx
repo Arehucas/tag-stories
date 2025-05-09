@@ -194,6 +194,9 @@ export default function BrandData() {
                 <button type="button" onClick={() => { setLogoFile(null); setLogoPreview(provider?.logo_url ?? null); }} className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition">Cancelar</button>
               </div>
             )}
+            {!logoPreview && !logoFile && (
+              <div style={{ width: 80, height: 80, background: '#2563eb', borderRadius: '50%' }} />
+            )}
             <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleLogoChange} />
           </div>
           <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60" disabled={saving}>

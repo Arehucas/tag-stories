@@ -4,8 +4,8 @@ import { getDb } from '@/lib/mongo';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { providerId, colorCode } = body;
-    if (!providerId || !Array.isArray(colorCode) || colorCode.length !== 4) {
+    const { providerId, imageUrl } = body;
+    if (!providerId || !imageUrl) {
       return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
     }
     const db = await getDb();
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const submission = {
       providerId,
       campaignId: campaign._id,
-      colorCode, // array de 4 colores: [{r,g,b}]
+      imageUrl, // URL de la imagen en Cloudinary
       status: 'pending',
       createdAt: new Date(),
     };

@@ -7,6 +7,7 @@ import { useImageStore } from '@/hooks/useImageStore';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import { useT } from '@/lib/useT';
 import Image from 'next/image';
+import { use } from "react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -26,7 +27,7 @@ interface Campaign {
   // otros campos si es necesario
 }
 
-export default function PLanding(props: Props) {
+export default function PLanding({ params }: Props) {
   const [slug, setSlug] = useState<string | null>(null);
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,15 +44,17 @@ export default function PLanding(props: Props) {
   const clearImage = useImageStore(state => state.clear);
   const clearProvider = useProviderStore(state => state.clear);
 
-  // Carga slug y provider
+  // Carga slug y provider solo una vez
   useEffect(() => {
+    let isMounted = true;
     clearImage();
     clearProvider();
-    props.params.then(({ slug }) => {
+    params.then(({ slug }) => {
+      if (!isMounted) return;
       setSlug(slug);
       fetch(`/api/provider/${slug}`)
         .then(async (res) => {
-          if (!res.ok) throw new Error(t('not_found'));
+          if (!res.ok) throw new Error('No encontrado');
           return res.json();
         })
         .then((prov) => {
@@ -65,7 +68,8 @@ export default function PLanding(props: Props) {
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
     });
-  }, [props.params, clearImage, clearProvider, t]);
+    return () => { isMounted = false; };
+  }, [params]);
 
   if (loading) {
     return (
@@ -88,7 +92,11 @@ export default function PLanding(props: Props) {
         <div className="flex flex-col items-center w-full mt-0 mb-0">
           <div className="p-[2.5px] rounded-full bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 animate-gradient-x">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
-              <Image src={provider?.logo_url || "/default-logo.png"} alt={provider?.nombre || "Logo"} width={80} height={80} className="object-cover w-full h-full" />
+              {provider?.logo_url ? (
+                <Image src={provider.logo_url} alt={provider?.nombre || "Logo"} width={80} height={80} className="object-cover w-full h-full" />
+              ) : (
+                <div style={{ width: 80, height: 80, background: '#2563eb', borderRadius: '50%' }} />
+              )}
             </div>
           </div>
           <div className="text-white/80 text-base font-medium">@{provider?.instagram_handle}</div>
@@ -119,6 +127,11 @@ export default function PLanding(props: Props) {
             reader.onload = (ev) => {
               const imgUrl = ev.target?.result as string;
               setOriginalImage(imgUrl);
+              // Persistir en localStorage
+              if (provider) {
+                localStorage.setItem('taun_provider', JSON.stringify(provider));
+              }
+              localStorage.setItem('taun_original_image', imgUrl);
               router.push(`/p/${slug}/crop`);
             };
             reader.readAsDataURL(file);

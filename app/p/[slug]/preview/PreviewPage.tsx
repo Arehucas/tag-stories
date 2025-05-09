@@ -5,24 +5,56 @@ import Image from 'next/image';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useRouter } from 'next/navigation';
+import { use } from "react";
 
-export default function PreviewPage() {
+export default function PreviewPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  const croppedImage = useImageStore(state => state.croppedImage);
+  const setCroppedImage = useImageStore(state => state.setCroppedImage);
   const provider = useProviderStore(state => state.provider);
+  const setProvider = useProviderStore(state => state.setProvider);
   const steps = [
     { title: 'Sube tu foto', description: 'Saca o elige una foto' },
     { title: 'Ajusta tu imagen', description: 'Recorta y ajusta tu foto.' },
     { title: 'Comparte', description: <><div>Publica tu story en Instagram.</div>{provider?.instagram_handle && <div>Etiqueta a @{provider.instagram_handle}</div>}</> },
   ];
 
-  const croppedImage = useImageStore(state => state.croppedImage);
   const router = useRouter();
-  const slug = typeof window !== 'undefined' ? window.location.pathname.split('/')[2] : '';
-  const colorCode = useImageStore(state => state.colorCode);
+
+  // Restaurar imagen y provider desde localStorage si no están en el store
+  // Solo en cliente
+  if (typeof window !== 'undefined') {
+    if (!croppedImage) {
+      const img = localStorage.getItem('taun_cropped_image');
+      if (img) setCroppedImage(img);
+    }
+    if (!provider) {
+      const prov = localStorage.getItem('taun_provider');
+      if (prov) setProvider(JSON.parse(prov));
+    }
+  }
 
   // Redirigir si no hay imagen cropeada
   if (typeof window !== 'undefined' && !croppedImage) {
     router.replace(`/p/${slug}`);
     return null;
+  }
+
+  async function subirImagenViaBackend(dataUrl: string): Promise<string | null> {
+    const formData = new FormData();
+    // Convierte el dataUrl a un Blob
+    const arr = dataUrl.split(',');
+    const match = arr[0].match(/:(.*?);/);
+    const mime = match ? match[1] : 'image/png';
+    const bstr = atob(arr[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+    const blob = new Blob([u8arr], { type: mime });
+    formData.append('file', blob, 'story.png');
+    const res = await fetch('/api/upload-logo', { method: 'POST', body: formData });
+    const data = await res.json();
+    return data.url || null;
   }
 
   return (
@@ -42,15 +74,23 @@ export default function PreviewPage() {
               className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
               onClick={async () => {
                 if (!croppedImage) return;
+                // Guardar en localStorage para persistencia
+                localStorage.setItem('taun_cropped_image', croppedImage);
+                // Subir imagen a Cloudinary vía backend
+                const url = await subirImagenViaBackend(croppedImage);
+                if (!url) {
+                  alert('Error subiendo la imagen');
+                  return;
+                }
                 // Crear story en backend
-                if (slug && colorCode && colorCode.length === 4) {
+                if (slug && url) {
                   await fetch('/api/story-submission', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ providerId: slug, colorCode }),
+                    body: JSON.stringify({ providerId: slug, imageUrl: url }),
                   });
                 }
-                // Convertir dataURL a Blob
+                // Compartir o descargar como antes
                 function dataURLtoBlob(dataurl: string) {
                   const arr = dataurl.split(',');
                   const match = arr[0].match(/:(.*?);/);
@@ -75,15 +115,15 @@ export default function PreviewPage() {
                   }
                 }
                 // Fallback: descarga automática
-                const url = URL.createObjectURL(blob);
+                const urlDescarga = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = urlDescarga;
                 a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 setTimeout(() => {
-                  URL.revokeObjectURL(url);
+                  URL.revokeObjectURL(urlDescarga);
                 }, 200);
               }}
             >

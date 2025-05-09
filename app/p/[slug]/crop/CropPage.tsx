@@ -15,13 +15,13 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const originalImage = useImageStore(state => state.originalImage);
+  const setOriginalImage = useImageStore(state => state.setOriginalImage);
   const setCroppedImage = useImageStore(state => state.setCroppedImage);
   // Calcula el zoom mínimo para cubrir el área 9:16
   const [minZoom, setMinZoom] = useState(1);
   // Obtén el provider del store global
   const provider = useProviderStore(state => state.provider);
-  const [colorCode, setColorCode] = useState<{ r: number; g: number; b: number }[]>([]);
-  const setColorCodeStore = useImageStore(state => state.setColorCode);
+  const setProvider = useProviderStore(state => state.setProvider);
   const t = useT();
 
   const steps = [
@@ -105,16 +105,6 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
       ctx.restore();
     }
-    // Colores únicos
-    const squareSize = 36;
-    const margin = 30;
-    for (let i = 0; i < 4; i++) {
-      const c = colorCode[i] || { r: 0, g: 0, b: 0 };
-      const x = margin + i * squareSize;
-      const y = targetHeight - squareSize - margin;
-      ctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
-      ctx.fillRect(x, y, squareSize, squareSize);
-    }
     const croppedDataUrl = canvas.toDataURL('image/png');
     setCroppedImage(croppedDataUrl);
     router.push(`/p/${slug}/preview`);
@@ -147,22 +137,12 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   }, [originalImage]);
 
   useEffect(() => {
-    // Solo en cliente
-    function randomColor() {
-      return {
-        r: Math.floor(Math.random() * 256),
-        g: Math.floor(Math.random() * 256),
-        b: Math.floor(Math.random() * 256),
-      };
-    }
-    const code: { r: number; g: number; b: number }[] = [];
-    while (code.length < 4) {
-      const c = randomColor();
-      if (!code.some(col => col.r === c.r && col.g === c.g && col.b === c.b)) code.push(c);
-    }
-    setColorCode(code);
-    setColorCodeStore(code);
-  }, [setColorCodeStore]);
+    // Restaurar imagen y provider desde localStorage SIEMPRE antes de cualquier redirección
+    const img = localStorage.getItem('taun_original_image');
+    if (img) setOriginalImage(img);
+    const prov = localStorage.getItem('taun_provider');
+    if (prov) setProvider(JSON.parse(prov));
+  }, []);
 
   useEffect(() => {
     if (!originalImage) {
