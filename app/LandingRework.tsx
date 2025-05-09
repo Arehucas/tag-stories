@@ -11,21 +11,6 @@ const CLIENT_LOGOS = [
   "/logos/logo-taun-texto-blanco.svg",
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "María López",
-    role: "CMO, MarcaX",
-    text: "La plataforma nos ayudó a aumentar la visibilidad y automatizar las recompensas. ¡Súper recomendable!",
-    avatar: "/logos/logo-taun-cuadrado-blanco.svg",
-  },
-  {
-    name: "Juan Pérez",
-    role: "Growth Manager, EmpresaY",
-    text: "El proceso es simple y los resultados se ven en las métricas. Excelente soporte y experiencia.",
-    avatar: "/logos/logo-taun-cuadrado-blanco.svg",
-  },
-];
-
 const FAQS = [
   {
     q: "¿Cómo funciona la validación de stories?",
@@ -69,7 +54,7 @@ export default function LandingRework() {
               width={90}
               height={18}
               priority
-              style={{ marginBottom: 10, display: 'block', opacity: 0.4 }}
+              style={{ marginBottom: 20, display: 'block', opacity: 0.4 }}
             />
             <div style={{ width: '75%', height: 2, background: 'rgba(229,231,235,0.1)', borderRadius: 1, margin: '0 auto' }} />
           </div>
