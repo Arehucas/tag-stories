@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 
 const ALLOWED_STATUSES = ['pending', 'validated', 'redeemed', 'rejected'];
 
-export async function GET(request: Request, context: { params: { storyId: string } }): Promise<Response> {
+export async function GET(request: Request, context: any): Promise<Response> {
   const { storyId } = context.params;
   if (!storyId) {
     return NextResponse.json({ error: 'Falta storyId' }, { status: 400 });
@@ -32,7 +32,7 @@ export async function GET(request: Request, context: { params: { storyId: string
   return NextResponse.json({ ...story, _id: story._id?.toString?.() || story.id || "", campaignNombre });
 }
 
-export async function PATCH(request: Request, context: { params: { storyId: string } }): Promise<Response> {
+export async function PATCH(request: Request, context: any): Promise<Response> {
   const { storyId } = context.params;
   if (!storyId) {
     return NextResponse.json({ error: 'Falta storyId' }, { status: 400 });
@@ -52,7 +52,7 @@ export async function PATCH(request: Request, context: { params: { storyId: stri
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(request: Request, context: { params: { storyId: string } }): Promise<Response> {
+export async function DELETE(request: Request, context: any): Promise<Response> {
   const { storyId } = context.params;
   if (!storyId) {
     return NextResponse.json({ error: 'Falta storyId' }, { status: 400 });
