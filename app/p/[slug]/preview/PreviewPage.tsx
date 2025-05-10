@@ -246,51 +246,59 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                 const blob = new Blob([u8arr], { type: 'image/png' });
                 const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.png` : 'story-local.png';
                 const file = new File([blob], fileName, { type: 'image/png' });
+                setUploading(true);
+                setUploadResponse(null);
                 let shared = false;
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                  try {
-                    await navigator.share({
-                      files: [file],
-                      title: 'Comparte tu story',
-                      text: 'Publica tu story en Instagram',
-                    });
-                    shared = true;
-                  } catch {
-                    // Si el usuario cancela o falla, sigue con la descarga
+                try {
+                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                      await navigator.share({
+                        files: [file],
+                        title: 'Comparte tu story',
+                        text: 'Publica tu story en Instagram',
+                      });
+                      shared = true;
+                    } catch (e) {
+                      console.log('Compartir cancelado o fallido:', e);
+                    }
                   }
-                }
-                if (!shared) {
-                  // Fallback: descarga automática
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = fileName;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  setTimeout(() => {
-                    URL.revokeObjectURL(url);
-                  }, 200);
-                }
-                // SUBIDA Y REGISTRO EN SEGUNDO PLANO
-                setTimeout(async () => {
+                  if (!shared) {
+                    // Fallback: descarga automática
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => {
+                      URL.revokeObjectURL(url);
+                    }, 200);
+                  }
+                  // SUBIDA Y REGISTRO EN SEGUNDO PLANO
+                  const formData = new FormData();
+                  formData.append('file', blob, fileName);
                   const uploadRes = await fetch('/api/upload-logo', {
                     method: 'POST',
-                    body: (() => {
-                      const formData = new FormData();
-                      formData.append('file', blob, fileName);
-                      return formData;
-                    })(),
+                    body: formData,
                   });
                   const uploadData = await uploadRes.json();
-                  if (slug && uploadData && uploadData.url) {
-                    await fetch('/api/story-submission', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
-                    });
-                  }
-                }, 0);
+                  if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
+                  const saveRes = await fetch('/api/story-submission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
+                  });
+                  const saveData = await saveRes.json();
+                  if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
+                  setUploadResponse({ cloudinary: uploadData, db: saveData });
+                  console.log('Subida y registro OK', { cloudinary: uploadData, db: saveData });
+                } catch (e) {
+                  setUploadResponse({ error: e?.toString() });
+                  console.error('Error en subida/registro:', e);
+                } finally {
+                  setUploading(false);
+                }
               }}
             >
               {t('public_stories.share_instagram')}
