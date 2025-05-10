@@ -5,8 +5,8 @@ import type { NextRequest } from 'next/server';
 
 const ALLOWED_STATUSES = ['pending', 'validated', 'redeemed', 'rejected'];
 
-export async function GET(request: Request, { params }: { params: { storyId: string } }) {
-  const { storyId } = params;
+export async function GET(request: Request, context: { params: { storyId: string } }) {
+  const { storyId } = context.params;
   if (!storyId) {
     return NextResponse.json({ error: 'Falta storyId' }, { status: 400 });
   }
