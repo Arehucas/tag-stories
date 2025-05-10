@@ -248,61 +248,60 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                 const file = new File([blob], fileName, { type: 'image/png' });
                 setUploading(true);
                 setUploadResponse(null);
+                try {
+                  // 1. Subir a Cloudinary
+                  const formData = new FormData();
+                  formData.append('file', blob, fileName);
+                  const uploadRes = await fetch('/api/upload-logo', {
+                    method: 'POST',
+                    body: formData,
+                  });
+                  const uploadData = await uploadRes.json();
+                  if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
 
-                // Lanzar subida y registro en background
-                (async () => {
-                  try {
-                    const formData = new FormData();
-                    formData.append('file', blob, fileName);
-                    const uploadRes = await fetch('/api/upload-logo', {
-                      method: 'POST',
-                      body: formData,
-                    });
-                    const uploadData = await uploadRes.json();
-                    if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
-                    const saveRes = await fetch('/api/story-submission', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
-                    });
-                    const saveData = await saveRes.json();
-                    if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
-                    setUploadResponse({ cloudinary: uploadData, db: saveData });
-                    console.log('Subida y registro OK', { cloudinary: uploadData, db: saveData });
-                  } catch (e) {
-                    setUploadResponse({ error: e?.toString() });
-                    console.error('Error en subida/registro:', e);
-                  } finally {
-                    setUploading(false);
-                  }
-                })();
+                  // 2. Guardar en BBDD
+                  const saveRes = await fetch('/api/story-submission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
+                  });
+                  const saveData = await saveRes.json();
+                  if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
+                  setUploadResponse({ cloudinary: uploadData, db: saveData });
 
-                // Compartir o fallback inmediatamente
-                let shared = false;
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                  try {
-                    await navigator.share({
-                      files: [file],
-                      title: 'Comparte tu story',
-                      text: 'Publica tu story en Instagram',
-                    });
-                    shared = true;
-                  } catch (e) {
-                    console.log('Compartir cancelado o fallido:', e);
+                  // 3. Compartir o fallback
+                  let shared = false;
+                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                      await navigator.share({
+                        files: [file],
+                        title: 'Comparte tu story',
+                        text: 'Publica tu story en Instagram',
+                      });
+                      shared = true;
+                    } catch (e) {
+                      console.log('Compartir cancelado o fallido:', e);
+                    }
                   }
-                }
-                if (!shared) {
-                  // Fallback: descarga automática
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = fileName;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  setTimeout(() => {
-                    URL.revokeObjectURL(url);
-                  }, 200);
+                  if (!shared) {
+                    // Fallback: descarga automática
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => {
+                      URL.revokeObjectURL(url);
+                    }, 200);
+                  }
+                  console.log('Subida, registro y compartir/descarga completados');
+                } catch (e) {
+                  setUploadResponse({ error: e?.toString() });
+                  console.error('Error en subida/registro/compartir:', e);
+                } finally {
+                  setUploading(false);
                 }
               }}
             >
