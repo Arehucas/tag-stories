@@ -147,15 +147,26 @@
     }
   },
   "providerStories": {
-    "story": "Story",
-    "date": "Fecha y hora",
-    "status": "Estado",
-    "pending": "Pendiente de validar",
-    "validated": "Validada",
-    "redeemed": "Canjeada",
-    "colorCode": "Código de color",
-    "noStories": "No hay stories pendientes",
-    "copied": "Copiado al portapapeles"
+    "noStories": "No hay stories todavía",
+    "detailTitle": "Detalle de Story",
+    "forceState": "Forzar estado a:",
+    "status": {
+      "pending": "Pendiente",
+      "validated": "Validada",
+      "redeemed": "Canjeada",
+      "rejected": "Rechazada"
+    },
+    "igUser": "Usuario IG",
+    "noUserInfo": "Sin información de usuario",
+    "dateTime": "Fecha y hora",
+    "campaign": "Campaña",
+    "reject": "Rechazar",
+    "validate": "Validar",
+    "redeem": "Canjeado",
+    "loading": "Cargando story...",
+    "notFound": "Story no encontrada",
+    "errorLoading": "Error al cargar la story",
+    "errorUpdate": "No se pudo actualizar el estado"
   },
   "igValidation": {
     "sectionTitle": "Validación automática de stories",

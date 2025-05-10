@@ -38,10 +38,17 @@ export async function GET(req: NextRequest) {
     const db = await getDb();
     const stories = await db
       .collection('storySubmissions')
-      .find({ providerId, status: 'pending' })
+      .find({ providerId })
       .sort({ createdAt: -1 })
       .toArray();
-    return NextResponse.json(stories);
+
+    // Serializar _id
+    const storiesWithId = stories.map(s => ({
+      ...s,
+      _id: s._id?.toString?.() || s.id || "",
+    }));
+
+    return NextResponse.json(storiesWithId);
   } catch (e: unknown) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }

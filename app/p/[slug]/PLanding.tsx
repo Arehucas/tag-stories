@@ -7,6 +7,7 @@ import { useImageStore } from '@/hooks/useImageStore';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import { useT } from '@/lib/useT';
 import Image from 'next/image';
+import { set as idbSet, get as idbGet } from 'idb-keyval';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -123,14 +124,14 @@ export default function PLanding({ params }: Props) {
             const file = e.target.files?.[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (ev) => {
+            reader.onload = async (ev) => {
               const imgUrl = ev.target?.result as string;
               setOriginalImage(imgUrl);
-              // Persistir en localStorage
+              // Persistir provider en localStorage (puede quedarse, es pequeño)
               if (provider) {
                 localStorage.setItem('taun_provider', JSON.stringify(provider));
               }
-              localStorage.setItem('taun_original_image', imgUrl);
+              await idbSet('taun_original_image', imgUrl);
               router.push(`/p/${slug}/crop`);
             };
             reader.readAsDataURL(file);

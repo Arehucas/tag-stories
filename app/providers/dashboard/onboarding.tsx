@@ -37,6 +37,9 @@ export default function OnboardingProvider({ provider }: Props) {
   const [email, setEmail] = useState(provider?.email || "");
   const t = useT();
   const [logoPreview, setLogoPreview] = useState<string | null>(logoUrl || null);
+  const [debugInfo, setDebugInfo] = useState<{ name: string; size: number; type: string } | null>(null);
+  const [uploadResponse, setUploadResponse] = useState<any>(null);
+  const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
 
   // Expresión regular: solo letras, números, puntos y guiones bajos, sin @
   const instagramRegex = /^[a-zA-Z0-9._]+$/;
@@ -77,6 +80,11 @@ export default function OnboardingProvider({ provider }: Props) {
     if (e.target.files && e.target.files[0]) {
       setLogo(e.target.files[0]);
       setLogoPreview(URL.createObjectURL(e.target.files[0]));
+      setDebugInfo({
+        name: e.target.files[0].name,
+        size: Math.round(e.target.files[0].size / 1024),
+        type: e.target.files[0].type,
+      });
     }
   };
 
@@ -103,6 +111,7 @@ export default function OnboardingProvider({ provider }: Props) {
       formData.append("file", logo);
       const res = await fetch("/api/upload-logo", { method: "POST", body: formData });
       const data = await res.json();
+      if (isLocalhost) setUploadResponse(data);
       if (!data.url) {
         setError(t('onboarding.error_upload_logo'));
         setLoading(false);
@@ -183,6 +192,18 @@ export default function OnboardingProvider({ provider }: Props) {
           <div>
             <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.logo')}</label>
             <div className="text-xs text-white/60 mb-2">{t('onboarding.logo_note')}</div>
+            {isLocalhost && debugInfo && (
+              <div className="mb-2 p-2 bg-black/60 text-xs text-white rounded-lg">
+                <div><b>Archivo:</b> {debugInfo.name}</div>
+                <div><b>Tamaño:</b> {debugInfo.size} KB</div>
+                <div><b>Tipo:</b> {debugInfo.type}</div>
+              </div>
+            )}
+            {isLocalhost && uploadResponse && (
+              <div className="mb-2 p-2 bg-red-900/60 text-xs text-white rounded-lg">
+                <div><b>Respuesta backend:</b> {JSON.stringify(uploadResponse)}</div>
+              </div>
+            )}
             {logoPreview ? (
               <div className="flex items-center gap-4 mb-2">
                 <Image src={logoPreview} alt={t('onboarding.logo_preview_alt')} width={64} height={64} className="h-16 w-16 rounded-lg bg-white/10 object-contain" />

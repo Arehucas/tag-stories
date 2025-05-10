@@ -7,6 +7,8 @@ import { useImageStore } from '@/hooks/useImageStore';
 import { useProviderStore } from '@/hooks/useProviderStore';
 import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useT } from '@/lib/useT';
+import { get as idbGet } from 'idb-keyval';
+import { set as idbSet } from 'idb-keyval';
 
 export default function CropPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
@@ -107,6 +109,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     }
     const croppedDataUrl = canvas.toDataURL('image/png');
     setCroppedImage(croppedDataUrl);
+    await idbSet('taun_cropped_image', croppedDataUrl);
     router.push(`/p/${slug}/preview`);
   };
 
@@ -136,13 +139,17 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     };
   }, [originalImage]);
 
+  // Recuperar imagen original de IndexedDB si no está en memoria
   useEffect(() => {
-    // Restaurar imagen y provider desde localStorage SIEMPRE antes de cualquier redirección
-    const img = localStorage.getItem('taun_original_image');
-    if (img) setOriginalImage(img);
+    if (typeof window === 'undefined') return;
+    if (!originalImage) {
+      idbGet('taun_original_image').then(img => {
+        if (img) setOriginalImage(img);
+      });
+    }
     const prov = localStorage.getItem('taun_provider');
     if (prov) setProvider(JSON.parse(prov));
-  }, [setOriginalImage, setProvider]);
+  }, [originalImage, setOriginalImage, setProvider]);
 
   useEffect(() => {
     if (!originalImage) {

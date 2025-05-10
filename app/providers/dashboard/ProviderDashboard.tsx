@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import LoaderTable from "@/components/ui/LoaderTable";
-import { Instagram, Clock, Copy } from "lucide-react";
+import { Instagram, Clock, Copy, CheckCircle, ChevronRight } from "lucide-react";
 import Image from 'next/image';
 import Link from "next/link";
 import { useT } from '@/lib/useT';
@@ -159,6 +159,10 @@ export default function ProviderDashboard() {
 
   // Centralizo la comprobación de si el provider está completo
   const providerCompleto = provider && provider.nombre && provider.direccion && provider.ciudad && provider.instagram_handle && provider.logo_url;
+
+  // Filtrar stories validadas y pendientes
+  const validatedStories = stories.filter(s => s.status === 'validated');
+  const pendingStories = stories.filter(s => s.status === 'pending');
 
   // Mostrar loader si aún no hay provider válido (al menos email)
   if (!hydrated || loadingProvider || status === "loading" || !provider || !provider.email) {
@@ -352,17 +356,60 @@ export default function ProviderDashboard() {
             <svg width="22" height="22" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </Link>
         )}
-        {/* Lista de stories */}
+        {/* Lista de stories validadas */}
+        {validatedStories.length > 0 && (
+          <div className="w-full mt-6">
+            <h2 className="text-white text-lg font-semibold mb-2 flex items-center gap-2">
+              <CheckCircle className="w-6 h-6 text-blue-600" /> Stories validadas
+            </h2>
+            <div className="flex flex-col gap-4">
+              {validatedStories.map((story, i) => {
+                const date = new Date(story.createdAt);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = String(date.getFullYear()).slice(-2);
+                const hour = String(date.getHours()).padStart(2, '0');
+                const min = String(date.getMinutes()).padStart(2, '0');
+                return (
+                  <div
+                    key={i}
+                    className="bg-gradient-to-br from-[#18122b] to-[#0a0618] rounded-xl p-5 flex items-center gap-4 border border-violet-950/60 cursor-pointer hover:bg-blue-950/30 transition-colors"
+                    onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg shadow">
+                      <CheckCircle className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-semibold flex items-center gap-2">
+                        {`${day}/${month}/${year}`}
+                        <span className="font-normal text-white/50">· {hour}:{min}h</span>
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
+                      </div>
+                    </div>
+                    <ChevronRight className="w-6 h-6" style={{ color: '#2563eb' }} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {/* Lista de stories pendientes */}
         <div className="w-full mt-6">
-          <h2 className="text-white text-lg font-semibold mb-2">Stories pendientes</h2>
+          <h2 className="text-white text-lg font-semibold mb-2 flex items-center gap-2">
+            <Clock className="w-6 h-6 text-purple-600" /> Stories pendientes
+          </h2>
           <div className="flex flex-col gap-4">
             {loadingStories ? (
               <div className="flex justify-center py-8"><LoaderTable /></div>
             ) : (
-              stories.length === 0 ? (
+              pendingStories.length === 0 ? (
                 <div className="text-gray-400 text-center py-8">No hay stories pendientes</div>
               ) : (
-                stories.map((story, i) => {
+                pendingStories.map((story, i) => {
                   const date = new Date(story.createdAt);
                   const day = String(date.getDate()).padStart(2, '0');
                   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -370,7 +417,13 @@ export default function ProviderDashboard() {
                   const hour = String(date.getHours()).padStart(2, '0');
                   const min = String(date.getMinutes()).padStart(2, '0');
                   return (
-                    <div key={i} className="bg-gradient-to-br from-[#18122b] to-[#0a0618] rounded-xl p-5 flex items-center gap-4 border border-violet-950/60">
+                    <div
+                      key={i}
+                      className="bg-gradient-to-br from-[#18122b] to-[#0a0618] rounded-xl p-5 flex items-center gap-4 border border-violet-950/60 cursor-pointer hover:bg-violet-900/30 transition-colors"
+                      onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
+                      role="button"
+                      tabIndex={0}
+                    >
                       <div className="w-10 h-10 rounded-full bg-violet-900 flex items-center justify-center text-white text-lg shadow">
                         <Clock className="w-6 h-6 text-violet-300" />
                       </div>
@@ -380,10 +433,10 @@ export default function ProviderDashboard() {
                           <span className="font-normal text-white/50">· {hour}:{min}h</span>
                         </div>
                         <div className="text-xs text-gray-400">
-                          {campaignNames[String(story.campaignId)] || 'Sin campaña'}
+                          {story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
                         </div>
                       </div>
-                      <button className="text-sm font-bold transition" style={{ color: secondaryBlue }}>Ver</button>
+                      <ChevronRight className="w-6 h-6" style={{ color: '#a259ff' }} />
                     </div>
                   );
                 })

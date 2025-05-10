@@ -5,7 +5,7 @@ export default function LoaderBolas({ text }: { text?: string }) {
   const t = useT();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#0f111d] relative">
-      <div className="ghost-loader">
+      <div className="ghost-loader w-2/3 max-w-xs sm:w-56 sm:max-w-[220px]" style={{ maxWidth: '90vw', aspectRatio: '1/1' }}>
         <div className="first">
           <ul>
             <li></li>

@@ -7,6 +7,8 @@ import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useRouter } from 'next/navigation';
 import { use } from "react";
 import { useT } from '@/lib/useT';
+import { useEffect, useState } from 'react';
+import { get as idbGet } from 'idb-keyval';
 
 export default function PreviewPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -23,22 +25,81 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   const router = useRouter();
   const t = useT();
 
-  // Restaurar imagen y provider desde localStorage si no están en el store
-  // Solo en cliente
-  if (typeof window !== 'undefined') {
+  // Estado para debug visual
+  const [debugInfo, setDebugInfo] = useState<{ size: number; type: string } | null>(null);
+  const [isLocalhost, setIsLocalhost] = useState(false);
+  const [uploadResponse, setUploadResponse] = useState<any>(null);
+  const [uploading, setUploading] = useState(false);
+  const [jpegDataUrl, setJpegDataUrl] = useState<string | null>(null);
+  const [jpegSize, setJpegSize] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      setIsLocalhost(
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        host === '0.0.0.0' ||
+        host.startsWith('192.168.') ||
+        host.startsWith('10.')
+      );
+    }
+  }, []);
+
+  // Recuperar imagen cropeada de IndexedDB si no está en memoria
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     if (!croppedImage) {
-      const img = localStorage.getItem('taun_cropped_image');
-      if (img) setCroppedImage(img);
+      idbGet('taun_cropped_image').then((img: string | undefined) => {
+        if (img) {
+          setCroppedImage(img);
+          setDebugInfo({
+            size: Math.round((img.length * 3 / 4) / 1024),
+            type: 'image/png',
+          });
+        } else {
+          setDebugInfo(null);
+        }
+      });
+    } else {
+      setDebugInfo({
+        size: Math.round((croppedImage.length * 3 / 4) / 1024),
+        type: 'image/png',
+      });
     }
-    if (!provider) {
-      const prov = localStorage.getItem('taun_provider');
-      if (prov) setProvider(JSON.parse(prov));
-    }
+  }, [croppedImage, setCroppedImage]);
+
+  // Generar DataURL JPEG desde el PNG cropeado
+  useEffect(() => {
+    if (!croppedImage) return;
+    const img = new window.Image();
+    img.src = croppedImage;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      const jpegUrl = canvas.toDataURL('image/jpeg', 0.85);
+      setJpegDataUrl(jpegUrl);
+      setJpegSize(Math.round((jpegUrl.length * 3 / 4) / 1024));
+    };
+  }, [croppedImage]);
+
+  // Restaurar provider desde localStorage si no está en el store
+  if (typeof window !== 'undefined' && !provider) {
+    const prov = localStorage.getItem('taun_provider');
+    if (prov) setProvider(JSON.parse(prov));
   }
 
-  // Redirigir si no hay imagen cropeada
+  // Redirigir si no hay imagen cropeada (solo tras intentar recuperar de IndexedDB)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !croppedImage) {
+      router.replace(`/p/${slug}`);
+    }
+  }, [croppedImage, router, slug]);
   if (typeof window !== 'undefined' && !croppedImage) {
-    router.replace(`/p/${slug}`);
     return null;
   }
 
@@ -54,9 +115,89 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
     for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
     const blob = new Blob([u8arr], { type: mime });
     formData.append('file', blob, 'story.png');
-    const res = await fetch('/api/upload-logo', { method: 'POST', body: formData });
-    const data = await res.json();
-    return data.url || null;
+    setUploading(true);
+    setUploadResponse(null);
+    let data = {};
+    try {
+      const res = await fetch('/api/upload-logo', { method: 'POST', body: formData });
+      data = await res.json();
+    } catch (e) {
+      data = { error: e?.toString() };
+    }
+    setUploadResponse(data);
+    setUploading(false);
+    return (data as any).url || null;
+  }
+
+  // --- Lógica de compartir multiplataforma adaptada de testshare ---
+  function isInstagramWebView() {
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent || navigator.vendor : '';
+    return /Instagram/.test(ua);
+  }
+  function isChromeOniOS() {
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    return /CriOS/.test(ua);
+  }
+  function isSafariOniOS() {
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    return /Safari/.test(ua) && /iPhone|iPad|iPod/.test(ua) && !/CriOS/.test(ua) && !/FxiOS/.test(ua);
+  }
+  function isAndroidBrowser() {
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    return /Android/.test(ua) && !/Instagram/.test(ua);
+  }
+  function getShareContext() {
+    if (isInstagramWebView()) return 'instagram';
+    if (isChromeOniOS()) return 'chrome_ios';
+    if (isSafariOniOS()) return 'safari_ios';
+    if (isAndroidBrowser()) return 'android';
+    return 'other';
+  }
+
+  async function handleShareJPEG(jpegDataUrl: string) {
+    const arr = jpegDataUrl.split(',');
+    const match = arr[0].match(/:(.*?);/);
+    const mime = match ? match[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+    const blob = new Blob([u8arr], { type: mime });
+    const file = new File([blob], 'story.jpg', { type: mime });
+    const context = getShareContext();
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'Imagen para Instagram Story',
+          text: 'Comparte tu imagen en Instagram Stories',
+        });
+        return;
+      } catch {
+        alert('No se pudo compartir la imagen. Se descargará.');
+      }
+    } else {
+      let msg = '';
+      if (context === 'chrome_ios') {
+        msg = 'Estás en Chrome para iOS. No se puede compartir imágenes directamente. Se descargará la imagen.';
+      } else if (context === 'instagram') {
+        msg = 'Estás en el WebView de Instagram. Si no se abre el diálogo de compartir, descarga la imagen y súbela manualmente.';
+      } else {
+        msg = 'Tu navegador no permite compartir imágenes generadas. Se descargará la imagen.';
+      }
+      alert(msg);
+    }
+    // Fallback: descarga automática
+    const urlDescarga = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = urlDescarga;
+    a.download = 'story.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => {
+      URL.revokeObjectURL(urlDescarga);
+    }, 200);
   }
 
   return (
@@ -74,59 +215,72 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                 </div>
               )}
             </div>
+            {isLocalhost && debugInfo && (
+              <div className="w-full bg-black/60 text-xs text-white rounded-lg p-2 my-2">
+                <div><b>DEBUG VISUAL (IP local):</b></div>
+                <div><b>Tamaño:</b> {debugInfo.size} KB</div>
+                <div><b>Tipo:</b> {debugInfo.type}</div>
+              </div>
+            )}
+            {isLocalhost && !debugInfo && (
+              <div className="w-full bg-yellow-900/60 text-xs text-white rounded-lg p-2 my-2">
+                <b>DEBUG VISUAL ACTIVO:</b> No hay imagen cropeada cargada.
+              </div>
+            )}
             <button
               className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
+              disabled={!croppedImage}
               onClick={async () => {
                 if (!croppedImage) return;
-                // Guardar en localStorage para persistencia
-                localStorage.setItem('taun_cropped_image', croppedImage);
-                // Compartir o descargar como antes (INSTANTÁNEO)
-                function dataURLtoBlob(dataurl: string) {
-                  const arr = dataurl.split(',');
-                  const match = arr[0].match(/:(.*?);/);
-                  const mime = match ? match[1] : 'image/png';
-                  const bstr = atob(arr[1]);
-                  const n = bstr.length;
-                  const u8arr = new Uint8Array(n);
-                  for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-                  return new Blob([u8arr], { type: mime });
-                }
-                const blob = dataURLtoBlob(croppedImage);
+                const arr = croppedImage.split(',');
+                const bstr = atob(arr[1]);
+                const u8arr = new Uint8Array(bstr.length);
+                for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
+                const blob = new Blob([u8arr], { type: 'image/png' });
                 const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.png` : 'story-local.png';
-                const file = new File([blob], fileName, { type: blob.type });
+                const file = new File([blob], fileName, { type: 'image/png' });
+                let shared = false;
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                   try {
                     await navigator.share({
-                      files: [file]
+                      files: [file],
+                      title: 'Comparte tu story',
+                      text: 'Publica tu story en Instagram',
                     });
+                    shared = true;
                   } catch {
                     // Si el usuario cancela o falla, sigue con la descarga
                   }
-                } else {
+                }
+                if (!shared) {
                   // Fallback: descarga automática
-                  const urlDescarga = URL.createObjectURL(blob);
+                  const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
-                  a.href = urlDescarga;
+                  a.href = url;
                   a.download = fileName;
                   document.body.appendChild(a);
                   a.click();
                   document.body.removeChild(a);
                   setTimeout(() => {
-                    URL.revokeObjectURL(urlDescarga);
+                    URL.revokeObjectURL(url);
                   }, 200);
                 }
                 // SUBIDA Y REGISTRO EN SEGUNDO PLANO
                 setTimeout(async () => {
-                  const url = await subirImagenViaBackend(croppedImage);
-                  if (!url) {
-                    // Opcional: notifica al usuario si falla la subida
-                    return;
-                  }
-                  if (slug && url) {
+                  const uploadRes = await fetch('/api/upload-logo', {
+                    method: 'POST',
+                    body: (() => {
+                      const formData = new FormData();
+                      formData.append('file', blob, fileName);
+                      return formData;
+                    })(),
+                  });
+                  const uploadData = await uploadRes.json();
+                  if (slug && uploadData && uploadData.url) {
                     await fetch('/api/story-submission', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ providerId: slug, imageUrl: url }),
+                      body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
                     });
                   }
                 }, 0);
@@ -134,6 +288,63 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
             >
               {t('public_stories.share_instagram')}
             </button>
+            {isLocalhost && (
+              <div className="w-full bg-black/60 text-xs text-white rounded-lg p-2 my-2">
+                <div><b>DEBUG VISUAL (IP local):</b></div>
+                {croppedImage ? (
+                  <>
+                    <div><b>Nombre:</b> story.png</div>
+                    <div><b>Tamaño:</b> {Math.round((croppedImage.length * 3 / 4) / 1024)} KB</div>
+                    <div><b>Tipo:</b> image/png</div>
+                    <div><b>DataURL inicio PNG:</b><br />
+                      {croppedImage.slice(0, 100).match(/.{1,50}/g)?.map((line, i) => (
+                        <span key={i}>{line}<br /></span>
+                      ))}
+                    </div>
+                    <div><b>DataURL fin PNG:</b><br />
+                      {croppedImage.slice(-100).match(/.{1,50}/g)?.map((line, i) => (
+                        <span key={i}>{line}<br /></span>
+                      ))}
+                    </div>
+                    {jpegDataUrl && (
+                      <>
+                        <div className="mt-2"><b>Nombre:</b> story.jpg</div>
+                        <div><b>Tamaño:</b> {jpegSize} KB</div>
+                        <div><b>Tipo:</b> image/jpeg</div>
+                        <div><b>DataURL inicio JPEG:</b><br />
+                          {jpegDataUrl.slice(0, 100).match(/.{1,50}/g)?.map((line, i) => (
+                            <span key={i}>{line}<br /></span>
+                          ))}
+                        </div>
+                        <div><b>DataURL fin JPEG:</b><br />
+                          {jpegDataUrl.slice(-100).match(/.{1,50}/g)?.map((line, i) => (
+                            <span key={i}>{line}<br /></span>
+                          ))}
+                        </div>
+                        <button
+                          className="mt-2 px-3 py-1 rounded bg-blue-700 text-white"
+                          onClick={async () => {
+                            if (jpegDataUrl) {
+                              await handleShareJPEG(jpegDataUrl);
+                            }
+                          }}
+                        >Compartir/Descargar JPEG</button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div>No hay imagen cropeada cargada.</div>
+                )}
+              </div>
+            )}
+            {isLocalhost && uploading && (
+              <div className="w-full bg-blue-900/60 text-xs text-white rounded-lg p-2 my-2">Subiendo imagen...</div>
+            )}
+            {isLocalhost && uploadResponse && (
+              <div className="w-full bg-red-900/60 text-xs text-white rounded-lg p-2 my-2">
+                <div><b>Respuesta backend:</b> {JSON.stringify(uploadResponse)}</div>
+              </div>
+            )}
           </div>
         </div>
         <Steps steps={steps} current={2} />
