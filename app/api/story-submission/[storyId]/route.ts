@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
 import { ObjectId } from 'mongodb';
-import type { NextRequest } from 'next/server';
 
 const ALLOWED_STATUSES = ['pending', 'validated', 'redeemed', 'rejected'];
 
-export async function GET(request: Request, context: { params: { storyId: string } }) {
+export async function GET(request: Request, context: { params: { storyId: string } }): Promise<Response> {
   const { storyId } = context.params;
   if (!storyId) {
     return NextResponse.json({ error: 'Falta storyId' }, { status: 400 });
@@ -33,13 +32,12 @@ export async function GET(request: Request, context: { params: { storyId: string
   return NextResponse.json({ ...story, _id: story._id?.toString?.() || story.id || "", campaignNombre });
 }
 
-export async function PATCH(req: NextRequest, context: { params: { storyId: string } }) {
-  const params = await context.params;
-  const { storyId } = params;
+export async function PATCH(request: Request, context: { params: { storyId: string } }): Promise<Response> {
+  const { storyId } = context.params;
   if (!storyId) {
     return NextResponse.json({ error: 'Falta storyId' }, { status: 400 });
   }
-  const { status } = await req.json();
+  const { status } = await request.json();
   if (!ALLOWED_STATUSES.includes(status)) {
     return NextResponse.json({ error: 'Estado no válido' }, { status: 400 });
   }
@@ -54,9 +52,8 @@ export async function PATCH(req: NextRequest, context: { params: { storyId: stri
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(req: NextRequest, context: { params: { storyId: string } }) {
-  const params = await context.params;
-  const { storyId } = params;
+export async function DELETE(request: Request, context: { params: { storyId: string } }): Promise<Response> {
+  const { storyId } = context.params;
   if (!storyId) {
     return NextResponse.json({ error: 'Falta storyId' }, { status: 400 });
   }
