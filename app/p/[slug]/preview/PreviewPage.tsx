@@ -236,20 +236,21 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
             )}
             <button
               className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
-              disabled={!croppedImage}
+              disabled={!croppedImage || uploading}
               onClick={async () => {
-                if (!croppedImage) return;
-                const arr = croppedImage.split(',');
-                const bstr = atob(arr[1]);
-                const u8arr = new Uint8Array(bstr.length);
-                for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
-                const blob = new Blob([u8arr], { type: 'image/png' });
-                const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.png` : 'story-local.png';
-                const file = new File([blob], fileName, { type: 'image/png' });
+                if (!croppedImage || !jpegDataUrl) return;
                 setUploading(true);
                 setUploadResponse(null);
-                let shared = false;
                 try {
+                  // 1. Preparar archivo JPEG
+                  const arr = jpegDataUrl.split(',');
+                  const bstr = atob(arr[1]);
+                  const u8arr = new Uint8Array(bstr.length);
+                  for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
+                  const blob = new Blob([u8arr], { type: 'image/jpeg' });
+                  const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.jpg` : 'story-local.jpg';
+                  const file = new File([blob], fileName, { type: 'image/jpeg' });
+                  let compartido = false;
                   if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                       await navigator.share({
@@ -257,51 +258,42 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                         title: 'Comparte tu story',
                         text: 'Publica tu story en Instagram',
                       });
-                      shared = true;
+                      compartido = true;
                     } catch (e) {
-                      console.log('Compartir cancelado o fallido:', e);
+                      compartido = false;
                     }
                   }
-                  if (!shared) {
-                    // Fallback: descarga automática
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => {
-                      URL.revokeObjectURL(url);
-                    }, 200);
+                  if (compartido) {
+                    // 2. Subir a Cloudinary
+                    const formData = new FormData();
+                    formData.append('file', blob, fileName);
+                    const uploadRes = await fetch('/api/upload-logo', {
+                      method: 'POST',
+                      body: formData,
+                    });
+                    const uploadData = await uploadRes.json();
+                    if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
+                    // 3. Guardar en BBDD
+                    const saveRes = await fetch('/api/story-submission', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
+                    });
+                    const saveData = await saveRes.json();
+                    if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
+                    setUploadResponse({ cloudinary: uploadData, db: saveData });
                   }
-                  // SUBIDA Y REGISTRO EN SEGUNDO PLANO
-                  const formData = new FormData();
-                  formData.append('file', blob, fileName);
-                  const uploadRes = await fetch('/api/upload-logo', {
-                    method: 'POST',
-                    body: formData,
-                  });
-                  const uploadData = await uploadRes.json();
-                  if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
-                  const saveRes = await fetch('/api/story-submission', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
-                  });
-                  const saveData = await saveRes.json();
-                  if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
-                  setUploadResponse({ cloudinary: uploadData, db: saveData });
-                  console.log('Subida y registro OK', { cloudinary: uploadData, db: saveData });
+                  // Si no se pudo compartir, no hacer nada (ni descarga ni alerta)
                 } catch (e) {
                   setUploadResponse({ error: e?.toString() });
-                  console.error('Error en subida/registro:', e);
+                  alert('Error en compartir/guardar: ' + (e?.toString() || ''));
+                  console.error('Error en compartir/guardar:', e);
                 } finally {
                   setUploading(false);
                 }
               }}
             >
-              {t('public_stories.share_instagram')}
+              {uploading ? t('public_stories.generating_story') : t('public_stories.share_instagram')}
             </button>
             {isLocalhost && (
               <div className="w-full bg-black/60 text-xs text-white rounded-lg p-2 my-2">
