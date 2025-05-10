@@ -32,9 +32,19 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   const [uploading, setUploading] = useState(false);
   const [jpegDataUrl, setJpegDataUrl] = useState<string | null>(null);
   const [jpegSize, setJpegSize] = useState<number | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    // Restaurar provider desde localStorage si no está en el store
+    if (!provider) {
+      const prov = localStorage.getItem('taun_provider');
+      if (prov) setProvider(JSON.parse(prov));
+    }
+    setIsReady(true);
+  }, [provider, setProvider]);
+
+  useEffect(() => {
+    if (isReady && typeof window !== 'undefined') {
       const host = window.location.hostname;
       setIsLocalhost(
         host === 'localhost' ||
@@ -44,10 +54,11 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
         host.startsWith('10.')
       );
     }
-  }, []);
+  }, [isReady]);
 
   // Recuperar imagen cropeada de IndexedDB si no está en memoria
   useEffect(() => {
+    if (!isReady) return;
     if (typeof window === 'undefined') return;
     if (!croppedImage) {
       idbGet('taun_cropped_image').then((img: string | undefined) => {
@@ -67,10 +78,11 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
         type: 'image/png',
       });
     }
-  }, [croppedImage, setCroppedImage]);
+  }, [croppedImage, setCroppedImage, isReady]);
 
   // Generar DataURL JPEG desde el PNG cropeado
   useEffect(() => {
+    if (!isReady) return;
     if (!croppedImage) return;
     const img = new window.Image();
     img.src = croppedImage;
@@ -85,22 +97,17 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
       setJpegDataUrl(jpegUrl);
       setJpegSize(Math.round((jpegUrl.length * 3 / 4) / 1024));
     };
-  }, [croppedImage]);
-
-  // Restaurar provider desde localStorage si no está en el store
-  if (typeof window !== 'undefined' && !provider) {
-    const prov = localStorage.getItem('taun_provider');
-    if (prov) setProvider(JSON.parse(prov));
-  }
+  }, [croppedImage, isReady]);
 
   // Redirigir si no hay imagen cropeada (solo tras intentar recuperar de IndexedDB)
   useEffect(() => {
-    if (typeof window !== 'undefined' && !croppedImage) {
+    if (isReady && typeof window !== 'undefined' && !croppedImage) {
       router.replace(`/p/${slug}`);
     }
-  }, [croppedImage, router, slug]);
-  if (typeof window !== 'undefined' && !croppedImage) {
-    return null;
+  }, [croppedImage, router, slug, isReady]);
+
+  if (!isReady) {
+    return <div />;
   }
 
   async function subirImagenViaBackend(dataUrl: string): Promise<string | null> {
