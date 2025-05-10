@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Every time you code check [README-vercel.md](mdc:README-vercel.md) to ensure it meets the conditions.
