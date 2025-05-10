@@ -128,7 +128,20 @@ export default function StoryDetailPage() {
         {/* Cabecera nueva */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300">
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  const origin = sessionStorage.getItem('storyBackOrigin');
+                  sessionStorage.removeItem('storyBackOrigin');
+                  if (origin === 'stories') {
+                    router.push('/providers/dashboard/stories');
+                    return;
+                  }
+                }
+                router.push('/providers/dashboard');
+              }}
+              className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300"
+            >
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
             <h1 className="text-2xl font-bold text-white">Story</h1>

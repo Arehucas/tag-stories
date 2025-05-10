@@ -236,20 +236,20 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
             )}
             <button
               className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
-              disabled={!croppedImage}
+              disabled={!croppedImage || uploading}
               onClick={async () => {
                 if (!croppedImage) return;
-                const arr = croppedImage.split(',');
-                const bstr = atob(arr[1]);
-                const u8arr = new Uint8Array(bstr.length);
-                for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
-                const blob = new Blob([u8arr], { type: 'image/png' });
-                const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.png` : 'story-local.png';
-                const file = new File([blob], fileName, { type: 'image/png' });
                 setUploading(true);
                 setUploadResponse(null);
                 try {
                   // 1. Subir a Cloudinary
+                  const arr = croppedImage.split(',');
+                  const bstr = atob(arr[1]);
+                  const u8arr = new Uint8Array(bstr.length);
+                  for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
+                  const blob = new Blob([u8arr], { type: 'image/png' });
+                  const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.png` : 'story-local.png';
+                  const file = new File([blob], fileName, { type: 'image/png' });
                   const formData = new FormData();
                   formData.append('file', blob, fileName);
                   const uploadRes = await fetch('/api/upload-logo', {
@@ -305,7 +305,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                 }
               }}
             >
-              {t('public_stories.share_instagram')}
+              {uploading ? t('public_stories.generating_story') : t('public_stories.share_instagram')}
             </button>
             {isLocalhost && (
               <div className="w-full bg-black/60 text-xs text-white rounded-lg p-2 my-2">

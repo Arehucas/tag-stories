@@ -9,6 +9,7 @@ import { Instagram, Clock, Copy, CheckCircle, ChevronRight } from "lucide-react"
 import Image from 'next/image';
 import Link from "next/link";
 import { useT } from '@/lib/useT';
+import ProviderDashboardStoryCard from '@/components/ui/ProviderDashboardStoryCard';
 
 const secondaryBlue = "#3a86ff";
 
@@ -214,6 +215,16 @@ export default function ProviderDashboard() {
                 <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/></svg>
                 <span>Campaña</span>
               </button>
+              <button
+                className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
+                onClick={() => {
+                  setMenuOpen(false);
+                  router.push('/providers/dashboard/stories');
+                }}
+              >
+                <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="12" r="3" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.4"/></svg>
+                <span>Stories</span>
+              </button>
               <div className="border-b border-violet-950/70 w-full mb-2" />
               {/* Aquí puedes añadir más opciones de menú si lo deseas */}
             </div>
@@ -363,37 +374,15 @@ export default function ProviderDashboard() {
               <CheckCircle className="w-6 h-6 text-blue-600" /> Stories validadas
             </h2>
             <div className="flex flex-col gap-4">
-              {validatedStories.map((story, i) => {
-                const date = new Date(story.createdAt);
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = String(date.getFullYear()).slice(-2);
-                const hour = String(date.getHours()).padStart(2, '0');
-                const min = String(date.getMinutes()).padStart(2, '0');
-                return (
-                  <div
-                    key={i}
-                    className="bg-gradient-to-br from-[#18122b] to-[#0a0618] rounded-xl p-5 flex items-center gap-4 border border-violet-950/60 cursor-pointer hover:bg-blue-950/30 transition-colors"
-                    onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
-                    role="button"
-                    tabIndex={0}
-                  >
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg shadow">
-                      <CheckCircle className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-white font-semibold flex items-center gap-2">
-                        {`${day}/${month}/${year}`}
-                        <span className="font-normal text-white/50">· {hour}:{min}h</span>
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
-                      </div>
-                    </div>
-                    <ChevronRight className="w-6 h-6" style={{ color: '#2563eb' }} />
-                  </div>
-                );
-              })}
+              {validatedStories.map((story, i) => (
+                <ProviderDashboardStoryCard
+                  key={i}
+                  story={story}
+                  campaignName={story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
+                  onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
+                  origin="dashboard"
+                />
+              ))}
             </div>
           </div>
         )}
@@ -409,37 +398,15 @@ export default function ProviderDashboard() {
               pendingStories.length === 0 ? (
                 <div className="text-gray-400 text-center py-8">No hay stories pendientes</div>
               ) : (
-                pendingStories.map((story, i) => {
-                  const date = new Date(story.createdAt);
-                  const day = String(date.getDate()).padStart(2, '0');
-                  const month = String(date.getMonth() + 1).padStart(2, '0');
-                  const year = String(date.getFullYear()).slice(-2);
-                  const hour = String(date.getHours()).padStart(2, '0');
-                  const min = String(date.getMinutes()).padStart(2, '0');
-                  return (
-                    <div
-                      key={i}
-                      className="bg-gradient-to-br from-[#18122b] to-[#0a0618] rounded-xl p-5 flex items-center gap-4 border border-violet-950/60 cursor-pointer hover:bg-violet-900/30 transition-colors"
-                      onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-violet-900 flex items-center justify-center text-white text-lg shadow">
-                        <Clock className="w-6 h-6 text-violet-300" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-white font-semibold flex items-center gap-2">
-                          {`${day}/${month}/${year}`}
-                          <span className="font-normal text-white/50">· {hour}:{min}h</span>
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
-                        </div>
-                      </div>
-                      <ChevronRight className="w-6 h-6" style={{ color: '#a259ff' }} />
-                    </div>
-                  );
-                })
+                pendingStories.map((story, i) => (
+                  <ProviderDashboardStoryCard
+                    key={i}
+                    story={story}
+                    campaignName={story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
+                    onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
+                    origin="dashboard"
+                  />
+                ))
               )
             )}
           </div>

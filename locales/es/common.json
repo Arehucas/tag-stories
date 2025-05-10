@@ -195,7 +195,8 @@
     "share_url_label": "Tu URL para compartir",
     "url_copied": "URL copiada!",
     "copy_url": "Copiar URL",
-    "brand_data_title": "Datos de Marca"
+    "brand_data_title": "Datos de Marca",
+    "stories_title": "Stories"
   },
   "landing_rework": {
     "hero_title": "Automatiza tus recompensas en Instagram",
@@ -244,6 +245,7 @@
     "select_image": "Selecciona una imagen",
     "no_image": "No hay imagen",
     "share_instagram": "Compartir en Instagram",
+    "generating_story": "Generando story...",
     "upload_another": "Subir otra foto"
   },
   "campaign": {
