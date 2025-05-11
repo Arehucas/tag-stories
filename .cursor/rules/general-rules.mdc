@@ -3,4 +3,4 @@ description:
 globs: 
 alwaysApply: true
 ---
-Every time you code check [README-vercel.md](mdc:README-vercel.md) to ensure it meets the conditions.
+Every time you code check [README-vercel.md](mdc:README-vercel.md) and [README-security.md](mdc:README-security.md) to ensure it meets the conditions.

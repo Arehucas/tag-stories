@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
+import { getServerSession } from 'next-auth';
 
 // Defino el tipo para update
 interface UpdateCampaign {
@@ -13,11 +14,30 @@ interface UpdateCampaign {
   overlayUrl?: string;
 }
 
+async function checkProviderAccess(providerId: string) {
+  const session = await getServerSession();
+  if (!session || !session.user?.email) return null;
+  const db = await getDb();
+  // Buscar provider por email, shortId o slug
+  const provider = await db.collection('providers').findOne({
+    $or: [
+      { _id: providerId } as any,
+      { shortId: providerId },
+      { slug: providerId },
+      { email: providerId },
+    ],
+  });
+  if (!provider) return null;
+  if (provider.email !== session.user.email) return null;
+  return { session, db, provider };
+}
+
 // GET: Obtener campaña de un provider
 export async function GET(req: NextRequest, { params }: { params: Promise<{ providerId: string }> }) {
   const { providerId } = await params;
-  const db = await getDb();
-  const campaign = await db.collection('campaigns').findOne({ providerId });
+  const access = await checkProviderAccess(providerId);
+  if (!access) return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  const campaign = await access.db.collection('campaigns').findOne({ providerId });
   if (!campaign) {
     return NextResponse.json({ error: 'No hay campaña' }, { status: 404 });
   }
@@ -27,8 +47,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prov
 // POST: Crear campaña para un provider (solo si no existe)
 export async function POST(req: NextRequest, { params }: { params: Promise<{ providerId: string }> }) {
   const { providerId } = await params;
-  const db = await getDb();
-  const exists = await db.collection('campaigns').findOne({ providerId });
+  const access = await checkProviderAccess(providerId);
+  if (!access) return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  const exists = await access.db.collection('campaigns').findOne({ providerId });
   if (exists) {
     return NextResponse.json({ error: 'Ya existe campaña' }, { status: 400 });
   }
@@ -36,17 +57,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
   if (!body.nombre || typeof body.nombre !== 'string') {
     return NextResponse.json({ error: 'Nombre requerido' }, { status: 400 });
   }
-  // Obtener el provider para saber su overlayPreference
-  const provider = await db.collection('providers').findOne({ _id: providerId } as any) || await db.collection('providers').findOne({ shortId: providerId }) || await db.collection('providers').findOne({ slug: providerId }) || await db.collection('providers').findOne({ email: providerId });
-  if (!provider) {
-    return NextResponse.json({ error: 'Provider no encontrado. No se puede crear campaña.' }, { status: 404 });
-  }
   let overlayType = 'default';
   let overlayUrl = '/overlays/overlay-white-default.png';
-  if (provider.overlayPreference === 'dark-overlay') {
+  if (access.provider.overlayPreference === 'dark-overlay') {
     overlayUrl = '/overlays/overlay-dark-default.png';
   }
-  // Permitir override manual si se pasa en el body
   if (body.overlayType) overlayType = body.overlayType;
   if (body.overlayUrl) overlayUrl = body.overlayUrl;
   const campaign = {
@@ -60,15 +75,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
     createdAt: new Date(),
     updatedAt: new Date(),
   };
-  const result = await db.collection('campaigns').insertOne(campaign);
+  const result = await access.db.collection('campaigns').insertOne(campaign);
   return NextResponse.json({ ...campaign, _id: result.insertedId });
 }
 
 // PATCH: Editar campaña (nombre, activar/desactivar)
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ providerId: string }> }) {
   const { providerId } = await params;
-  const db = await getDb();
-  const campaign = await db.collection('campaigns').findOne({ providerId });
+  const access = await checkProviderAccess(providerId);
+  if (!access) return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  const campaign = await access.db.collection('campaigns').findOne({ providerId });
   if (!campaign) {
     return NextResponse.json({ error: 'No hay campaña' }, { status: 404 });
   }
@@ -92,7 +108,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
   if (typeof body.overlayUrl === 'string') {
     (update as any).overlayUrl = body.overlayUrl;
   }
-  await db.collection('campaigns').updateOne({ providerId }, { $set: update });
-  const updated = await db.collection('campaigns').findOne({ providerId });
+  await access.db.collection('campaigns').updateOne({ providerId }, { $set: update });
+  const updated = await access.db.collection('campaigns').findOne({ providerId });
   return NextResponse.json(updated);
 } 
