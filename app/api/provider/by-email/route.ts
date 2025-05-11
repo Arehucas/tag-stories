@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { email, nombre, direccion, ciudad, instagram_handle, logo_url } = body;
+  const { email, nombre, direccion, ciudad, instagram_handle, logo_url, overlayPreference } = body;
   if (!email) {
     return NextResponse.json({ error: "Email requerido" }, { status: 400 });
   }
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
         ciudad,
         instagram_handle,
         logo_url,
+        overlayPreference,
         updatedAt: new Date(),
       },
       $setOnInsert: { createdAt: new Date(), email },
@@ -42,6 +43,22 @@ export async function POST(req: NextRequest) {
   );
   // @ts-expect-error: result.value puede ser undefined según el tipado de MongoDB, pero está bien para este flujo
   const provider = result.value;
+
+  // Si hay campaña para este provider, actualiza overlayType y overlayUrl
+  if (provider) {
+    const providerIds = [provider._id?.toString(), provider.shortId, provider.slug, provider.email].filter(Boolean);
+    const campaign = await db.collection("campaigns").findOne({ providerId: { $in: providerIds } });
+    if (campaign) {
+      const overlayUrl = overlayPreference === 'dark-overlay'
+        ? '/overlays/overlay-dark-default.png'
+        : '/overlays/overlay-white-default.png';
+      await db.collection("campaigns").updateOne(
+        { providerId: campaign.providerId },
+        { $set: { overlayType: 'default', overlayUrl } }
+      );
+    }
+  }
+
   return NextResponse.json(
     provider ? { ...JSON.parse(JSON.stringify(provider)), _id: provider._id?.toString() } : null
   );

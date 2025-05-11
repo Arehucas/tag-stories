@@ -47,6 +47,8 @@ export default function StoryDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [campaign, setCampaign] = useState<any>(null);
+  const [overlayUrl, setOverlayUrl] = useState<string>("/overlays/overlay-white-default.png");
 
   // Fetch de datos
   useEffect(() => {
@@ -62,6 +64,15 @@ export default function StoryDetailPage() {
       .catch(() => setError("Error al cargar la story"))
       .finally(() => setLoading(false));
   }, [storyId]);
+
+  useEffect(() => {
+    if (story?.providerId) {
+      fetch(`/api/provider/${story.providerId}/campaign`).then(res => res.ok ? res.json() : null).then(camp => {
+        setCampaign(camp && !camp.error ? camp : null);
+        setOverlayUrl((camp && camp.overlayUrl) || "/overlays/overlay-white-default.png");
+      });
+    }
+  }, [story?.providerId]);
 
   // Lógica de cambio de estado
   const nextStatus: StoryStatus = story?.status === "pending"
@@ -233,7 +244,22 @@ export default function StoryDetailPage() {
             onClick={() => setExpanded(e => !e)}
           >
             <Image src={story.imageUrl} alt="Story" fill className="object-cover rounded-[20px] transition-all duration-300" />
-            {story.overlayUrl && <Image src={story.overlayUrl} alt="Overlay" fill className="object-cover opacity-80 rounded-[20px]" />}
+            {/* Overlay por encima de la imagen */}
+            <Image src={overlayUrl} alt="Overlay" fill style={{objectFit: 'cover', zIndex: 1}} />
+            {/* Logo del provider en la esquina inferior derecha */}
+            {story.providerLogoUrl && (
+              <div style={{position: 'absolute', right: 50, bottom: 50, minWidth: 140, maxWidth: 280, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <Image
+                  src={story.providerLogoUrl}
+                  alt={story.providerName || 'Logo'}
+                  width={280}
+                  height={280}
+                  style={{ width: '100%', height: 'auto', borderRadius: 20, minWidth: 140, maxWidth: 280, background: 'rgba(255,255,255,0.7)' }}
+                  className="object-contain shadow-lg"
+                  priority
+                />
+              </div>
+            )}
             {!expanded && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/10">
                 <Maximize2 size={64} className="text-white opacity-30" />

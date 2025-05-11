@@ -25,6 +25,8 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   const provider = useProviderStore(state => state.provider);
   const setProvider = useProviderStore(state => state.setProvider);
   const t = useT();
+  const [campaign, setCampaign] = useState<any>(null);
+  const [overlayUrl, setOverlayUrl] = useState<string>("/overlays/overlay-white-default.png");
 
   const steps = [
     { title: t('upload_photo'), description: t('choose_or_take') },
@@ -79,33 +81,26 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       targetWidth,
       targetHeight
     );
-    // Overlay: gradiente en la parte inferior
-    const grad = ctx.createLinearGradient(0, targetHeight, 0, targetHeight - targetHeight * 0.25);
-    grad.addColorStop(0, "rgba(58,134,255,0.95)");
-    grad.addColorStop(1, "rgba(247,37,133,0.7)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, targetHeight - targetHeight * 0.25, targetWidth, targetHeight * 0.25);
-    // Logo del provider en la esquina inferior derecha
+    // 2. Pintar overlay PNG
+    const overlayImg = new window.Image();
+    overlayImg.src = overlayUrl;
+    await new Promise((res) => { overlayImg.onload = res; });
+    ctx.drawImage(overlayImg, 0, 0, targetWidth, targetHeight);
+    // 3. Pintar logo del provider en la esquina inferior derecha
     if (provider?.logo_url) {
       const logo = new window.Image();
       logo.crossOrigin = "anonymous";
       logo.src = provider.logo_url;
       await new Promise((res) => { logo.onload = res; });
-      const logoSize = 90;
-      const logoX = targetWidth - logoSize - 36;
-      const logoY = targetHeight - logoSize - 36;
-      // Fondo circular blanco semitransparente
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, 2 * Math.PI);
-      ctx.globalAlpha = 0.85;
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
-      ctx.restore();
+      // Tamaño y posición
+      const logoMaxWidth = 280;
+      const logoMinWidth = 140;
+      const logoWidth = Math.max(Math.min(targetWidth * 0.25, logoMaxWidth), logoMinWidth);
+      const logoHeight = logoWidth; // Mantener aspect ratio cuadrado
+      const logoX = targetWidth - logoWidth - 50;
+      const logoY = targetHeight - logoHeight - 50;
+      // Pintar solo el logo, sin fondo
+      ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
     }
     const croppedDataUrl = canvas.toDataURL('image/png');
     setCroppedImage(croppedDataUrl);
@@ -156,6 +151,14 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       router.replace(`/p/${slug}`);
     }
   }, [originalImage, router, slug]);
+
+  useEffect(() => {
+    // Obtener campaña y overlayUrl
+    fetch(`/api/provider/${slug}/campaign`).then(res => res.ok ? res.json() : null).then(camp => {
+      setCampaign(camp && !camp.error ? camp : null);
+      setOverlayUrl((camp && camp.overlayUrl) || "/overlays/overlay-white-default.png");
+    });
+  }, [slug]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">

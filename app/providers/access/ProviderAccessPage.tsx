@@ -52,24 +52,8 @@ export default function ProviderAccess() {
         <p className="text-white/80 text-lg text-center mb-8 max-w-xs">
           {t('access.description')}
         </p>
-        <button
-          onClick={() => signIn("google")}
-          className="btn-google-gradient w-full max-w-xs mb-4"
-        >
-          <span>
-            <svg width="28" height="28" viewBox="0 0 48 48" className="inline-block">
-              <g>
-                <path fill="#4285F4" d="M24 9.5c3.54 0 6.04 1.53 7.43 2.81l5.48-5.48C33.64 3.54 29.36 1.5 24 1.5 14.98 1.5 7.06 7.98 4.22 16.26l6.77 5.26C12.5 15.02 17.77 9.5 24 9.5z"/>
-                <path fill="#34A853" d="M46.1 24.5c0-1.64-.15-3.22-.43-4.74H24v9.04h12.4c-.54 2.9-2.18 5.36-4.64 7.04l7.18 5.6C43.94 37.02 46.1 31.22 46.1 24.5z"/>
-                <path fill="#FBBC05" d="M10.99 28.24A14.48 14.48 0 0 1 9.5 24c0-1.48.25-2.92.7-4.24l-6.77-5.26A23.94 23.94 0 0 0 0 24c0 3.77.9 7.34 2.5 10.5l8.49-6.26z"/>
-                <path fill="#EA4335" d="M24 46.5c6.48 0 11.92-2.14 15.9-5.84l-7.18-5.6c-2 1.4-4.54 2.24-8.72 2.24-6.23 0-11.5-5.52-12.99-12.74l-8.49 6.26C7.06 40.02 14.98 46.5 24 46.5z"/>
-                <path fill="none" d="M0 0h48v48H0z"/>
-              </g>
-            </svg>
-            <span className="text-base font-medium">{t('access.googleButton')}</span>
-          </span>
-        </button>
-        {process.env.NODE_ENV === "development" && (
+        {/* Botón de acceso: solo demo en localhost */}
+        {isLocalhost && (
           <button
             className="btn-google-gradient w-full max-w-xs mb-4"
             onClick={async () => {

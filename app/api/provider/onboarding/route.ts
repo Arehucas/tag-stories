@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   console.log("[ONBOARDING] Petición recibida en /api/provider/onboarding");
   const body = await req.json();
   console.log("[ONBOARDING] Body recibido:", body);
-  const { nombre, direccion, ciudad, instagram_handle, logo_url, email } = body;
+  const { nombre, direccion, ciudad, instagram_handle, logo_url, email, overlayPreference } = body;
   if (!nombre || !direccion || !ciudad || !instagram_handle || !logo_url || !email) {
     console.log("[ONBOARDING] Faltan campos obligatorios");
     return NextResponse.json({ error: "Todos los campos son obligatorios" }, { status: 400 });
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
         instagram_handle,
         logo_url,
         email,
+        overlayPreference: overlayPreference || 'light-overlay',
         updatedAt: new Date(),
       },
       $setOnInsert: { createdAt: new Date(), shortId, slug },

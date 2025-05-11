@@ -12,6 +12,7 @@ interface Provider {
   instagram_handle?: string;
   logo_url?: string;
   email?: string;
+  overlayPreference?: 'dark-overlay' | 'light-overlay';
 }
 
 interface Props {
@@ -40,6 +41,7 @@ export default function OnboardingProvider({ provider }: Props) {
   const [debugInfo, setDebugInfo] = useState<{ name: string; size: number; type: string } | null>(null);
   const [uploadResponse, setUploadResponse] = useState<any>(null);
   const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  const [overlayPreference, setOverlayPreference] = useState<'dark-overlay' | 'light-overlay'>('light-overlay');
 
   // Expresión regular: solo letras, números, puntos y guiones bajos, sin @
   const instagramRegex = /^[a-zA-Z0-9._]+$/;
@@ -76,7 +78,41 @@ export default function OnboardingProvider({ provider }: Props) {
     }
   }, [provider, session]);
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  async function analyzeLogoColorAndTransparency(fileOrUrl: File | string): Promise<'dark-overlay' | 'light-overlay'> {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve('light-overlay');
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let light = 0, dark = 0, transparent = 0, total = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+          if (a < 128) { transparent++; continue; }
+          const brightness = 0.299*r + 0.587*g + 0.114*b;
+          if (brightness > 180) light++;
+          else dark++;
+          total++;
+        }
+        const hasTransparency = transparent > total * 0.05;
+        const isLight = light > dark;
+        if (hasTransparency) {
+          resolve(isLight ? 'dark-overlay' : 'light-overlay');
+        } else {
+          resolve(isLight ? 'light-overlay' : 'dark-overlay');
+        }
+      };
+      if (typeof fileOrUrl === 'string') img.src = fileOrUrl;
+      else img.src = URL.createObjectURL(fileOrUrl);
+    });
+  }
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setLogo(e.target.files[0]);
       setLogoPreview(URL.createObjectURL(e.target.files[0]));
@@ -85,6 +121,8 @@ export default function OnboardingProvider({ provider }: Props) {
         size: Math.round(e.target.files[0].size / 1024),
         type: e.target.files[0].type,
       });
+      const pref = await analyzeLogoColorAndTransparency(e.target.files[0]);
+      setOverlayPreference(pref);
     }
   };
 
@@ -130,6 +168,7 @@ export default function OnboardingProvider({ provider }: Props) {
         instagram_handle: instagram,
         logo_url: finalLogoUrl,
         email,
+        overlayPreference,
       }),
     });
     if (!res.ok) {
@@ -206,7 +245,7 @@ export default function OnboardingProvider({ provider }: Props) {
             )}
             {logoPreview ? (
               <div className="flex items-center gap-4 mb-2">
-                <Image src={logoPreview} alt={t('onboarding.logo_preview_alt')} width={64} height={64} className="h-16 w-16 rounded-lg bg-white/10 object-contain" />
+                <Image src={logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded-lg border-2 border-[#a259ff]" width={80} height={80} />
                 <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">{t('onboarding.change_logo')}</button>
               </div>
             ) : (

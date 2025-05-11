@@ -13,6 +13,7 @@ interface Provider {
   nombre?: string;
   logo_url?: string;
   slug?: string;
+  overlayPreference?: string;
   // ...otros campos
 }
 interface Campaign {
@@ -21,6 +22,8 @@ interface Campaign {
   descripcion?: string;
   isActive?: boolean;
   requiredStories?: number;
+  overlayType?: string;
+  overlayUrl?: string;
   // ...otros campos
 }
 interface Form {
@@ -28,6 +31,8 @@ interface Form {
   descripcion: string;
   isActive: boolean;
   requiredStories: number;
+  overlayType: string;
+  overlayUrl: string;
 }
 
 export default function CampaignDashboard() {
@@ -36,7 +41,7 @@ export default function CampaignDashboard() {
   const [provider, setProvider] = useState<Provider | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState<Form>({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
+  const [form, setForm] = useState<Form>({ nombre: "", descripcion: "", isActive: false, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -51,108 +56,77 @@ export default function CampaignDashboard() {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (typeof window !== "undefined") {
-      const demoSession = localStorage.getItem("demoSession");
-      if (demoSession) {
-        const demoUser = JSON.parse(demoSession);
-        if (demoUser && demoUser.provider && demoUser.provider.slug) {
-          setProvider(demoUser.provider);
-          // Cargar campaña para el provider demo
-          fetch(`/api/provider/${demoUser.provider.slug}/campaign`)
-            .then(async res => {
-              if (!res.ok) {
-                setCampaign(null);
-                setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
-                setLoading(false);
-                return;
-              }
-              const camp = await res.json();
-              setCampaign(camp && !camp.error ? camp : null);
-              console.log("DEBUG campaña recibida:", camp);
-              setForm(camp && !camp.error
-                ? {
-                    nombre: camp.nombre || "",
-                    descripcion: camp.descripcion || "",
-                    isActive: camp.isActive === undefined ? true : camp.isActive,
-                    requiredStories: camp.requiredStories ?? 1,
-                  }
-                : {
-                    nombre: "",
-                    descripcion: "",
-                    isActive: true,
-                    requiredStories: 1,
-                  }
-              );
-              setLoading(false);
-            })
-            .catch(() => {
-              setCampaign(null);
-              setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
-              setLoading(false);
-            });
-        } else {
-          setProvider(null);
-          setCampaign(null);
-          setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
-          setLoading(false);
+    async function fetchAndSyncProvider() {
+      let currentProvider = null;
+      if (typeof window !== "undefined") {
+        const demoSession = localStorage.getItem("demoSession");
+        if (demoSession) {
+          const demoUser = JSON.parse(demoSession);
+          if (demoUser && demoUser.provider && demoUser.provider.email) {
+            // Refresca el provider desde la API
+            const res = await fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.provider.email)}`);
+            if (!res.ok) {
+              localStorage.removeItem("demoSession");
+              router.replace("/providers/access");
+              return;
+            }
+            currentProvider = await res.json();
+            setProvider(currentProvider);
+            localStorage.setItem("demoSession", JSON.stringify({ provider: currentProvider }));
+          }
         }
-        return;
       }
-    }
-    if (status !== "authenticated" || !session?.user?.email) {
-      setLoading(false);
-      return;
-    }
-    fetch(`/api/provider/by-email?email=${encodeURIComponent(session.user.email)}`)
-      .then(res => {
-        if (res.ok) return res.json();
-        return null;
-      })
-      .then(data => {
-        setProvider(data);
-        if (data?.slug) {
-          fetch(`/api/provider/${data.slug}/campaign`)
-            .then(async res => {
-              if (!res.ok) {
-                setLoading(false);
-                setCampaign(null);
-                setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
-                return;
-              }
-              const camp = await res.json();
-              setCampaign(camp && !camp.error ? camp : null);
-              console.log("DEBUG campaña recibida:", camp);
-              setForm(camp && !camp.error
-                ? {
-                    nombre: camp.nombre || "",
-                    descripcion: camp.descripcion || "",
-                    isActive: camp.isActive === undefined ? true : camp.isActive,
-                    requiredStories: camp.requiredStories ?? 1,
-                  }
-                : {
-                    nombre: "",
-                    descripcion: "",
-                    isActive: true,
-                    requiredStories: 1,
-                  }
-              );
-              setLoading(false);
-            })
-            .catch(() => {
-              setLoading(false);
-              setCampaign(null);
-              setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
-            });
-        } else {
-          setLoading(false);
+      if (!currentProvider && status === "authenticated" && session?.user?.email) {
+        const res = await fetch(`/api/provider/by-email?email=${encodeURIComponent(session.user.email)}`);
+        if (!res.ok) {
+          if (typeof window !== "undefined") localStorage.removeItem("demoSession");
+          router.replace("/providers/access");
+          return;
         }
-      })
-      .catch(() => {
+        currentProvider = await res.json();
+        setProvider(currentProvider);
+        if (typeof window !== "undefined") localStorage.setItem("demoSession", JSON.stringify({ provider: currentProvider }));
+      }
+      if (!currentProvider) {
         setProvider(null);
         setCampaign(null);
-        setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1 });
+        setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" });
         setLoading(false);
-      });
+        return;
+      }
+      // Cargar campaña para el provider actualizado
+      if (currentProvider.slug) {
+        const res = await fetch(`/api/provider/${currentProvider.slug}/campaign`);
+        if (!res.ok) {
+          setCampaign(null);
+          setForm({ nombre: "", descripcion: "", isActive: true, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" });
+          setLoading(false);
+          return;
+        }
+        const camp = await res.json();
+        setCampaign(camp && !camp.error ? camp : null);
+        setForm(camp && !camp.error
+          ? {
+              nombre: camp.nombre || "",
+              descripcion: camp.descripcion || "",
+              isActive: camp.isActive === undefined ? true : camp.isActive,
+              requiredStories: camp.requiredStories ?? 1,
+              overlayType: camp.overlayType || "default",
+              overlayUrl: camp.overlayUrl || "/overlays/overlay-white-default.png",
+            }
+          : {
+              nombre: "",
+              descripcion: "",
+              isActive: true,
+              requiredStories: 1,
+              overlayType: "default",
+              overlayUrl: "/overlays/overlay-white-default.png",
+            }
+        );
+        setLoading(false);
+      }
+    }
+    fetchAndSyncProvider();
   }, [status, session, hydrated]);
 
   if (!hydrated) {
@@ -187,10 +161,18 @@ export default function CampaignDashboard() {
     }
     setForm({ ...form, isActive: checked });
     setSaving(true);
+    let patchBody: any = { isActive: checked };
+    // Si se activa, sincroniza overlay con overlayPreference
+    if (checked && provider.overlayPreference) {
+      patchBody.overlayType = 'default';
+      patchBody.overlayUrl = provider.overlayPreference === 'dark-overlay'
+        ? '/overlays/overlay-dark-default.png'
+        : '/overlays/overlay-white-default.png';
+    }
     const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: checked }),
+      body: JSON.stringify(patchBody),
     });
     if (res.ok) {
       const data = await res.json();
@@ -226,6 +208,8 @@ export default function CampaignDashboard() {
         nombre: form.nombre,
         descripcion: form.descripcion,
         requiredStories: form.requiredStories,
+        overlayType: form.overlayType,
+        overlayUrl: form.overlayUrl,
       }),
     });
     if (res.ok) {
@@ -342,7 +326,7 @@ export default function CampaignDashboard() {
             <div className="text-blue-100 text-center text-base">{t('campaign.need_active')}</div>
             <button
               className="mt-2 px-6 py-3 rounded-full border border-blue-700 text-blue-100 bg-gradient-to-r from-blue-900 to-blue-800 hover:bg-blue-800/80 transition text-base font-medium shadow-lg"
-              onClick={() => { setShowNewForm(true); setForm({ nombre: '', descripcion: '', isActive: false, requiredStories: 1 }); }}
+              onClick={() => { setShowNewForm(true); setForm({ nombre: '', descripcion: '', isActive: true, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" }); }}
               disabled={saving}
             >
               {t('campaign.create')}

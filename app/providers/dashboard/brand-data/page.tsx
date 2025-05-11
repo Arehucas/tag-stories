@@ -6,6 +6,7 @@ import LoaderBolas from "@/components/ui/LoaderBolas";
 import common from '@/locales/es/common.json';
 import Image from 'next/image';
 import { useT } from '@/lib/useT';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 
 interface Provider {
   slug?: string;
@@ -15,6 +16,8 @@ interface Provider {
   instagram_handle?: string;
   logo_url?: string;
   email?: string;
+  overlayPreference?: string;
+  shortId?: string;
   [key: string]: unknown;
 }
 
@@ -31,6 +34,10 @@ export default function BrandData() {
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useT();
+  const [overlayPreference, setOverlayPreference] = useState<string>(provider?.overlayPreference || 'light-overlay');
+  const [campaignActive, setCampaignActive] = useState<boolean>(false);
+  const [showOverlayBlockDialog, setShowOverlayBlockDialog] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -86,49 +93,127 @@ export default function BrandData() {
       });
   }, [status, session]);
 
+  useEffect(() => {
+    if (provider?.slug) {
+      fetch(`/api/provider/${provider.slug}/campaign`).then(res => res.ok ? res.json() : null).then(camp => {
+        setCampaignActive(!!(camp && camp.isActive));
+      });
+    }
+  }, [provider]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  async function analyzeLogoColorAndTransparency(fileOrUrl: File | string): Promise<'dark-overlay' | 'light-overlay'> {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve('light-overlay');
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let light = 0, dark = 0, transparent = 0, total = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+          if (a < 128) { transparent++; continue; }
+          const brightness = 0.299*r + 0.587*g + 0.114*b;
+          if (brightness > 130) light++;
+          else dark++;
+          total++;
+        }
+        const hasTransparency = transparent > total * 0.05; // 5% de píxeles transparentes
+        const isLight = light > dark;
+        // Reglas
+        if (hasTransparency) {
+          resolve(isLight ? 'dark-overlay' : 'light-overlay');
+        } else {
+          resolve(isLight ? 'light-overlay' : 'dark-overlay');
+        }
+      };
+      if (typeof fileOrUrl === 'string') img.src = fileOrUrl;
+      else img.src = URL.createObjectURL(fileOrUrl);
+    });
+  }
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      if (campaignActive) {
+        setShowOverlayBlockDialog(true);
+        return;
+      }
       setLogoFile(e.target.files[0]);
-      setLogoPreview(null);
+      setLogoPreview(URL.createObjectURL(e.target.files[0]));
+      setIsAnalyzing(true);
+      const overlayPref = await analyzeLogoColorAndTransparency(e.target.files[0]);
+      setOverlayPreference(overlayPref);
+      setIsAnalyzing(false);
     }
   };
 
-  const handleLogoButton = () => {
+  const handleLogoButton = async () => {
+    // Comprobar campaña activa antes de abrir el input
+    if (provider?.slug) {
+      const res = await fetch(`/api/provider/${provider.slug}/campaign`);
+      const camp = res.ok ? await res.json() : null;
+      if (camp && camp.isActive) {
+        setShowOverlayBlockDialog(true);
+        return;
+      }
+    }
     if (fileInputRef.current) fileInputRef.current.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    let logoUrl = form.logo_url;
+    let logoUrl = provider?.logo_url;
     if (logoFile) {
-      // Subir logo a Cloudinary (simulación, reemplazar por lógica real)
+      // Subir logo a /api/upload-logo igual que en onboarding
       const data = new FormData();
       data.append("file", logoFile);
-      data.append("upload_preset", "taunme");
-      const res = await fetch("https://api.cloudinary.com/v1_1/taunme/image/upload", {
-        method: "POST",
-        body: data,
-      });
-      const file = await res.json();
-      logoUrl = file.secure_url;
+      const resUpload = await fetch("/api/upload-logo", { method: "POST", body: data });
+      const uploadData = await resUpload.json();
+      if (uploadData && uploadData.url) {
+        logoUrl = uploadData.url;
+      }
     }
-    // Guardar provider
+    // Construir el body igual que en onboarding
+    const body = {
+      nombre: form.nombre,
+      direccion: form.direccion,
+      ciudad: form.ciudad,
+      instagram_handle: form.instagram_handle,
+      logo_url: logoUrl,
+      email: form.email,
+      overlayPreference,
+    };
     const res = await fetch("/api/provider/by-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, logo_url: logoUrl, email: form.email }),
+      body: JSON.stringify(body),
     });
     if (res.ok) {
-      setProvider({ ...form, logo_url: logoUrl });
-      setLogoPreview(logoUrl ?? null);
+      setProvider({ ...form, logo_url: logoUrl ?? provider?.logo_url, overlayPreference });
+      setLogoPreview(logoUrl ?? provider?.logo_url ?? null);
       setLogoFile(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
+      // Actualizar overlay de la campaña usando shortId
+      if (provider?.shortId) {
+        let overlayUrl = overlayPreference === 'dark-overlay'
+          ? '/overlays/overlay-dark-default.png'
+          : '/overlays/overlay-white-default.png';
+        fetch(`/api/provider/${provider.shortId}/campaign`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ overlayType: 'default', overlayUrl }),
+        });
+      }
     }
     setSaving(false);
   };
@@ -184,10 +269,15 @@ export default function BrandData() {
           {/* Logo */}
           <div className="flex flex-col gap-2">
             <label className="text-white/80 font-semibold">Logo</label>
-            {logoPreview && !logoFile && (
+            {logoPreview && (
               <div className="flex items-center gap-4">
-                <Image src={logoPreview} alt="Logo actual" className="w-20 h-20 object-cover rounded-lg border border-violet-900 bg-white" width={80} height={80} />
-                <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition">Cambiar logo</button>
+                <Image src={logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded-lg border-2 border-[#a259ff]" width={80} height={80} />
+                {logoFile && (
+                  <button type="button" onClick={() => { setLogoFile(null); setLogoPreview(provider?.logo_url ?? null); }} className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition">Cancelar</button>
+                )}
+                {!logoFile && (
+                  <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition">Cambiar logo</button>
+                )}
               </div>
             )}
             {!logoPreview && logoFile && (
@@ -201,7 +291,7 @@ export default function BrandData() {
             )}
             <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleLogoChange} />
           </div>
-          <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60" disabled={saving}>
+          <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60" disabled={saving || isAnalyzing}>
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
           {success && (
@@ -211,6 +301,22 @@ export default function BrandData() {
           )}
         </form>
       </div>
+      {showOverlayBlockDialog && (
+        <AlertDialog open={showOverlayBlockDialog} onOpenChange={setShowOverlayBlockDialog}>
+          <AlertDialogContent className="bg-[#18122b] rounded-xl p-8 border border-violet-950/60 shadow-lg text-white max-w-md mx-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle>No es posible cambiar el logo de una marca si hay una campaña activa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esto puede afectar al look and feel de tu marca. Desactiva tu campaña actual y podrás cambiar el logo de tu marca.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold">Entendido</AlertDialogCancel>
+              <AlertDialogAction className="px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold" onClick={() => { setShowOverlayBlockDialog(false); router.push('/providers/dashboard/campaign'); }}>Ir a campaña</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 } 

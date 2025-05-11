@@ -9,6 +9,8 @@ interface UpdateCampaign {
   updatedAt: Date;
   isActive?: boolean;
   requiredStories?: number;
+  overlayType?: string;
+  overlayUrl?: string;
 }
 
 // GET: Obtener campaña de un provider
@@ -34,12 +36,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
   if (!body.nombre || typeof body.nombre !== 'string') {
     return NextResponse.json({ error: 'Nombre requerido' }, { status: 400 });
   }
+  // Obtener el provider para saber su overlayPreference
+  const provider = await db.collection('providers').findOne({ _id: providerId } as any) || await db.collection('providers').findOne({ shortId: providerId }) || await db.collection('providers').findOne({ slug: providerId }) || await db.collection('providers').findOne({ email: providerId });
+  if (!provider) {
+    return NextResponse.json({ error: 'Provider no encontrado. No se puede crear campaña.' }, { status: 404 });
+  }
+  let overlayType = 'default';
+  let overlayUrl = '/overlays/overlay-white-default.png';
+  if (provider.overlayPreference === 'dark-overlay') {
+    overlayUrl = '/overlays/overlay-dark-default.png';
+  }
+  // Permitir override manual si se pasa en el body
+  if (body.overlayType) overlayType = body.overlayType;
+  if (body.overlayUrl) overlayUrl = body.overlayUrl;
   const campaign = {
     providerId,
     nombre: body.nombre,
     descripcion: typeof body.descripcion === 'string' ? body.descripcion : '',
     isActive: true,
     requiredStories: body.requiredStories ?? 1,
+    overlayType,
+    overlayUrl,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -68,6 +85,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
   }
   if (body.requiredStories && [1,2,5,10,20].includes(body.requiredStories)) {
     update.requiredStories = body.requiredStories;
+  }
+  if (typeof body.overlayType === 'string') {
+    (update as any).overlayType = body.overlayType;
+  }
+  if (typeof body.overlayUrl === 'string') {
+    (update as any).overlayUrl = body.overlayUrl;
   }
   await db.collection('campaigns').updateOne({ providerId }, { $set: update });
   const updated = await db.collection('campaigns').findOne({ providerId });
