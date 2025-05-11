@@ -85,17 +85,29 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
     if (!isReady) return;
     if (!croppedImage) return;
     const img = new window.Image();
+    img.crossOrigin = 'anonymous'; // Asegura que no haya problemas de CORS
     img.src = croppedImage;
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.drawImage(img, 0, 0);
-      const jpegUrl = canvas.toDataURL('image/jpeg', 0.85);
-      setJpegDataUrl(jpegUrl);
-      setJpegSize(Math.round((jpegUrl.length * 3 / 4) / 1024));
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('No se pudo obtener el contexto del canvas.');
+        ctx.drawImage(img, 0, 0);
+        const jpegUrl = canvas.toDataURL('image/jpeg', 0.85);
+        setJpegDataUrl(jpegUrl);
+        setJpegSize(Math.round((jpegUrl.length * 3 / 4) / 1024));
+      } catch (err) {
+        setJpegDataUrl(null);
+        setJpegSize(null);
+        alert('Error generando la imagen de preview: ' + (err?.toString() || ''));
+      }
+    };
+    img.onerror = (err) => {
+      setJpegDataUrl(null);
+      setJpegSize(null);
+      alert('Error cargando la imagen para generar el preview.');
     };
   }, [croppedImage, isReady]);
 
@@ -236,9 +248,12 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
             )}
             <button
               className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
-              disabled={!croppedImage || uploading}
+              disabled={!croppedImage || !jpegDataUrl || uploading}
               onClick={async () => {
-                if (!croppedImage || !jpegDataUrl) return;
+                if (!croppedImage || !jpegDataUrl) {
+                  alert('La imagen de preview no está lista.');
+                  return;
+                }
                 setUploading(true);
                 setUploadResponse(null);
                 try {
@@ -261,6 +276,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                       compartido = true;
                     } catch (e) {
                       compartido = false;
+                      alert('Error al compartir la imagen: ' + (e?.toString() || ''));
                     }
                   }
                   if (compartido) {
@@ -283,7 +299,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                     if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
                     setUploadResponse({ cloudinary: uploadData, db: saveData });
                   }
-                  // Si no se pudo compartir, no hacer nada (ni descarga ni alerta)
+                  // Si no se pudo compartir, no hacer nada (ni descarga ni alerta extra)
                 } catch (e) {
                   setUploadResponse({ error: e?.toString() });
                   alert('Error en compartir/guardar: ' + (e?.toString() || ''));
