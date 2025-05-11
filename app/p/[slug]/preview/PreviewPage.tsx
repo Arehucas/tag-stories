@@ -274,9 +274,11 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                         text: 'Publica tu story en Instagram',
                       });
                       compartido = true;
-                    } catch (e) {
+                    } catch (e: any) {
                       compartido = false;
-                      alert('Error al compartir la imagen: ' + (e?.toString() || ''));
+                      // Siempre mostrar el mensaje personalizado si no se comparte
+                      const ig = provider?.instagram_handle ? `@${provider.instagram_handle}` : '@ighandler';
+                      alert(`¡No has compartido la story! ${ig} no podrá revisar tu story y darte tu recompensa.`);
                     }
                   }
                   if (compartido) {
