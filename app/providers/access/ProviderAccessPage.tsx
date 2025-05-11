@@ -88,8 +88,10 @@ export default function ProviderAccess() {
             <span>
               <svg width="28" height="28" viewBox="0 0 48 48" className="inline-block">
                 <g>
-                  <circle cx="24" cy="24" r="20" fill="#fff" />
-                  <text x="24" y="30" textAnchor="middle" fontSize="18" fill="#4285F4" fontFamily="Arial">G</text>
+                  <path fill="#4285F4" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3-4.1 5.5-7.3 5.5-4.4 0-8-3.6-8-8s3.6-8 8-8c2 0 3.8.7 5.2 1.9l6.2-6.2C34.5 9.5 29.6 7.5 24 7.5 14.6 7.5 7 15.1 7 24.5S14.6 41.5 24 41.5c9.4 0 17-7.6 17-17 0-1.1-.1-2.1-.4-3z"/>
+                  <path fill="#34A853" d="M6.3 14.1l6.6 4.8C14.5 16.1 18.9 13 24 13c2 0 3.8.7 5.2 1.9l6.2-6.2C34.5 9.5 29.6 7.5 24 7.5c-6.6 0-12.2 3.8-15.2 9.1z"/>
+                  <path fill="#FBBC05" d="M24 41.5c5.6 0 10.5-1.9 14.3-5.2l-6.6-5.4c-2 1.4-4.5 2.1-7.7 2.1-5.9 0-10.8-4-12.6-9.4l-6.5 5c3 5.3 8.6 8.9 15.1 8.9z"/>
+                  <path fill="#EA4335" d="M43.6 20.5H42V20H24v8h11.3c-0.5 1.5-1.5 2.8-2.7 3.8l6.6 5.4c1.9-1.8 3.3-4.3 3.7-7.2z"/>
                 </g>
               </svg>
               <span className="text-base font-medium">{t('access.googleButton')}</span>
