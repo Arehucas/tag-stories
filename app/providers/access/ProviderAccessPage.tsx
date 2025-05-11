@@ -52,8 +52,8 @@ export default function ProviderAccess() {
         <p className="text-white/80 text-lg text-center mb-8 max-w-xs">
           {t('access.description')}
         </p>
-        {/* Botón de acceso: solo demo en localhost */}
-        {isLocalhost && (
+        {/* Botón de acceso: solo demo en localhost, solo Google en prod */}
+        {isLocalhost ? (
           <button
             className="btn-google-gradient w-full max-w-xs mb-4"
             onClick={async () => {
@@ -78,6 +78,21 @@ export default function ProviderAccess() {
                 </g>
               </svg>
               <span className="text-base font-medium">{t('access.demoButton')}</span>
+            </span>
+          </button>
+        ) : (
+          <button
+            className="btn-google-gradient w-full max-w-xs mb-4"
+            onClick={() => signIn('google')}
+          >
+            <span>
+              <svg width="28" height="28" viewBox="0 0 48 48" className="inline-block">
+                <g>
+                  <circle cx="24" cy="24" r="20" fill="#fff" />
+                  <text x="24" y="30" textAnchor="middle" fontSize="18" fill="#4285F4" fontFamily="Arial">G</text>
+                </g>
+              </svg>
+              <span className="text-base font-medium">{t('access.googleButton')}</span>
             </span>
           </button>
         )}
