@@ -42,6 +42,15 @@ const handler = NextAuth({
       return true;
     },
   },
+  events: {
+    async createUser({ user }) {
+      const db = await (await import('@/lib/mongo')).getDb();
+      await db.collection('users').updateOne(
+        { _id: user.id ? new (await import('mongodb')).ObjectId(user.id) : undefined },
+        { $set: { plan: 'free' } }
+      );
+    }
+  }
 });
 
 export { handler as GET, handler as POST }; 
