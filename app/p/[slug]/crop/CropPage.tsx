@@ -102,6 +102,30 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       // Pintar solo el logo, sin fondo
       ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
     }
+    // 4. Pintar texto (handle y dirección) en la parte inferior izquierda
+    ctx.save();
+    const paddingX = 48;
+    const paddingY = 48;
+    let y = targetHeight - paddingY;
+    ctx.font = 'bold 44px \'Instrument Sans\', \'Inter\', \'Geist\', \'Segoe UI\', sans-serif';
+    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'left';
+    ctx.shadowColor = 'rgba(0,0,0,0.32)';
+    ctx.shadowBlur = 8;
+    ctx.globalAlpha = 0.92;
+    if (provider?.instagram_handle) {
+      ctx.fillStyle = '#fff';
+      ctx.fillText(`@${provider.instagram_handle}`, paddingX, y);
+      y -= 44 + 10; // altura texto + margen
+    }
+    ctx.font = '400 28px \'Instrument Sans\', \'Inter\', \'Geist\', \'Segoe UI\', sans-serif';
+    ctx.shadowBlur = 6;
+    ctx.globalAlpha = 0.85;
+    if (provider?.direccion) {
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fillText(provider.direccion, paddingX, y);
+    }
+    ctx.restore();
     const croppedDataUrl = canvas.toDataURL('image/png');
     setCroppedImage(croppedDataUrl);
     await idbSet('taun_cropped_image', croppedDataUrl);

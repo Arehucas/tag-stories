@@ -234,22 +234,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
           <div className="flex flex-col items-center w-full" style={{ gap: '0.5rem' }}>
             <div className="relative w-full max-w-[240px] aspect-[9/16] rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ height: '426.67px', width: '240px' }}>
               {croppedImage ? (
-                <>
-                  <Image src={croppedImage} alt="Preview" fill />
-                  {/* Overlay de texto */}
-                  <div className="absolute bottom-0 left-0 w-full px-4 pb-4 flex flex-col items-start z-10 pointer-events-none">
-                    {provider?.instagram_handle && (
-                      <span className={instrumentSans.className + " text-white text-lg font-bold drop-shadow-md"} style={{opacity: 0.92, letterSpacing: '0.01em', textShadow: '0 2px 8px rgba(0,0,0,0.32)'}}>
-                        @{provider.instagram_handle}
-                      </span>
-                    )}
-                    {provider?.direccion && (
-                      <span className={instrumentSans.className + " text-white/80 text-xs font-normal drop-shadow-sm mt-1"} style={{opacity: 0.85, textShadow: '0 1px 6px rgba(0,0,0,0.22)'}}>
-                        {provider.direccion}
-                      </span>
-                    )}
-                  </div>
-                </>
+                <Image src={croppedImage} alt="Preview" fill />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">
                   {t('public_stories.no_image')}
