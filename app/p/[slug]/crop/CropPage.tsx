@@ -40,6 +40,21 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
 
   const handleDone = async () => {
     if (!originalImage || !croppedAreaPixels || !slug) return;
+    let currentProvider = provider;
+    // Si falta la dirección, la pedimos a la API
+    if (!currentProvider?.direccion) {
+      try {
+        const res = await fetch(`/api/provider/${slug}`);
+        if (res.ok) {
+          const fetchedProvider = await res.json();
+          currentProvider = fetchedProvider;
+          if (fetchedProvider) {
+            setProvider(fetchedProvider);
+            localStorage.setItem('taun_provider', JSON.stringify(fetchedProvider));
+          }
+        }
+      } catch {}
+    }
     const img = new window.Image();
     img.src = originalImage;
     await new Promise((res) => { img.onload = res; });
@@ -87,10 +102,10 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     await new Promise((res) => { overlayImg.onload = res; });
     ctx.drawImage(overlayImg, 0, 0, targetWidth, targetHeight);
     // 3. Pintar logo del provider en la esquina inferior derecha
-    if (provider?.logo_url) {
+    if (currentProvider?.logo_url) {
       const logo = new window.Image();
       logo.crossOrigin = "anonymous";
-      logo.src = provider.logo_url;
+      logo.src = currentProvider.logo_url;
       await new Promise((res) => { logo.onload = res; });
       // Tamaño y posición
       const logoMaxWidth = 280;
@@ -108,8 +123,8 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     const paddingY = 48;
     const logoMaxWidth = 280;
     const logoMinWidth = 140;
-    const logoWidth = provider?.logo_url ? Math.max(Math.min(targetWidth * 0.25, logoMaxWidth), logoMinWidth) : 0;
-    const logoMargin = provider?.logo_url ? 50 : 0;
+    const logoWidth = currentProvider?.logo_url ? Math.max(Math.min(targetWidth * 0.25, logoMaxWidth), logoMinWidth) : 0;
+    const logoMargin = currentProvider?.logo_url ? 50 : 0;
     const boxLeft = paddingX;
     const boxRight = targetWidth - (logoWidth + logoMargin + paddingX);
     const boxWidth = boxRight - boxLeft;
@@ -128,9 +143,9 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     ctx.shadowColor = 'rgba(0,0,0,0.22)';
     ctx.shadowBlur = 6;
     let dirY = baseY;
-    if (provider?.direccion) {
+    if (currentProvider?.direccion) {
       ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.fillText(provider.direccion, boxLeft + boxWidth / 2, dirY);
+      ctx.fillText(currentProvider.direccion, boxLeft + boxWidth / 2, dirY);
     }
     // Instagram (encima)
     ctx.font = `400 ${igFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
@@ -139,9 +154,9 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     ctx.shadowColor = 'rgba(0,0,0,0.32)';
     ctx.shadowBlur = 8;
     let igY = dirY - separation - 2; // -2 para compensar baseline
-    if (provider?.instagram_handle) {
+    if (currentProvider?.instagram_handle) {
       ctx.fillStyle = '#fff';
-      ctx.fillText(`@${provider.instagram_handle}`, boxLeft + boxWidth / 2, igY - dirFontSize);
+      ctx.fillText(`@${currentProvider.instagram_handle}`, boxLeft + boxWidth / 2, igY - dirFontSize);
     }
     ctx.restore();
     const croppedDataUrl = canvas.toDataURL('image/png');

@@ -60,6 +60,7 @@ export default function PLanding({ params }: Props) {
         .then((prov) => {
           setProvider(prov);
           useProviderStore.getState().setProvider(prov);
+          localStorage.setItem('taun_provider', JSON.stringify(prov));
           // Buscar campaña activa
           fetch(`/api/provider/${slug}/campaign`).then(res => res.ok ? res.json() : null).then(camp => {
             setCampaign(camp && !camp.error ? camp : null);
