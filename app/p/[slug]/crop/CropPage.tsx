@@ -131,7 +131,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     // Proporciones fieles al ejemplo
     const igFontSize = 35;
     const dirFontSize = 24;
-    const separation = 6;
+    const separation = 11;
     // Calcula la altura total de los textos
     let totalTextHeight = igFontSize + separation + dirFontSize;
     // Posición base: ambos pegados al margen inferior
@@ -170,7 +170,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       const iconSize = 28; // tamaño fijo
       const iconPadding = 10;
       // Medir ancho del texto
-      const igText = `@${currentProvider.instagram_handle}`;
+      const igText = `${currentProvider.instagram_handle}`;
       const textWidth = ctx.measureText(igText).width;
       // Calcular posición para centrar icono+texto como bloque
       const totalWidth = iconSize + iconPadding + textWidth;
