@@ -172,12 +172,12 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       // Medir ancho del texto
       const igText = `@${currentProvider.instagram_handle}`;
       const textWidth = ctx.measureText(igText).width;
-      // Calcular posición para centrar icono+texto
+      // Calcular posición para centrar icono+texto como bloque
       const totalWidth = iconSize + iconPadding + textWidth;
-      const startX = boxLeft + boxWidth / 2 - totalWidth / 2;
-      // El icono debe estar alineado con la línea base del texto
+      const centerX = boxLeft + boxWidth / 2;
+      const startX = centerX - totalWidth / 2;
       const textBaselineY = igY - dirFontSize;
-      const iconY = textBaselineY - iconSize * 0.82 + igFontSize * 0.12; // Ajuste visual para alinear con baseline
+      const iconY = textBaselineY - iconSize * 0.82 + igFontSize * 0.12;
       // Dibujar icono Instagram (solo líneas, minimalista)
       ctx.save();
       ctx.lineWidth = 2.2;
@@ -202,7 +202,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       ctx.arc(startX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.restore();
-      // Dibujar texto
+      // Dibujar texto justo a la derecha del icono
       ctx.fillText(igText, startX + iconSize + iconPadding, textBaselineY);
       ctx.globalAlpha = 1;
     }
