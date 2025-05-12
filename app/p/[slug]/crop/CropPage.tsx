@@ -166,7 +166,42 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     if (currentProvider?.instagram_handle) {
       ctx.globalAlpha = 0.6;
       ctx.fillStyle = textColor;
-      ctx.fillText(`@${currentProvider.instagram_handle}`, boxLeft + boxWidth / 2, igY - dirFontSize);
+      // Medidas del icono
+      const iconSize = igFontSize * 0.85;
+      const iconPadding = 12;
+      // Medir ancho del texto
+      const igText = `@${currentProvider.instagram_handle}`;
+      const textWidth = ctx.measureText(igText).width;
+      // Calcular posición para centrar icono+texto
+      const totalWidth = iconSize + iconPadding + textWidth;
+      const startX = boxLeft + boxWidth / 2 - totalWidth / 2;
+      const iconY = igY - dirFontSize - igFontSize/2 + iconSize/2;
+      // Dibujar icono Instagram (solo líneas, minimalista)
+      ctx.save();
+      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = textColor;
+      ctx.beginPath();
+      // Marco exterior (cuadrado redondeado)
+      const r = iconSize * 0.18;
+      ctx.moveTo(startX + r, iconY);
+      ctx.lineTo(startX + iconSize - r, iconY);
+      ctx.quadraticCurveTo(startX + iconSize, iconY, startX + iconSize, iconY + r);
+      ctx.lineTo(startX + iconSize, iconY + iconSize - r);
+      ctx.quadraticCurveTo(startX + iconSize, iconY + iconSize, startX + iconSize - r, iconY + iconSize);
+      ctx.lineTo(startX + r, iconY + iconSize);
+      ctx.quadraticCurveTo(startX, iconY + iconSize, startX, iconY + iconSize - r);
+      ctx.lineTo(startX, iconY + r);
+      ctx.quadraticCurveTo(startX, iconY, startX + r, iconY);
+      // Círculo central (lente)
+      ctx.moveTo(startX + iconSize/2 + iconSize*0.22, iconY + iconSize/2);
+      ctx.arc(startX + iconSize/2, iconY + iconSize/2, iconSize*0.22, 0, 2 * Math.PI);
+      // Punto superior derecho
+      ctx.moveTo(startX + iconSize*0.77, iconY + iconSize*0.23);
+      ctx.arc(startX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.restore();
+      // Dibujar texto
+      ctx.fillText(igText, startX + iconSize + iconPadding, igY - dirFontSize);
       ctx.globalAlpha = 1;
     }
     ctx.restore();
