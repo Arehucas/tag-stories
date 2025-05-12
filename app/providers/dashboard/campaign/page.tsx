@@ -6,6 +6,8 @@ import LoaderBolas from "@/components/ui/LoaderBolas";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { useT } from '@/lib/useT';
+import { useTemplates } from '@/hooks/useTemplates';
+import { SelectedTemplateSection } from '@/components/SelectedTemplateSection';
 
 // Defino interfaces para los estados
 interface Provider {
@@ -24,6 +26,7 @@ interface Campaign {
   requiredStories?: number;
   overlayType?: string;
   overlayUrl?: string;
+  templateId?: string;
   // ...otros campos
 }
 interface Form {
@@ -49,6 +52,7 @@ export default function CampaignDashboard() {
   const [success, setSuccess] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
   const t = useT();
+  const { templates } = useTemplates();
 
   useEffect(() => {
     setHydrated(true);
@@ -301,6 +305,12 @@ export default function CampaignDashboard() {
               </div>
               <span className="text-xs text-white/50">Por ahora solo 1 disponible</span>
             </div>
+            {campaign?.templateId && (
+              <SelectedTemplateSection
+                templates={templates.filter((t: any) => t.type === 'defaultLight' || t.type === 'defaultDark')}
+                selectedTemplateId={campaign.templateId}
+              />
+            )}
             <button
               type="button"
               className="mt-8 px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg w-full"

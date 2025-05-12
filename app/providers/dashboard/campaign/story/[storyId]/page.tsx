@@ -13,6 +13,7 @@ import LoaderBolas from "@/components/ui/LoaderBolas";
 import ProviderHeader from "@/components/ui/ProviderHeader";
 import HeroGradient from "@/components/ui/HeroGradient";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { useTemplates } from '@/hooks/useTemplates';
 
 // Tipos
 export type StoryStatus = "pending" | "validated" | "redeemed" | "rejected";
@@ -48,7 +49,7 @@ export default function StoryDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [campaign, setCampaign] = useState<any>(null);
-  const [overlayUrl, setOverlayUrl] = useState<string>("/overlays/overlay-white-default.png");
+  const { templates, loading: loadingTemplates } = useTemplates();
 
   // Fetch de datos
   useEffect(() => {
@@ -69,7 +70,6 @@ export default function StoryDetailPage() {
     if (story?.providerId) {
       fetch(`/api/provider/${story.providerId}/campaign`).then(res => res.ok ? res.json() : null).then(camp => {
         setCampaign(camp && !camp.error ? camp : null);
-        setOverlayUrl((camp && camp.overlayUrl) || "/overlays/overlay-white-default.png");
       });
     }
   }, [story?.providerId]);
@@ -99,6 +99,10 @@ export default function StoryDetailPage() {
     setUpdating(false);
     setSheetOpen(false);
   };
+
+  // Obtener el templateId de la campaña
+  const templateId = campaign?.templateId;
+  const template = templates.find((t: any) => t._id === templateId);
 
   if (loading) {
     return (
@@ -245,20 +249,8 @@ export default function StoryDetailPage() {
           >
             <Image src={story.imageUrl} alt="Story" fill className="object-cover rounded-[20px] transition-all duration-300" />
             {/* Overlay por encima de la imagen */}
-            <Image src={overlayUrl} alt="Overlay" fill style={{objectFit: 'cover', zIndex: 1}} />
-            {/* Logo del provider en la esquina inferior derecha */}
-            {story.providerLogoUrl && (
-              <div style={{position: 'absolute', right: 50, bottom: 50, minWidth: 140, maxWidth: 280, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <Image
-                  src={story.providerLogoUrl}
-                  alt={story.providerName || 'Logo'}
-                  width={280}
-                  height={280}
-                  style={{ width: '100%', height: 'auto', borderRadius: 20, minWidth: 140, maxWidth: 280, background: 'rgba(255,255,255,0.7)' }}
-                  className="object-contain shadow-lg"
-                  priority
-                />
-              </div>
+            {template && (
+              <Image src={template.overlayUrl} alt="Overlay" fill style={{objectFit: 'cover', zIndex: 1}} />
             )}
             {!expanded && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/10">
