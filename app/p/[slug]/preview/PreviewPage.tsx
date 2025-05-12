@@ -260,21 +260,73 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
           <div className="flex flex-col items-center w-full" style={{ gap: '0.5rem' }}>
             <div className="relative w-full max-w-[240px] aspect-[9/16] rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ height: '426.67px', width: '240px' }}>
               {croppedImage && templateReady && template ? (
-                <PreviewComponent
-                  ref={canvasRef}
-                  baseImage={croppedImage}
-                  overlayUrl={template.overlayUrl}
-                  logoUrl={provider?.logo_url}
-                  logoSize={template.logoSize}
-                  marginBottom={template.marginBottom}
-                  marginRight={template.marginRight}
-                  displayLogo={template.displayLogo}
-                  displayText={template.displayText}
-                  igText={template.igText}
-                  addressText={template.addressText}
-                  igHandle={provider?.instagram_handle}
-                  address={provider?.direccion}
-                />
+                <>
+                  {/* Imagen base */}
+                  <Image src={croppedImage} alt="Preview" fill className="object-cover" />
+                  {/* Overlay */}
+                  <Image src={template.overlayUrl} alt="Overlay" fill className="object-cover" style={{zIndex: 1}} />
+                  {/* Logo */}
+                  {template.displayLogo && provider?.logo_url && (
+                    <div style={{
+                      position: 'absolute',
+                      right: template.marginRight,
+                      bottom: template.marginBottom,
+                      width: template.logoSize,
+                      height: template.logoSize,
+                      zIndex: 2,
+                      background: 'rgba(255,255,255,0.0)',
+                      borderRadius: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <Image
+                        src={provider.logo_url}
+                        alt={provider.nombre || 'Logo'}
+                        width={template.logoSize}
+                        height={template.logoSize}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 16 }}
+                        priority
+                      />
+                    </div>
+                  )}
+                  {/* IG Text */}
+                  {template.displayText && provider?.instagram_handle && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        left: template.marginRight,
+                        bottom: template.marginBottom + template.logoSize + 10,
+                        fontSize: template.igText.size,
+                        color: template.igText.color,
+                        opacity: template.igText.opacity,
+                        fontWeight: 600,
+                        zIndex: 3,
+                        textShadow: '0 1px 4px #0008',
+                      }}
+                    >
+                      @{provider.instagram_handle}
+                    </span>
+                  )}
+                  {/* Address Text */}
+                  {template.displayText && provider?.direccion && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        left: template.marginRight,
+                        bottom: template.marginBottom + 10,
+                        fontSize: template.addressText.size,
+                        color: template.addressText.color,
+                        opacity: template.addressText.opacity,
+                        fontWeight: 400,
+                        zIndex: 3,
+                        textShadow: '0 1px 4px #0008',
+                      }}
+                    >
+                      {provider.direccion}
+                    </span>
+                  )}
+                </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">
                   {t('public_stories.no_image')}
