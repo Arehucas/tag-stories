@@ -57,18 +57,20 @@ export async function POST(req: NextRequest) {
   // @ts-expect-error: result.value puede ser undefined según el tipado de MongoDB, pero está bien para este flujo
   const provider = result.value;
 
-  // Si hay campaña para este provider, actualiza overlayType y overlayUrl
+  // Si hay campaña para este provider, actualiza templateId según overlayPreference
   if (provider) {
     const providerIds = [provider._id?.toString(), provider.shortId, provider.slug, provider.email].filter(Boolean);
     const campaign = await db.collection("campaigns").findOne({ providerId: { $in: providerIds } });
     if (campaign) {
-      const overlayUrl = overlayPreference === 'dark-overlay'
-        ? '/overlays/overlay-dark-default.png'
-        : '/overlays/overlay-white-default.png';
-      await db.collection("campaigns").updateOne(
-        { providerId: campaign.providerId },
-        { $set: { overlayType: 'default', overlayUrl } }
-      );
+      // Buscar el templateId correspondiente
+      const templateType = overlayPreference === 'dark-overlay' ? 'defaultDark' : 'defaultLight';
+      const template = await db.collection('templates').findOne({ type: templateType, isActive: true });
+      if (template) {
+        await db.collection("campaigns").updateOne(
+          { providerId: campaign.providerId },
+          { $set: { templateId: template._id } }
+        );
+      }
     }
   }
 

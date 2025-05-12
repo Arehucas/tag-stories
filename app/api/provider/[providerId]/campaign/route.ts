@@ -10,8 +10,7 @@ interface UpdateCampaign {
   updatedAt: Date;
   isActive?: boolean;
   requiredStories?: number;
-  overlayType?: string;
-  overlayUrl?: string;
+  templateId?: any;
 }
 
 async function checkProviderAccess(providerId: string) {
@@ -57,21 +56,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pro
   if (!body.nombre || typeof body.nombre !== 'string') {
     return NextResponse.json({ error: 'Nombre requerido' }, { status: 400 });
   }
-  let overlayType = 'default';
-  let overlayUrl = '/overlays/overlay-white-default.png';
-  if (access.provider.overlayPreference === 'dark-overlay') {
-    overlayUrl = '/overlays/overlay-dark-default.png';
+  // Buscar el templateId según overlayPreference del provider
+  const templateType = access.provider.overlayPreference === 'dark-overlay' ? 'defaultDark' : 'defaultLight';
+  const template = await access.db.collection('templates').findOne({ type: templateType, isActive: true });
+  if (!template) {
+    return NextResponse.json({ error: 'No hay plantilla por defecto disponible' }, { status: 500 });
   }
-  if (body.overlayType) overlayType = body.overlayType;
-  if (body.overlayUrl) overlayUrl = body.overlayUrl;
   const campaign = {
     providerId,
     nombre: body.nombre,
     descripcion: typeof body.descripcion === 'string' ? body.descripcion : '',
     isActive: true,
     requiredStories: body.requiredStories ?? 1,
-    overlayType,
-    overlayUrl,
+    templateId: template._id,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -102,11 +99,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
   if (body.requiredStories && [1,2,5,10,20].includes(body.requiredStories)) {
     update.requiredStories = body.requiredStories;
   }
-  if (typeof body.overlayType === 'string') {
-    (update as any).overlayType = body.overlayType;
-  }
-  if (typeof body.overlayUrl === 'string') {
-    (update as any).overlayUrl = body.overlayUrl;
+  if (body.templateId) {
+    update.templateId = body.templateId;
   }
   await access.db.collection('campaigns').updateOne({ providerId }, { $set: update });
   const updated = await access.db.collection('campaigns').findOne({ providerId });
