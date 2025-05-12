@@ -102,28 +102,43 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       // Pintar solo el logo, sin fondo
       ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
     }
-    // 4. Pintar texto (handle y dirección) en la parte inferior izquierda
+    // 4. Pintar caja de texto y textos centrados entre margen izquierdo (línea blanca) y logo
     ctx.save();
-    const paddingX = 48;
-    const paddingY = 48;
-    let y = targetHeight - paddingY;
-    ctx.font = 'bold 44px \'Instrument Sans\', \'Inter\', \'Geist\', \'Segoe UI\', sans-serif';
+    const paddingX = 36; // margen desde la línea blanca
+    const paddingY = 48; // margen inferior
+    const logoMaxWidth = 280;
+    const logoMinWidth = 140;
+    const logoWidth = provider?.logo_url ? Math.max(Math.min(targetWidth * 0.25, logoMaxWidth), logoMinWidth) : 0;
+    const logoMargin = provider?.logo_url ? 50 : 0;
+    const boxLeft = paddingX;
+    const boxRight = targetWidth - (logoWidth + logoMargin + paddingX);
+    const boxWidth = boxRight - boxLeft;
+    const boxHeight = 90; // altura de la caja de texto
+    const boxBottom = targetHeight - paddingY;
+    const boxTop = boxBottom - boxHeight;
+    // Fondo translúcido para legibilidad
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = '#222';
+    ctx.fillRect(boxLeft, boxTop, boxWidth, boxHeight);
+    ctx.globalAlpha = 1;
+    // Textos centrados en la caja
+    ctx.font = "400 36px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif";
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.textAlign = 'left';
     ctx.shadowColor = 'rgba(0,0,0,0.32)';
     ctx.shadowBlur = 8;
-    ctx.globalAlpha = 0.92;
+    let textY = boxBottom - 18;
     if (provider?.instagram_handle) {
       ctx.fillStyle = '#fff';
-      ctx.fillText(`@${provider.instagram_handle}`, paddingX, y);
-      y -= 44 + 10; // altura texto + margen
+      ctx.fillText(`@${provider.instagram_handle}`, boxLeft + boxWidth / 2, textY);
+      textY -= 38; // espacio para la dirección
     }
-    ctx.font = '400 28px \'Instrument Sans\', \'Inter\', \'Geist\', \'Segoe UI\', sans-serif';
+    ctx.font = "400 24px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif";
     ctx.shadowBlur = 6;
-    ctx.globalAlpha = 0.85;
     if (provider?.direccion) {
-      ctx.fillStyle = 'rgba(255,255,255,0.8)';
-      ctx.fillText(provider.direccion, paddingX, y);
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(provider.direccion, boxLeft + boxWidth / 2, textY);
     }
     ctx.restore();
     const croppedDataUrl = canvas.toDataURL('image/png');
