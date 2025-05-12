@@ -176,14 +176,14 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       const totalWidth = iconSize + iconPadding + textWidth;
       const centerX = boxLeft + boxWidth / 2;
       const startX = centerX - totalWidth / 2;
-      const textBaselineY = igY - dirFontSize;
-      const iconY = textBaselineY - iconSize * 0.82 + igFontSize * 0.12;
-      // Dibujar icono Instagram (solo líneas, minimalista)
+      // Alineación tipo flex: centro del icono con centro del texto
+      const blockCenterY = igY - dirFontSize - igFontSize/2 + igFontSize/2;
+      // Dibujar icono Instagram (centrado verticalmente)
+      const iconY = blockCenterY - iconSize/2;
       ctx.save();
       ctx.lineWidth = 2.2;
       ctx.strokeStyle = textColor;
       ctx.beginPath();
-      // Marco exterior (cuadrado redondeado)
       const r = iconSize * 0.18;
       ctx.moveTo(startX + r, iconY);
       ctx.lineTo(startX + iconSize - r, iconY);
@@ -194,16 +194,16 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       ctx.quadraticCurveTo(startX, iconY + iconSize, startX, iconY + iconSize - r);
       ctx.lineTo(startX, iconY + r);
       ctx.quadraticCurveTo(startX, iconY, startX + r, iconY);
-      // Círculo central (lente)
       ctx.moveTo(startX + iconSize/2 + iconSize*0.22, iconY + iconSize/2);
       ctx.arc(startX + iconSize/2, iconY + iconSize/2, iconSize*0.22, 0, 2 * Math.PI);
-      // Punto superior derecho
       ctx.moveTo(startX + iconSize*0.77, iconY + iconSize*0.23);
       ctx.arc(startX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.restore();
       // Dibujar texto alineado verticalmente al centro del icono
-      ctx.fillText(igText, startX + iconSize + iconPadding, textY);
+      ctx.textBaseline = 'middle';
+      ctx.fillText(igText, startX + iconSize + iconPadding, blockCenterY);
+      ctx.textBaseline = 'bottom'; // restaurar para el resto
       ctx.globalAlpha = 1;
     }
     ctx.restore();
