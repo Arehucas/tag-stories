@@ -7,11 +7,9 @@ import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useRouter } from 'next/navigation';
 import { use } from "react";
 import { useT } from '@/lib/useT';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { get as idbGet } from 'idb-keyval';
 import { Instrument_Sans } from 'next/font/google';
-import { useTemplates } from '@/hooks/useTemplates';
-import { PreviewComponent } from '@/components/PreviewComponent';
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -42,10 +40,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   const [jpegDataUrl, setJpegDataUrl] = useState<string | null>(null);
   const [jpegSize, setJpegSize] = useState<number | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const { templates, loading: loadingTemplates } = useTemplates();
-  const [template, setTemplate] = useState<any>(null);
-  const [templateReady, setTemplateReady] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     // Restaurar provider desde localStorage si no está en el store
@@ -131,21 +125,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
     }
   }, [croppedImage, router, slug, isReady]);
 
-  useEffect(() => {
-    if (!loadingTemplates && templates.length && provider) {
-      // Para demo, selecciona defaultLight
-      const t = templates.find((t: any) => t.type === 'defaultLight');
-      setTemplate(t);
-      setTemplateReady(true);
-    }
-  }, [templates, loadingTemplates, provider]);
-
-  // Función para obtener el DataURL del canvas generado
-  const getCanvasDataUrl = () => {
-    if (!canvasRef.current) return null;
-    return canvasRef.current.toDataURL('image/jpeg', 0.85);
-  };
-
   if (!isReady) {
     return <div />;
   }
@@ -201,13 +180,8 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
     return 'other';
   }
 
-  async function handleShareJPEG() {
-    const dataUrl = getCanvasDataUrl();
-    if (!dataUrl) {
-      alert('La imagen de preview no está lista.');
-      return;
-    }
-    const arr = dataUrl.split(',');
+  async function handleShareJPEG(jpegDataUrl: string) {
+    const arr = jpegDataUrl.split(',');
     const match = arr[0].match(/:(.*?);/);
     const mime = match ? match[1] : 'image/jpeg';
     const bstr = atob(arr[1]);
@@ -259,74 +233,8 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
         <div className="w-full flex flex-col items-center mt-8">
           <div className="flex flex-col items-center w-full" style={{ gap: '0.5rem' }}>
             <div className="relative w-full max-w-[240px] aspect-[9/16] rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ height: '426.67px', width: '240px' }}>
-              {croppedImage && templateReady && template ? (
-                <>
-                  {/* Imagen base */}
-                  <Image src={croppedImage} alt="Preview" fill className="object-cover" />
-                  {/* Overlay */}
-                  <Image src={template.overlayUrl} alt="Overlay" fill className="object-cover" style={{zIndex: 1}} />
-                  {/* Logo */}
-                  {template.displayLogo && provider?.logo_url && (
-                    <div style={{
-                      position: 'absolute',
-                      right: template.marginRight,
-                      bottom: template.marginBottom,
-                      width: template.logoSize,
-                      height: template.logoSize,
-                      zIndex: 2,
-                      background: 'rgba(255,255,255,0.0)',
-                      borderRadius: 16,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Image
-                        src={provider.logo_url}
-                        alt={provider.nombre || 'Logo'}
-                        width={template.logoSize}
-                        height={template.logoSize}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 16 }}
-                        priority
-                      />
-                    </div>
-                  )}
-                  {/* IG Text */}
-                  {template.displayText && provider?.instagram_handle && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: template.marginRight,
-                        bottom: template.marginBottom + template.logoSize + 10,
-                        fontSize: template.igText.size,
-                        color: template.igText.color,
-                        opacity: template.igText.opacity,
-                        fontWeight: 600,
-                        zIndex: 3,
-                        textShadow: '0 1px 4px #0008',
-                      }}
-                    >
-                      @{provider.instagram_handle}
-                    </span>
-                  )}
-                  {/* Address Text */}
-                  {template.displayText && provider?.direccion && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: template.marginRight,
-                        bottom: template.marginBottom + 10,
-                        fontSize: template.addressText.size,
-                        color: template.addressText.color,
-                        opacity: template.addressText.opacity,
-                        fontWeight: 400,
-                        zIndex: 3,
-                        textShadow: '0 1px 4px #0008',
-                      }}
-                    >
-                      {provider.direccion}
-                    </span>
-                  )}
-                </>
+              {croppedImage ? (
+                <Image src={croppedImage} alt="Preview" fill />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">
                   {t('public_stories.no_image')}
@@ -347,8 +255,68 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
             )}
             <button
               className="w-full py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-fuchsia-500 via-cyan-500 to-blue-500 text-white shadow-lg mt-4 mb-2"
-              disabled={!croppedImage || !templateReady || !template}
-              onClick={handleShareJPEG}
+              disabled={!croppedImage || !jpegDataUrl || uploading}
+              onClick={async () => {
+                if (!croppedImage || !jpegDataUrl) {
+                  alert('La imagen de preview no está lista.');
+                  return;
+                }
+                setUploading(true);
+                setUploadResponse(null);
+                try {
+                  // 1. Preparar archivo JPEG
+                  const arr = jpegDataUrl.split(',');
+                  const bstr = atob(arr[1]);
+                  const u8arr = new Uint8Array(bstr.length);
+                  for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
+                  const blob = new Blob([u8arr], { type: 'image/jpeg' });
+                  const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.jpg` : 'story-local.jpg';
+                  const file = new File([blob], fileName, { type: 'image/jpeg' });
+                  let compartido = false;
+                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                      await navigator.share({
+                        files: [file],
+                        title: 'Comparte tu story',
+                        text: 'Publica tu story en Instagram',
+                      });
+                      compartido = true;
+                    } catch (e: any) {
+                      compartido = false;
+                      // Siempre mostrar el mensaje personalizado si no se comparte
+                      const ig = provider?.instagram_handle ? `@${provider.instagram_handle}` : '@ighandler';
+                      alert(`¡No has compartido la story! ${ig} no podrá revisar tu story y darte tu recompensa.`);
+                    }
+                  }
+                  if (compartido) {
+                    // 2. Subir a Cloudinary
+                    const formData = new FormData();
+                    formData.append('file', blob, fileName);
+                    const uploadRes = await fetch('/api/upload-logo', {
+                      method: 'POST',
+                      body: formData,
+                    });
+                    const uploadData = await uploadRes.json();
+                    if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
+                    // 3. Guardar en BBDD
+                    const saveRes = await fetch('/api/story-submission', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
+                    });
+                    const saveData = await saveRes.json();
+                    if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
+                    setUploadResponse({ cloudinary: uploadData, db: saveData });
+                  }
+                  // Si no se pudo compartir, no hacer nada (ni descarga ni alerta extra)
+                } catch (e) {
+                  setUploadResponse({ error: e?.toString() });
+                  alert('Error en compartir/guardar: ' + (e?.toString() || ''));
+                  console.error('Error en compartir/guardar:', e);
+                } finally {
+                  setUploading(false);
+                }
+              }}
             >
               {uploading ? t('public_stories.generating_story') : t('public_stories.share_instagram')}
             </button>
@@ -387,7 +355,11 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                         </div>
                         <button
                           className="mt-2 px-3 py-1 rounded bg-blue-700 text-white"
-                          onClick={handleShareJPEG}
+                          onClick={async () => {
+                            if (jpegDataUrl) {
+                              await handleShareJPEG(jpegDataUrl);
+                            }
+                          }}
                         >Compartir/Descargar JPEG</button>
                       </>
                     )}
