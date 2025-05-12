@@ -151,7 +151,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     ctx.shadowBlur = 0;
     let dirY = baseY;
     if (currentProvider?.direccion) {
-      ctx.globalAlpha = 0.3;
+      ctx.globalAlpha = 0.4;
       ctx.fillStyle = dirColor;
       ctx.fillText(currentProvider.direccion, boxLeft + boxWidth / 2, dirY);
       ctx.globalAlpha = 1;
@@ -164,7 +164,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     ctx.shadowBlur = 0;
     let igY = dirY - separation - 2; // -2 para compensar baseline
     if (currentProvider?.instagram_handle) {
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.6;
       ctx.fillStyle = textColor;
       ctx.fillText(`@${currentProvider.instagram_handle}`, boxLeft + boxWidth / 2, igY - dirFontSize);
       ctx.globalAlpha = 1;

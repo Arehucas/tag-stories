@@ -26,16 +26,25 @@ else
   echo -e "${GREEN}${ROCKET} Deploy a Desarrollo ${ROCKET}${NC}"
 fi
 
-# Pedir mensaje de commit
-read -p "Nombre del commit: " COMMIT_MSG
+# Obtener último mensaje de commit como sugerencia
+LAST_COMMIT=$(git log -1 --pretty=%B)
+
+# Pedir mensaje con autocompletado
+read -e -i "$LAST_COMMIT" -p "Nombre del commit: " COMMIT_MSG
 echo ""
 
-# Commit en rama actual (dev)
-git add .
-git commit -m "$COMMIT_MSG"
+# Añadir cambios y hacer commit solo si hay cambios
+if git diff-index --quiet HEAD --; then
+  echo -e "${GREEN}No hay cambios para commitear. Se usará el último commit.${NC}"
+else
+  git add .
+  git commit -m "$COMMIT_MSG"
+fi
+
+# Push a dev
 git push origin dev
 
-# Si es a producción, hacer merge
+# Si es producción, merge a main
 if [ "$1" == "prod" ]; then
   git checkout main
   git pull origin main
