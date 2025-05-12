@@ -10,7 +10,6 @@ import { useT } from '@/lib/useT';
 import { useEffect, useState } from 'react';
 import { get as idbGet } from 'idb-keyval';
 import { Instrument_Sans } from 'next/font/google';
-import { PreviewComponent } from '@/components/PreviewComponent';
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -234,21 +233,8 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
         <div className="w-full flex flex-col items-center mt-8">
           <div className="flex flex-col items-center w-full" style={{ gap: '0.5rem' }}>
             <div className="relative w-full max-w-[240px] aspect-[9/16] rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ height: '426.67px', width: '240px' }}>
-              {croppedImage && provider?.template ? (
-                <PreviewComponent
-                  baseImage={croppedImage}
-                  overlayUrl={provider.template.overlayUrl}
-                  logoUrl={provider?.logo_url}
-                  logoSize={provider.template.logoSize}
-                  marginBottom={provider.template.marginBottom}
-                  marginRight={provider.template.marginRight}
-                  displayLogo={provider.template.displayLogo}
-                  displayText={provider.template.displayText}
-                  igText={provider.template.igText}
-                  addressText={provider.template.addressText}
-                  igHandle={provider?.instagram_handle}
-                  address={provider?.direccion}
-                />
+              {croppedImage ? (
+                <Image src={croppedImage} alt="Preview" fill />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">
                   {t('public_stories.no_image')}
