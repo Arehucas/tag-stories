@@ -202,8 +202,8 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       ctx.arc(startX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.restore();
-      // Dibujar texto justo a la derecha del icono
-      ctx.fillText(igText, startX + iconSize + iconPadding, textBaselineY);
+      // Dibujar texto alineado verticalmente al centro del icono
+      ctx.fillText(igText, startX + iconSize + iconPadding, textY);
       ctx.globalAlpha = 1;
     }
     ctx.restore();
