@@ -130,17 +130,16 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   // Obtener campaña y template al cargar
   useEffect(() => {
     if (!isReady || !slug) return;
-    // 1. Obtener campaña activa del provider
     fetch(`/api/provider/${slug}/campaign`)
       .then(res => res.ok ? res.json() : null)
       .then(async (camp) => {
         if (camp && camp.templateId) {
           setCampaign(camp);
-          // 2. Obtener todas las plantillas permitidas por plan
+          // Obtener todas las plantillas permitidas por plan
           const templatesRes = await fetch('/api/templates');
           if (templatesRes.ok) {
             const templates = await templatesRes.json();
-            // 3. Buscar la plantilla correspondiente
+            // Buscar la plantilla correspondiente
             const found = templates.find((t: any) => t._id === camp.templateId || t._id === camp.templateId?.toString());
             if (found) setTemplate(found);
             else setTemplate(null);
