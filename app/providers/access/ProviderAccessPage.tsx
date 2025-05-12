@@ -52,8 +52,24 @@ export default function ProviderAccess() {
         <p className="text-white/80 text-lg text-center mb-8 max-w-xs">
           {t('access.description')}
         </p>
-        {/* Botón de acceso: solo demo en localhost, solo Google en prod */}
-        {isLocalhost ? (
+        {/* Botón de acceso: Google siempre visible, demo solo si es localhost */}
+        <button
+          className="btn-google-gradient w-full max-w-xs mb-4"
+          onClick={() => signIn('google')}
+        >
+          <span>
+            <svg width="24" height="24" viewBox="0 0 48 48" className="inline-block" style={{marginRight: 12}}>
+              <g>
+                <path fill="#4285F4" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.3-5.7 7-11.3 7-6.6 0-12-5.4-12-12s5.4-12 12-12c2.7 0 5.2.9 7.2 2.5l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 19.5-7.6 21-18h-21v-7h12.6z"/>
+                <path fill="#34A853" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c2.7 0 5.2.9 7.2 2.5l6-6C34.5 5.1 29.5 3 24 3 15.1 3 7.4 8.7 6.3 14.7z"/>
+                <path fill="#FBBC05" d="M24 45c5.5 0 10.5-1.8 14.4-4.9l-6.7-5.5C29.5 36.9 26.9 38 24 38c-5.6 0-10.3-3.7-12-8.7l-6.6 5.1C7.4 39.3 15.1 45 24 45z"/>
+                <path fill="#EA4335" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.1 3-3.5 5.2-6.3 6.1l6.7 5.5C40.6 36.2 43.6 29.7 43.6 20.5z"/>
+              </g>
+            </svg>
+            <span className="text-base font-medium">{t('access.googleButton')}</span>
+          </span>
+        </button>
+        {isLocalhost && (
           <button
             className="btn-google-gradient w-full max-w-xs mb-4"
             onClick={async () => {
@@ -80,23 +96,6 @@ export default function ProviderAccess() {
                 </g>
               </svg>
               <span className="text-base font-medium">{t('access.demoButton')}</span>
-            </span>
-          </button>
-        ) : (
-          <button
-            className="btn-google-gradient w-full max-w-xs mb-4"
-            onClick={() => signIn('google')}
-          >
-            <span>
-              <svg width="24" height="24" viewBox="0 0 48 48" className="inline-block" style={{marginRight: 12}}>
-                <g>
-                  <path fill="#4285F4" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.3-5.7 7-11.3 7-6.6 0-12-5.4-12-12s5.4-12 12-12c2.7 0 5.2.9 7.2 2.5l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 19.5-7.6 21-18h-21v-7h12.6z"/>
-                  <path fill="#34A853" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c2.7 0 5.2.9 7.2 2.5l6-6C34.5 5.1 29.5 3 24 3 15.1 3 7.4 8.7 6.3 14.7z"/>
-                  <path fill="#FBBC05" d="M24 45c5.5 0 10.5-1.8 14.4-4.9l-6.7-5.5C29.5 36.9 26.9 38 24 38c-5.6 0-10.3-3.7-12-8.7l-6.6 5.1C7.4 39.3 15.1 45 24 45z"/>
-                  <path fill="#EA4335" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.1 3-3.5 5.2-6.3 6.1l6.7 5.5C40.6 36.2 43.6 29.7 43.6 20.5z"/>
-                </g>
-              </svg>
-              <span className="text-base font-medium">{t('access.googleButton')}</span>
             </span>
           </button>
         )}
