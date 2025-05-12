@@ -3,6 +3,8 @@
 ## 1. Tipado estricto
 - **Nunca uses `any`**. Usa tipos concretos o `unknown` si no puedes tipar mejor.
 - Si necesitas un tipo flexible, define un tipo o interfaz específica.
+- **Siempre tipa los parámetros de funciones de array** (`map`, `find`, `filter`, etc.), aunque sea con `any` o, mejor, con el tipo real si lo conoces.
+- Si usas datos de red o de una API, **define interfaces o tipos** para los objetos que manipulas.
 
 ## 2. Código limpio
 - **Elimina funciones, variables e imports no usados** antes de hacer commit.
@@ -29,11 +31,13 @@
   **Pero elimina esto antes de pasar a producción.**
 
 ## 6. Checklist antes de hacer push/merge
-- [ ] No hay `any` ni variables sin tipo.
+- [ ] No hay `any` ni variables sin tipo (o están justificados y controlados).
 - [ ] No hay imports, variables ni funciones no usadas.
 - [ ] Todos los archivos con hooks tienen `"use client";`.
 - [ ] El proyecto pasa `npm run lint` y `npm run build` localmente.
 - [ ] No hay reglas de ESLint desactivadas globalmente.
+- [ ] Los parámetros de funciones de array (`map`, `find`, `filter`, etc.) están tipados.
+- [ ] Los datos de red/API tienen interfaces o tipos definidos.
 
 ---
 

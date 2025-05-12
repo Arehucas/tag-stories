@@ -133,11 +133,8 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
 
   useEffect(() => {
     if (!loadingTemplates && templates.length && provider) {
-      // Aquí deberías obtener el templateId de la campaña real
-      // Por ejemplo, si tienes campaign.templateId:
-      // const t = templates.find(t => t._id === campaign.templateId);
       // Para demo, selecciona defaultLight
-      const t = templates.find(t => t.type === 'defaultLight');
+      const t = templates.find((t: any) => t.type === 'defaultLight');
       setTemplate(t);
       setTemplateReady(true);
     }
