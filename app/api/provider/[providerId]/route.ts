@@ -12,6 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prov
   // Solo devolvemos los campos necesarios
   return NextResponse.json({
     nombre: provider.nombre,
+    direccion: provider.direccion,
     logo_url: provider.logo_url,
     instagram_handle: provider.instagram_handle,
     instrucciones: provider.instrucciones || "Haz una foto de tu experiencia y descárgala. Sube la imagen a tu Instagram Story mencionando al local para conseguir tu recompensa.",
