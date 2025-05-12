@@ -102,10 +102,10 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       // Pintar solo el logo, sin fondo
       ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
     }
-    // 4. Pintar caja de texto y textos centrados entre margen izquierdo (línea blanca) y logo
+    // 4. Pintar dos cajas de texto separadas, sin fondo, centradas y con paddings independientes
     ctx.save();
-    const paddingX = 36; // margen desde la línea blanca
-    const paddingY = 48; // margen inferior
+    const paddingX = 36;
+    const paddingY = 48;
     const logoMaxWidth = 280;
     const logoMinWidth = 140;
     const logoWidth = provider?.logo_url ? Math.max(Math.min(targetWidth * 0.25, logoMaxWidth), logoMinWidth) : 0;
@@ -113,32 +113,31 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     const boxLeft = paddingX;
     const boxRight = targetWidth - (logoWidth + logoMargin + paddingX);
     const boxWidth = boxRight - boxLeft;
-    const boxHeight = 90; // altura de la caja de texto
-    const boxBottom = targetHeight - paddingY;
-    const boxTop = boxBottom - boxHeight;
-    // Fondo translúcido para legibilidad
-    ctx.globalAlpha = 0.7;
-    ctx.fillStyle = '#222';
-    ctx.fillRect(boxLeft, boxTop, boxWidth, boxHeight);
-    ctx.globalAlpha = 1;
-    // Textos centrados en la caja
-    ctx.font = "400 36px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif";
+    // Instagram handle (caja superior)
+    const igFontSize = 36;
+    const igPaddingBottom = 8;
+    let igY = targetHeight - paddingY - igPaddingBottom;
+    ctx.font = `400 ${igFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     ctx.shadowColor = 'rgba(0,0,0,0.32)';
     ctx.shadowBlur = 8;
-    let textY = boxBottom - 18;
     if (provider?.instagram_handle) {
       ctx.fillStyle = '#fff';
-      ctx.fillText(`@${provider.instagram_handle}`, boxLeft + boxWidth / 2, textY);
-      textY -= 38; // espacio para la dirección
+      ctx.fillText(`@${provider.instagram_handle}`, boxLeft + boxWidth / 2, igY);
     }
-    ctx.font = "400 24px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif";
+    // Dirección (caja inferior)
+    const dirFontSize = 24;
+    const dirPaddingTop = 6;
+    let dirY = igY + dirPaddingTop;
+    ctx.font = `400 ${dirFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.shadowColor = 'rgba(0,0,0,0.22)';
     ctx.shadowBlur = 6;
     if (provider?.direccion) {
       ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(provider.direccion, boxLeft + boxWidth / 2, textY);
+      ctx.fillText(provider.direccion, boxLeft + boxWidth / 2, dirY);
     }
     ctx.restore();
     const croppedDataUrl = canvas.toDataURL('image/png');
