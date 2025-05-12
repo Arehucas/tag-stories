@@ -129,13 +129,20 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     const boxRight = targetWidth - (logoWidth + logoMargin + paddingX);
     const boxWidth = boxRight - boxLeft;
     // Proporciones fieles al ejemplo
-    const igFontSize = 32;
+    const igFontSize = 35;
     const dirFontSize = 22;
     const separation = 6;
     // Calcula la altura total de los textos
     let totalTextHeight = igFontSize + separation + dirFontSize;
     // Posición base: ambos pegados al margen inferior
-    let baseY = targetHeight - paddingY;
+    let baseY = targetHeight - paddingY - 3;
+    // Lógica de color según overlay
+    let textColor = '#fff';
+    let dirColor = 'rgba(255,255,255,0.85)';
+    if (overlayUrl.includes('white')) {
+      textColor = '#222';
+      dirColor = 'rgba(0,0,0,0.7)';
+    }
     // Dirección (abajo)
     ctx.font = `400 ${dirFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
     ctx.textAlign = 'center';
@@ -144,7 +151,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     ctx.shadowBlur = 6;
     let dirY = baseY;
     if (currentProvider?.direccion) {
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.fillStyle = dirColor;
       ctx.fillText(currentProvider.direccion, boxLeft + boxWidth / 2, dirY);
     }
     // Instagram (encima)
@@ -155,7 +162,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     ctx.shadowBlur = 8;
     let igY = dirY - separation - 2; // -2 para compensar baseline
     if (currentProvider?.instagram_handle) {
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = textColor;
       ctx.fillText(`@${currentProvider.instagram_handle}`, boxLeft + boxWidth / 2, igY - dirFontSize);
     }
     ctx.restore();
