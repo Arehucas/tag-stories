@@ -131,7 +131,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     // Proporciones fieles al ejemplo
     const igFontSize = 35;
     const dirFontSize = 24;
-    const separation = 11;
+    const separation = 16;
     // Calcula la altura total de los textos
     let totalTextHeight = igFontSize + separation + dirFontSize;
     // Posición base: ambos pegados al margen inferior
