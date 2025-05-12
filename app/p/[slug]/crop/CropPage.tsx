@@ -147,23 +147,27 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     ctx.font = `400 ${dirFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.shadowColor = 'rgba(0,0,0,0.22)';
-    ctx.shadowBlur = 6;
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
     let dirY = baseY;
     if (currentProvider?.direccion) {
+      ctx.globalAlpha = 0.3;
       ctx.fillStyle = dirColor;
       ctx.fillText(currentProvider.direccion, boxLeft + boxWidth / 2, dirY);
+      ctx.globalAlpha = 1;
     }
     // Instagram (encima)
     ctx.font = `400 ${igFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.shadowColor = 'rgba(0,0,0,0.32)';
-    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
     let igY = dirY - separation - 2; // -2 para compensar baseline
     if (currentProvider?.instagram_handle) {
+      ctx.globalAlpha = 0.5;
       ctx.fillStyle = textColor;
       ctx.fillText(`@${currentProvider.instagram_handle}`, boxLeft + boxWidth / 2, igY - dirFontSize);
+      ctx.globalAlpha = 1;
     }
     ctx.restore();
     const croppedDataUrl = canvas.toDataURL('image/png');
