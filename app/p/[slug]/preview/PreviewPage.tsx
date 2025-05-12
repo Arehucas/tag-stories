@@ -10,6 +10,7 @@ import { useT } from '@/lib/useT';
 import { useEffect, useState } from 'react';
 import { get as idbGet } from 'idb-keyval';
 import { Instrument_Sans } from 'next/font/google';
+import { PreviewComponent } from '@/components/PreviewComponent';
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -40,8 +41,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   const [jpegDataUrl, setJpegDataUrl] = useState<string | null>(null);
   const [jpegSize, setJpegSize] = useState<number | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [template, setTemplate] = useState<any>(null);
-  const [campaign, setCampaign] = useState<any>(null);
 
   useEffect(() => {
     // Restaurar provider desde localStorage si no está en el store
@@ -126,32 +125,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
       router.replace(`/p/${slug}`);
     }
   }, [croppedImage, router, slug, isReady]);
-
-  // Obtener campaña y template al cargar
-  useEffect(() => {
-    if (!isReady || !slug) return;
-    fetch(`/api/provider/${slug}/campaign`)
-      .then(res => res.ok ? res.json() : null)
-      .then(async (camp) => {
-        if (camp && camp.templateId) {
-          setCampaign(camp);
-          // Obtener todas las plantillas permitidas por plan
-          const templatesRes = await fetch('/api/templates');
-          if (templatesRes.ok) {
-            const templates = await templatesRes.json();
-            // Buscar la plantilla correspondiente
-            const found = templates.find((t: any) => t._id === camp.templateId || t._id === camp.templateId?.toString());
-            if (found) setTemplate(found);
-            else setTemplate(null);
-          } else {
-            setTemplate(null);
-          }
-        } else {
-          setTemplate(null);
-        }
-      })
-      .catch(() => setTemplate(null));
-  }, [isReady, slug]);
 
   if (!isReady) {
     return <div />;
@@ -261,78 +234,21 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
         <div className="w-full flex flex-col items-center mt-8">
           <div className="flex flex-col items-center w-full" style={{ gap: '0.5rem' }}>
             <div className="relative w-full max-w-[240px] aspect-[9/16] rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ height: '426.67px', width: '240px' }}>
-              {croppedImage && template ? (
-                <>
-                  {/* Imagen base */}
-                  <Image src={croppedImage} alt="Preview" fill className="object-cover" />
-                  {/* Overlay */}
-                  <Image src={template.overlayUrl} alt="Overlay" fill className="object-cover" style={{zIndex: 1}} />
-                  {/* Logo */}
-                  {template.displayLogo && provider?.logo_url && (
-                    <div style={{
-                      position: 'absolute',
-                      right: template.marginRight,
-                      bottom: template.marginBottom,
-                      width: template.logoSize,
-                      height: template.logoSize,
-                      zIndex: 2,
-                      background: 'rgba(255,255,255,0.0)',
-                      borderRadius: 16,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Image
-                        src={provider.logo_url}
-                        alt={provider.nombre || 'Logo'}
-                        width={template.logoSize}
-                        height={template.logoSize}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 16 }}
-                        priority
-                      />
-                    </div>
-                  )}
-                  {/* IG Text + icono */}
-                  {template.displayText && provider?.instagram_handle && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: template.marginRight,
-                        bottom: template.marginBottom + template.logoSize + 10,
-                        fontSize: template.igText.size,
-                        color: template.igText.color,
-                        opacity: template.igText.opacity,
-                        fontWeight: 600,
-                        zIndex: 3,
-                        textShadow: '0 1px 4px #0008',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 4}}><rect width="24" height="24" rx="6" fill="currentColor" fillOpacity="0.12"/><path d="M7.75 12C7.75 14.0711 9.42893 15.75 11.5 15.75C13.5711 15.75 15.25 14.0711 15.25 12C15.25 9.92893 13.5711 8.25 11.5 8.25C9.42893 8.25 7.75 9.92893 7.75 12Z" stroke="currentColor" strokeWidth="1.5"/><circle cx="16.5" cy="7.5" r="1" fill="currentColor"/><rect x="3.75" y="3.75" width="15.5" height="15.5" rx="4.25" stroke="currentColor" strokeWidth="1.5"/></svg>
-                      @{provider.instagram_handle}
-                    </span>
-                  )}
-                  {/* Address Text */}
-                  {template.displayText && provider?.direccion && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: template.marginRight,
-                        bottom: template.marginBottom + 10,
-                        fontSize: template.addressText.size,
-                        color: template.addressText.color,
-                        opacity: template.addressText.opacity,
-                        fontWeight: 400,
-                        zIndex: 3,
-                        textShadow: '0 1px 4px #0008',
-                      }}
-                    >
-                      {provider.direccion}
-                    </span>
-                  )}
-                </>
+              {croppedImage && provider?.template ? (
+                <PreviewComponent
+                  baseImage={croppedImage}
+                  overlayUrl={provider.template.overlayUrl}
+                  logoUrl={provider?.logo_url}
+                  logoSize={provider.template.logoSize}
+                  marginBottom={provider.template.marginBottom}
+                  marginRight={provider.template.marginRight}
+                  displayLogo={provider.template.displayLogo}
+                  displayText={provider.template.displayText}
+                  igText={provider.template.igText}
+                  addressText={provider.template.addressText}
+                  igHandle={provider?.instagram_handle}
+                  address={provider?.direccion}
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/40 text-2xl">
                   {t('public_stories.no_image')}
