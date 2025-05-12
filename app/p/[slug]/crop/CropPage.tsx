@@ -158,8 +158,8 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     }
     // Instagram (encima)
     ctx.font = `400 ${igFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
     ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
     let igY = dirY - separation - 2; // -2 para compensar baseline
@@ -167,45 +167,45 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       ctx.globalAlpha = 0.6;
       ctx.fillStyle = textColor;
       // Medidas del icono
-      const iconSize = igFontSize * 0.85;
-      const iconPadding = 12;
+      const iconSize = 28; // tamaño fijo
+      const iconPadding = 10;
       // Medir ancho del texto
       const igText = `@${currentProvider.instagram_handle}`;
       const textWidth = ctx.measureText(igText).width;
       // Calcular posición para centrar icono+texto como bloque
       const totalWidth = iconSize + iconPadding + textWidth;
       const centerX = boxLeft + boxWidth / 2;
-      const startX = centerX - totalWidth / 2;
-      // Alineación tipo flex: centro del icono con centro del texto
+      const blockStartX = centerX - totalWidth / 2;
       const blockCenterY = igY - dirFontSize - igFontSize/2 + igFontSize/2;
       // Dibujar icono Instagram (centrado verticalmente)
+      const iconX = blockStartX;
       const iconY = blockCenterY - iconSize/2;
       ctx.save();
       ctx.lineWidth = 2.2;
       ctx.strokeStyle = textColor;
       ctx.beginPath();
       const r = iconSize * 0.18;
-      ctx.moveTo(startX + r, iconY);
-      ctx.lineTo(startX + iconSize - r, iconY);
-      ctx.quadraticCurveTo(startX + iconSize, iconY, startX + iconSize, iconY + r);
-      ctx.lineTo(startX + iconSize, iconY + iconSize - r);
-      ctx.quadraticCurveTo(startX + iconSize, iconY + iconSize, startX + iconSize - r, iconY + iconSize);
-      ctx.lineTo(startX + r, iconY + iconSize);
-      ctx.quadraticCurveTo(startX, iconY + iconSize, startX, iconY + iconSize - r);
-      ctx.lineTo(startX, iconY + r);
-      ctx.quadraticCurveTo(startX, iconY, startX + r, iconY);
-      ctx.moveTo(startX + iconSize/2 + iconSize*0.22, iconY + iconSize/2);
-      ctx.arc(startX + iconSize/2, iconY + iconSize/2, iconSize*0.22, 0, 2 * Math.PI);
-      ctx.moveTo(startX + iconSize*0.77, iconY + iconSize*0.23);
-      ctx.arc(startX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
+      ctx.moveTo(iconX + r, iconY);
+      ctx.lineTo(iconX + iconSize - r, iconY);
+      ctx.quadraticCurveTo(iconX + iconSize, iconY, iconX + iconSize, iconY + r);
+      ctx.lineTo(iconX + iconSize, iconY + iconSize - r);
+      ctx.quadraticCurveTo(iconX + iconSize, iconY + iconSize, iconX + iconSize - r, iconY + iconSize);
+      ctx.lineTo(iconX + r, iconY + iconSize);
+      ctx.quadraticCurveTo(iconX, iconY + iconSize, iconX, iconY + iconSize - r);
+      ctx.lineTo(iconX, iconY + r);
+      ctx.quadraticCurveTo(iconX, iconY, iconX + r, iconY);
+      ctx.moveTo(iconX + iconSize/2 + iconSize*0.22, iconY + iconSize/2);
+      ctx.arc(iconX + iconSize/2, iconY + iconSize/2, iconSize*0.22, 0, 2 * Math.PI);
+      ctx.moveTo(iconX + iconSize*0.77, iconY + iconSize*0.23);
+      ctx.arc(iconX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.restore();
       // Dibujar texto alineado verticalmente al centro del icono
-      ctx.textBaseline = 'middle';
-      ctx.fillText(igText, startX + iconSize + iconPadding, blockCenterY);
-      ctx.textBaseline = 'bottom'; // restaurar para el resto
+      ctx.fillText(igText, iconX + iconSize + iconPadding, blockCenterY);
       ctx.globalAlpha = 1;
     }
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom'; // restaurar para el resto
     ctx.restore();
     const croppedDataUrl = canvas.toDataURL('image/png');
     setCroppedImage(croppedDataUrl);
