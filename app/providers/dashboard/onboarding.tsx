@@ -259,7 +259,7 @@ export default function OnboardingProvider({ provider }: Props) {
               </div>
             ) : (
               <div className="flex items-center gap-4 mb-2">
-                <div style={{ width: 64, height: 64, background: '#23243a', borderRadius: '12px' }} />
+                <Image src="/logos/logo-provider-default.jpg" alt="Logo default" className="w-20 h-20 object-cover rounded-lg border-2 border-[#23243a]" width={80} height={80} />
                 <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition cursor-pointer">{t('onboarding.select_logo')}</button>
               </div>
             )}
