@@ -39,6 +39,17 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
+  // Función para loguear en terminal vía endpoint temporal
+  async function logToServer(data: any) {
+    try {
+      await fetch('/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch {}
+  }
+
   const handleDone = async () => {
     if (!originalImage || !croppedAreaPixels || !slug) return;
     let currentProvider = provider;
@@ -74,6 +85,16 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     }
     const cropX = croppedAreaPixels.x + (croppedAreaPixels.width - cropW) / 2;
     const cropY = croppedAreaPixels.y + (croppedAreaPixels.height - cropH) / 2;
+    // Log de template y overlayUrl
+    const overlayUrl = template?.overlayUrl ?? "/overlays/overlay-white-default.png";
+    await logToServer({
+      msg: 'DEBUG CROP',
+      template,
+      overlayUrl,
+      slug,
+      campaign,
+      time: new Date().toISOString(),
+    });
     const canvas = document.createElement('canvas');
     canvas.width = targetWidth;
     canvas.height = targetHeight;
@@ -91,7 +112,6 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       targetHeight
     );
     // Overlay
-    const overlayUrl = template?.overlayUrl ?? "/overlays/overlay-white-default.png";
     const overlayImg = new window.Image();
     overlayImg.src = overlayUrl;
     await new Promise((res) => { overlayImg.onload = res; });
@@ -272,12 +292,11 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
               zoom={zoom}
               minZoom={minZoom}
               aspect={9/16}
-              cropSize={{ width: 360, height: 640 }}
+              cropShape="rect"
+              showGrid={false}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
-              cropShape="rect"
-              showGrid={false}
               style={{ containerStyle: { borderRadius: '1rem', maxHeight: '60vh' } }}
             />
           </div>
