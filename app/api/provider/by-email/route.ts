@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   // @ts-expect-error: result.value puede ser undefined según el tipado de MongoDB, pero está bien para este flujo
   const provider = result.value;
 
-  // Si hay campaña para este provider, actualiza templateId según overlayPreference
+  // Usa el overlayPreference recibido en el body, que es el evaluado tras analizar el logo
   if (provider && provider.shortId) {
     const campaign = await db.collection("campaigns").findOne({ providerId: provider.shortId });
     if (campaign) {
