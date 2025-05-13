@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
 import { getServerSession } from 'next-auth';
+import { ObjectId } from "mongodb";
 
 // Defino el tipo para update
 interface UpdateCampaign {
@@ -100,7 +101,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
     update.requiredStories = body.requiredStories;
   }
   if (body.templateId) {
-    update.templateId = body.templateId;
+    try {
+      update.templateId = new ObjectId(body.templateId);
+    } catch {
+      // Si el templateId no es válido, ignóralo o lanza error
+    }
   }
   await access.db.collection('campaigns').updateOne({ providerId }, { $set: update });
   const updated = await access.db.collection('campaigns').findOne({ providerId });
