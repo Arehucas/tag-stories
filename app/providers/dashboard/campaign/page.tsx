@@ -53,6 +53,7 @@ export default function CampaignDashboard() {
   const [showNewForm, setShowNewForm] = useState(false);
   const t = useT();
   const { templates } = useTemplates();
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   useEffect(() => {
     setHydrated(true);
@@ -127,6 +128,8 @@ export default function CampaignDashboard() {
               overlayUrl: "/overlays/overlay-white-default.png",
             }
         );
+        // Selecciona el template actual de la campaña al cargar
+        setSelectedTemplateId(camp && camp.templateId ? camp.templateId : null);
         setLoading(false);
       }
     }
@@ -214,11 +217,11 @@ export default function CampaignDashboard() {
         requiredStories: form.requiredStories,
         overlayType: form.overlayType,
         overlayUrl: form.overlayUrl,
+        templateId: selectedTemplateId,
       }),
     });
     if (res.ok) {
       const data = await res.json();
-      console.log("DEBUG respuesta PATCH:", data);
       setCampaign(data);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
@@ -308,7 +311,9 @@ export default function CampaignDashboard() {
             {campaign?.templateId && (
               <SelectedTemplateSection
                 templates={templates.filter((t: any) => t.type === 'defaultLight' || t.type === 'defaultDark')}
-                selectedTemplateId={campaign.templateId}
+                selectedTemplateId={selectedTemplateId || campaign.templateId}
+                overlayPreference={provider.overlayPreference as 'dark-overlay' | 'light-overlay'}
+                onSelectTemplate={setSelectedTemplateId}
               />
             )}
             <button

@@ -10,18 +10,27 @@ interface Template {
 interface Props {
   templates: Template[];
   selectedTemplateId: string;
+  overlayPreference: 'dark-overlay' | 'light-overlay';
+  onSelectTemplate: (templateId: string) => void;
 }
 
-export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTemplateId }) => {
+export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTemplateId, overlayPreference, onSelectTemplate }) => {
   const selected = templates.find(t => t._id === selectedTemplateId);
+  const infoMsg = overlayPreference === 'dark-overlay'
+    ? 'En base a tu logo actual, te recomendaríamos una plantilla oscura'
+    : 'En base a tu logo actual, te recomendaríamos una plantilla clara';
   return (
     <section className="mt-8">
-      <h3 className="text-xl font-bold mb-4">Plantilla recomendada</h3>
+      <h3 className="text-xl font-bold mb-4 pb-[10px]">Selecciona tu plantilla</h3>
       <div className="grid grid-cols-2 gap-6 mb-4">
         {templates.map(t => (
           <div
             key={t._id}
-            className={`rounded-xl border-4 p-2 flex flex-col items-center transition-all bg-zinc-900 w-full ${t._id === selectedTemplateId ? 'border-blue-500 shadow-lg scale-105' : 'border-gray-700 opacity-60'}`}
+            className={`rounded-xl border-4 p-2 flex flex-col items-center transition-all bg-zinc-900 w-full cursor-pointer ${t._id === selectedTemplateId ? 'border-blue-500 shadow-lg scale-105' : 'border-gray-700 opacity-60'}`}
+            onClick={() => onSelectTemplate(t._id)}
+            tabIndex={0}
+            role="button"
+            aria-label={`Seleccionar plantilla ${t.templateName}`}
           >
             <div className="w-full aspect-[9/16] flex items-center justify-center rounded-lg overflow-hidden">
               <img src={t.previewUrl} alt={t.templateName} className="w-full h-full object-cover rounded-lg" />
@@ -30,10 +39,10 @@ export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTe
           </div>
         ))}
       </div>
-      <div className="text-base text-gray-200 mb-1">
-        En base a tu logo hemos escogido la plantilla <b>{selected?.templateName || ''}</b>.
+      <div className="flex items-center gap-2 text-base text-gray-200 mb-1 mt-[10px]">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#a259ff"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="#fff" fontFamily="Arial" fontWeight="bold">i</text></svg>
+        <span>{infoMsg}.</span>
       </div>
-      <div className="text-sm text-gray-400">No es posible cambiar de plantilla por ahora.</div>
     </section>
   );
 }; 
