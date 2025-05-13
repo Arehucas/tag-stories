@@ -58,16 +58,14 @@ export async function POST(req: NextRequest) {
   const provider = result.value;
 
   // Si hay campaña para este provider, actualiza templateId según overlayPreference
-  if (provider) {
-    const providerIds = [provider._id?.toString(), provider.shortId, provider.slug, provider.email].filter(Boolean);
-    const campaign = await db.collection("campaigns").findOne({ providerId: { $in: providerIds } });
+  if (provider && provider.shortId) {
+    const campaign = await db.collection("campaigns").findOne({ providerId: provider.shortId });
     if (campaign) {
-      // Buscar el templateId correspondiente
       const templateType = overlayPreference === 'dark-overlay' ? 'defaultDark' : 'defaultLight';
       const template = await db.collection('templates').findOne({ type: templateType, isActive: true });
       if (template) {
         await db.collection("campaigns").updateOne(
-          { providerId: campaign.providerId },
+          { providerId: provider.shortId },
           { $set: { templateId: template._id } }
         );
       }
