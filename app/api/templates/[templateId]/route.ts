@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
 import { ObjectId } from 'mongodb';
 
-export async function GET(req: NextRequest, { params }: { params: { templateId: string } }) {
+export async function GET(
+  req: NextRequest,
+  context: { params: { templateId: string } }
+) {
   const db = await getDb();
   try {
-    const template = await db.collection('templates').findOne({ _id: new ObjectId(params.templateId) });
+    const template = await db.collection('templates').findOne({ _id: new ObjectId(context.params.templateId) });
     if (!template) {
       return NextResponse.json({ error: 'Template no encontrada' }, { status: 404 });
     }

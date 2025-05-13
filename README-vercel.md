@@ -39,6 +39,29 @@
 - [ ] Los parámetros de funciones de array (`map`, `find`, `filter`, etc.) están tipados.
 - [ ] Los datos de red/API tienen interfaces o tipos definidos.
 
+## 7. Endpoints API dinámicos en Next.js App Router
+- Cuando crees endpoints dinámicos (por ejemplo, `/api/templates/[templateId]/route.ts`), la firma del handler debe ser:
+  ```ts
+  export async function GET(
+    req: NextRequest,
+    context: { params: { templateId: string } }
+  ) { /* ... */ }
+  ```
+- Accede al parámetro dinámico con `context.params.templateId`.
+- **No desestructures params directamente en el argumento** (esto rompe el tipado y el build en Vercel).
+- Si ves errores como `invalid "GET" export` o problemas de tipado en despliegue, revisa la firma del handler.
+- Siempre devuelve JSON en la respuesta, incluso en errores.
+
+**Ejemplo correcto:**
+```ts
+export async function GET(
+  req: NextRequest,
+  context: { params: { templateId: string } }
+) {
+  // ...
+}
+```
+
 ---
 
 **Sigue esta guía para evitar bloqueos en despliegues y mantener la calidad del código en producción.** 
