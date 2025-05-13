@@ -202,7 +202,13 @@ export default function ProviderDashboard() {
                   router.push('/providers/dashboard/brand-data');
                 }}
               >
-                <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8M12 8v8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/></svg>
+                {/* Icono Brand (edificio, naranja) */}
+                <svg width="32" height="32" fill="none" stroke="#FF9900" strokeWidth="2.2" viewBox="0 0 32 32">
+                  <rect x="6" y="12" width="20" height="14" rx="2" stroke="#FF9900" strokeWidth="2.2"/>
+                  <rect x="12" y="18" width="4" height="4" rx="1" stroke="#FF9900" strokeWidth="2.2"/>
+                  <rect x="20" y="18" width="4" height="4" rx="1" stroke="#FF9900" strokeWidth="2.2"/>
+                  <path d="M16 12V6M16 6L10 12M16 6L22 12" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round"/>
+                </svg>
                 <span>Datos de marca</span>
               </button>
               <button
@@ -212,7 +218,12 @@ export default function ProviderDashboard() {
                   router.push('/providers/dashboard/campaign');
                 }}
               >
-                <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/></svg>
+                {/* Icono Megáfono (verde) */}
+                <svg width="32" height="32" fill="none" stroke="#00E676" strokeWidth="2.2" viewBox="0 0 32 32">
+                  <path d="M6 20V12a2 2 0 0 1 2-2h2l14-4v20l-14-4h-2a2 2 0 0 1-2-2z" stroke="#00E676" strokeWidth="2.2"/>
+                  <path d="M6 20v2a2 2 0 0 0 2 2h2" stroke="#00E676" strokeWidth="2.2"/>
+                  <path d="M10 22v2" stroke="#00E676" strokeWidth="2.2" strokeLinecap="round"/>
+                </svg>
                 <span>Campaña</span>
               </button>
               <button
@@ -222,7 +233,11 @@ export default function ProviderDashboard() {
                   router.push('/providers/dashboard/stories');
                 }}
               >
-                <svg width="28" height="28" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.2"/><path d="M8 12h8" stroke="#a259ff" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="12" r="3" stroke="#a259ff" strokeWidth="2" fill="#a259ff" opacity="0.4"/></svg>
+                {/* Icono Stories (rectángulo con play, cyan) */}
+                <svg width="32" height="32" fill="none" stroke="#00E5FF" strokeWidth="2.2" viewBox="0 0 32 32">
+                  <rect x="6" y="8" width="20" height="16" rx="3" stroke="#00E5FF" strokeWidth="2.2"/>
+                  <polygon points="14,13 22,16 14,19" fill="#00E5FF" stroke="#00E5FF" strokeLinejoin="round"/>
+                </svg>
                 <span>Stories</span>
               </button>
               <div className="border-b border-violet-950/70 w-full mb-2" />
