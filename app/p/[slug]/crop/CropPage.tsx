@@ -59,8 +59,8 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     img.src = originalImage;
     await new Promise((res) => { img.onload = res; });
     // Dimensiones target
-    const targetWidth = 900;
-    const targetHeight = 1600;
+    const targetWidth = 1080;
+    const targetHeight = 1920;
     // --- Crop ---
     let cropW = croppedAreaPixels.width;
     let cropH = croppedAreaPixels.height;
@@ -265,13 +265,14 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
           <div className="text-white/70 text-center mt-16">{t('no_image_selected')}</div>
         ) : (
         <div className="w-full flex flex-col items-center mt-8">
-          <div className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ maxHeight: '60vh' }}>
+          <div className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ maxHeight: '60vh', aspectRatio: '9/16', width: '360px', height: `${360 * 16 / 9}px` }}>
             <Cropper
               image={originalImage}
               crop={crop}
               zoom={zoom}
               minZoom={minZoom}
               aspect={9/16}
+              cropSize={{ width: 360, height: 640 }}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
