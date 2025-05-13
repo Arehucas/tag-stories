@@ -285,20 +285,26 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
           <div className="text-white/70 text-center mt-16">{t('no_image_selected')}</div>
         ) : (
         <div className="w-full flex flex-col items-center mt-8">
-          <div className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-xl overflow-hidden flex-shrink-0 mx-auto" style={{ maxHeight: '60vh', aspectRatio: '9/16', width: '360px', height: `${360 * 16 / 9}px` }}>
-            <Cropper
-              image={originalImage}
-              crop={crop}
-              zoom={zoom}
-              minZoom={minZoom}
-              aspect={9/16}
-              cropShape="rect"
-              showGrid={false}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-              style={{ containerStyle: { borderRadius: '1rem', maxHeight: '60vh' } }}
-            />
+          {/* Contenedor 3:4 centrado */}
+          <div className="flex items-center justify-center w-full" style={{ aspectRatio: '3/4', maxWidth: 360, width: '100%' }}>
+            {/* Cropper 9:16 centrado dentro del contenedor 3:4 */}
+            <div className="flex items-center justify-center w-full h-full" style={{ position: 'relative' }}>
+              <div style={{ aspectRatio: '9/16', width: '70%', maxHeight: '100%' }}>
+                <Cropper
+                  image={originalImage}
+                  crop={crop}
+                  zoom={zoom}
+                  minZoom={minZoom}
+                  aspect={9/16}
+                  cropShape="rect"
+                  showGrid={false}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                  style={{ containerStyle: { borderRadius: '1rem', width: '100%', height: '100%' } }}
+                />
+              </div>
+            </div>
           </div>
           <input
             type="range"
