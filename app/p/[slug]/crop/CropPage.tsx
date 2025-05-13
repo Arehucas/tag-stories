@@ -9,6 +9,7 @@ import ProviderHeader from '@/components/ui/ProviderHeader';
 import { useT } from '@/lib/useT';
 import { get as idbGet } from 'idb-keyval';
 import { set as idbSet } from 'idb-keyval';
+import type { Template } from '@/lib/template';
 
 export default function CropPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   const setProvider = useProviderStore(state => state.setProvider);
   const t = useT();
   const [campaign, setCampaign] = useState<any>(null);
-  const [overlayUrl, setOverlayUrl] = useState<string>("/overlays/overlay-white-default.png");
+  const [template, setTemplate] = useState<Template | null>(null);
 
   const steps = [
     { title: t('upload_photo'), description: t('choose_or_take') },
@@ -41,7 +42,6 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   const handleDone = async () => {
     if (!originalImage || !croppedAreaPixels || !slug) return;
     let currentProvider = provider;
-    // Si falta la dirección, la pedimos a la API
     if (!currentProvider?.direccion) {
       try {
         const res = await fetch(`/api/provider/${slug}`);
@@ -58,26 +58,20 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     const img = new window.Image();
     img.src = originalImage;
     await new Promise((res) => { img.onload = res; });
-    // Calcula dimensiones para 9:16
+    // Dimensiones target
     const targetWidth = 900;
     const targetHeight = 1600;
-    // --- DEBUG: log croppedAreaPixels ---
-    console.log('croppedAreaPixels', croppedAreaPixels, 'ratio:', croppedAreaPixels.width / croppedAreaPixels.height);
-    // --- AJUSTE: forzar crop a 9:16 ---
+    // --- Crop ---
     let cropW = croppedAreaPixels.width;
     let cropH = croppedAreaPixels.height;
     const idealRatio = 9 / 16;
     if (Math.abs(cropW / cropH - idealRatio) > 0.01) {
-      // Ajustar el crop para que sea exactamente 9:16, centrado en el área seleccionada
       if (cropW / cropH > idealRatio) {
-        // recortar ancho
         cropW = cropH * idealRatio;
       } else {
-        // recortar alto
         cropH = cropW / idealRatio;
       }
     }
-    // Centrar el crop si se ajustó
     const cropX = croppedAreaPixels.x + (croppedAreaPixels.width - cropW) / 2;
     const cropY = croppedAreaPixels.y + (croppedAreaPixels.height - cropH) / 2;
     const canvas = document.createElement('canvas');
@@ -96,117 +90,109 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       targetWidth,
       targetHeight
     );
-    // 2. Pintar overlay PNG
+    // Overlay
+    const overlayUrl = template?.overlayUrl ?? "/overlays/overlay-white-default.png";
     const overlayImg = new window.Image();
     overlayImg.src = overlayUrl;
     await new Promise((res) => { overlayImg.onload = res; });
     ctx.drawImage(overlayImg, 0, 0, targetWidth, targetHeight);
-    // 3. Pintar logo del provider en la esquina inferior derecha
-    if (currentProvider?.logo_url) {
+    // Logo
+    if (template?.displayLogo !== false && currentProvider?.logo_url) {
       const logo = new window.Image();
       logo.crossOrigin = "anonymous";
       logo.src = currentProvider.logo_url;
       await new Promise((res) => { logo.onload = res; });
-      // Tamaño y posición
-      const logoMaxWidth = 280;
-      const logoMinWidth = 140;
-      const logoWidth = Math.max(Math.min(targetWidth * 0.25, logoMaxWidth), logoMinWidth);
-      const logoHeight = logoWidth; // Mantener aspect ratio cuadrado
-      const logoX = targetWidth - logoWidth - 50;
-      const logoY = targetHeight - logoHeight - 50;
-      // Pintar solo el logo, sin fondo
+      const logoSize = template?.logoSize ?? 280;
+      const marginBottom = template?.marginBottom ?? 50;
+      const marginRight = template?.marginRight ?? 50;
+      const logoWidth = logoSize;
+      const logoHeight = logoSize;
+      const logoX = targetWidth - logoWidth - marginRight;
+      const logoY = targetHeight - logoHeight - marginBottom;
       ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
     }
-    // 4. Pintar dos cajas de texto separadas, sin fondo, centradas y con paddings independientes, y proporciones fieles al ejemplo
-    ctx.save();
-    const paddingX = 36;
-    const paddingY = 48;
-    const logoMaxWidth = 280;
-    const logoMinWidth = 140;
-    const logoWidth = currentProvider?.logo_url ? Math.max(Math.min(targetWidth * 0.25, logoMaxWidth), logoMinWidth) : 0;
-    const logoMargin = currentProvider?.logo_url ? 50 : 0;
-    const boxLeft = paddingX;
-    const boxRight = targetWidth - (logoWidth + logoMargin + paddingX);
-    const boxWidth = boxRight - boxLeft;
-    // Proporciones fieles al ejemplo
-    const igFontSize = 35;
-    const dirFontSize = 24;
-    const separation = 16;
-    // Calcula la altura total de los textos
-    let totalTextHeight = igFontSize + separation + dirFontSize;
-    // Posición base: ambos pegados al margen inferior
-    let baseY = targetHeight - paddingY - 3;
-    // Lógica de color según overlay
-    let textColor = '#fff';
-    let dirColor = 'rgba(255,255,255,0.85)';
-    if (overlayUrl.includes('white')) {
-      textColor = '#222';
-      dirColor = 'rgba(0,0,0,0.7)';
-    }
-    // Dirección (abajo)
-    ctx.font = `400 ${dirFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    let dirY = baseY;
-    if (currentProvider?.direccion) {
-      ctx.globalAlpha = 0.4;
-      ctx.fillStyle = dirColor;
-      ctx.fillText(currentProvider.direccion, boxLeft + boxWidth / 2, dirY);
-      ctx.globalAlpha = 1;
-    }
-    // Instagram (encima)
-    ctx.font = `400 ${igFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    let igY = dirY - separation - 2; // -2 para compensar baseline
-    if (currentProvider?.instagram_handle) {
-      ctx.globalAlpha = 0.6;
-      ctx.fillStyle = textColor;
-      // Medidas del icono
-      const iconSize = 28; // tamaño fijo
-      const iconPadding = 10;
-      // Medir ancho del texto
-      const igText = `${currentProvider.instagram_handle}`;
-      const textWidth = ctx.measureText(igText).width;
-      // Calcular posición para centrar icono+texto como bloque
-      const totalWidth = iconSize + iconPadding + textWidth;
-      const centerX = boxLeft + boxWidth / 2;
-      const blockStartX = centerX - totalWidth / 2;
-      const blockCenterY = igY - dirFontSize - igFontSize/2 + igFontSize/2;
-      // Dibujar icono Instagram (centrado verticalmente)
-      const iconX = blockStartX;
-      const iconY = blockCenterY - iconSize/2;
+    // Textos e icono IG
+    if (template?.displayText !== false) {
       ctx.save();
-      ctx.lineWidth = 2.2;
-      ctx.strokeStyle = textColor;
-      ctx.beginPath();
-      const r = iconSize * 0.18;
-      ctx.moveTo(iconX + r, iconY);
-      ctx.lineTo(iconX + iconSize - r, iconY);
-      ctx.quadraticCurveTo(iconX + iconSize, iconY, iconX + iconSize, iconY + r);
-      ctx.lineTo(iconX + iconSize, iconY + iconSize - r);
-      ctx.quadraticCurveTo(iconX + iconSize, iconY + iconSize, iconX + iconSize - r, iconY + iconSize);
-      ctx.lineTo(iconX + r, iconY + iconSize);
-      ctx.quadraticCurveTo(iconX, iconY + iconSize, iconX, iconY + iconSize - r);
-      ctx.lineTo(iconX, iconY + r);
-      ctx.quadraticCurveTo(iconX, iconY, iconX + r, iconY);
-      ctx.moveTo(iconX + iconSize/2 + iconSize*0.22, iconY + iconSize/2);
-      ctx.arc(iconX + iconSize/2, iconY + iconSize/2, iconSize*0.22, 0, 2 * Math.PI);
-      ctx.moveTo(iconX + iconSize*0.77, iconY + iconSize*0.23);
-      ctx.arc(iconX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
-      ctx.stroke();
+      const paddingX = 36;
+      const paddingY = 48;
+      const logoSize = template?.logoSize ?? 280;
+      const marginRight = template?.marginRight ?? 50;
+      const logoWidth = (template?.displayLogo !== false && currentProvider?.logo_url) ? logoSize : 0;
+      const logoMargin = (template?.displayLogo !== false && currentProvider?.logo_url) ? marginRight : 0;
+      const boxLeft = paddingX;
+      const boxRight = targetWidth - (logoWidth + logoMargin + paddingX);
+      const boxWidth = boxRight - boxLeft;
+      // IG
+      const igFontSize = template?.igText?.size ?? 35;
+      const igColor = template?.igText?.color ?? '#fff';
+      const igOpacity = template?.igText?.opacity ?? 0.6;
+      // Dirección
+      const dirFontSize = template?.addressText?.size ?? 24;
+      const dirColor = template?.addressText?.color ?? 'rgba(255,255,255,0.85)';
+      const dirOpacity = template?.addressText?.opacity ?? 0.4;
+      const separation = 16;
+      let baseY = targetHeight - (template?.marginBottom ?? 50) - 3;
+      // Dirección
+      ctx.font = `400 ${dirFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      let dirY = baseY;
+      if (currentProvider?.direccion) {
+        ctx.globalAlpha = dirOpacity;
+        ctx.fillStyle = dirColor;
+        ctx.fillText(currentProvider.direccion, boxLeft + boxWidth / 2, dirY);
+        ctx.globalAlpha = 1;
+      }
+      // Instagram
+      ctx.font = `400 ${igFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      let igY = dirY - separation - 2;
+      if (currentProvider?.instagram_handle) {
+        ctx.globalAlpha = igOpacity;
+        ctx.fillStyle = igColor;
+        const iconSize = 28;
+        const iconPadding = 10;
+        const igText = `${currentProvider.instagram_handle}`;
+        const textWidth = ctx.measureText(igText).width;
+        const totalWidth = iconSize + iconPadding + textWidth;
+        const centerX = boxLeft + boxWidth / 2;
+        const blockStartX = centerX - totalWidth / 2;
+        const blockCenterY = igY - dirFontSize - igFontSize/2 + igFontSize/2;
+        const iconX = blockStartX;
+        const iconY = blockCenterY - iconSize/2;
+        ctx.save();
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = igColor;
+        ctx.beginPath();
+        const r = iconSize * 0.18;
+        ctx.moveTo(iconX + r, iconY);
+        ctx.lineTo(iconX + iconSize - r, iconY);
+        ctx.quadraticCurveTo(iconX + iconSize, iconY, iconX + iconSize, iconY + r);
+        ctx.lineTo(iconX + iconSize, iconY + iconSize - r);
+        ctx.quadraticCurveTo(iconX + iconSize, iconY + iconSize, iconX + iconSize - r, iconY + iconSize);
+        ctx.lineTo(iconX + r, iconY + iconSize);
+        ctx.quadraticCurveTo(iconX, iconY + iconSize, iconX, iconY + iconSize - r);
+        ctx.lineTo(iconX, iconY + r);
+        ctx.quadraticCurveTo(iconX, iconY, iconX + r, iconY);
+        ctx.moveTo(iconX + iconSize/2 + iconSize*0.22, iconY + iconSize/2);
+        ctx.arc(iconX + iconSize/2, iconY + iconSize/2, iconSize*0.22, 0, 2 * Math.PI);
+        ctx.moveTo(iconX + iconSize*0.77, iconY + iconSize*0.23);
+        ctx.arc(iconX + iconSize*0.77, iconY + iconSize*0.23, iconSize*0.06, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillText(igText, iconX + iconSize + iconPadding, blockCenterY);
+        ctx.globalAlpha = 1;
+      }
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
       ctx.restore();
-      // Dibujar texto alineado verticalmente al centro del icono
-      ctx.fillText(igText, iconX + iconSize + iconPadding, blockCenterY);
-      ctx.globalAlpha = 1;
     }
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom'; // restaurar para el resto
-    ctx.restore();
     const croppedDataUrl = canvas.toDataURL('image/png');
     setCroppedImage(croppedDataUrl);
     await idbSet('taun_cropped_image', croppedDataUrl);
@@ -258,10 +244,16 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
   }, [originalImage, router, slug]);
 
   useEffect(() => {
-    // Obtener campaña y overlayUrl
-    fetch(`/api/provider/${slug}/campaign`).then(res => res.ok ? res.json() : null).then(camp => {
+    // Obtener campaña y template activa
+    fetch(`/api/provider/${slug}/campaign`).then(res => res.ok ? res.json() : null).then(async camp => {
       setCampaign(camp && !camp.error ? camp : null);
-      setOverlayUrl((camp && camp.overlayUrl) || "/overlays/overlay-white-default.png");
+      if (camp && camp.templateId) {
+        const templateRes = await fetch(`/api/templates/${camp.templateId}`);
+        if (templateRes.ok) {
+          const tpl = await templateRes.json();
+          setTemplate(tpl);
+        }
+      }
     });
   }, [slug]);
 
