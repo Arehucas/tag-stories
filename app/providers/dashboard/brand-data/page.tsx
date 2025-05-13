@@ -271,7 +271,7 @@ export default function BrandData() {
             <label className="text-white/80 font-semibold">Logo</label>
             {logoPreview && (
               <div className="flex items-center gap-4">
-                <Image src={logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded-lg border-2 border-[#a259ff]" width={80} height={80} />
+                <Image src={logoPreview.startsWith('http') && logoPreview.includes('cloudinary') ? logoPreview.replace('/upload/', '/upload/f_auto/') : logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded-lg border-2 border-[#a259ff]" width={80} height={80} />
                 {logoFile && (
                   <button type="button" onClick={() => { setLogoFile(null); setLogoPreview(provider?.logo_url ?? null); }} className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition">Cancelar</button>
                 )}
@@ -289,7 +289,7 @@ export default function BrandData() {
             {!logoPreview && !logoFile && (
               <div style={{ width: 80, height: 80, background: '#2563eb', borderRadius: '50%' }} />
             )}
-            <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleLogoChange} />
+            <input type="file" accept="image/png,image/jpeg,image/webp" ref={fileInputRef} className="hidden" onChange={handleLogoChange} />
           </div>
           <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60" disabled={saving || isAnalyzing}>
             {saving ? 'Guardando...' : 'Guardar cambios'}

@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
 import { ObjectId } from 'mongodb';
+import { getServerSession } from 'next-auth';
 
 export async function GET(req: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({}, { status: 401 });
+  }
   const { searchParams } = new URL(req.url);
   const idsParam = searchParams.get('ids');
   if (!idsParam) return NextResponse.json({});

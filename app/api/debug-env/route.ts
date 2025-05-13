@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 
 export async function GET() {
+    const session = await getServerSession();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    }
     return NextResponse.json({
       CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
       CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,

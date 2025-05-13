@@ -245,7 +245,7 @@ export default function OnboardingProvider({ provider }: Props) {
             )}
             {logoPreview ? (
               <div className="flex items-center gap-4 mb-2">
-                <Image src={logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded-lg border-2 border-[#a259ff]" width={80} height={80} />
+                <Image src={logoPreview.startsWith('http') && logoPreview.includes('cloudinary') ? logoPreview.replace('/upload/', '/upload/f_auto/') : logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded-lg border-2 border-[#a259ff]" width={80} height={80} />
                 <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-[#3a86ff] text-white font-semibold hover:bg-blue-700 transition">{t('onboarding.change_logo')}</button>
               </div>
             ) : (
@@ -256,7 +256,7 @@ export default function OnboardingProvider({ provider }: Props) {
             )}
             <input
               type="file"
-              accept="image/png,image/jpeg"
+              accept="image/png,image/jpeg,image/webp"
               ref={fileInputRef}
               onChange={handleLogoChange}
               className="hidden"

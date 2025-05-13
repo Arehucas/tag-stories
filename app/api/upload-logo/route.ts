@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { getServerSession } from 'next-auth';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,6 +9,10 @@ cloudinary.config({
 });
 
 export async function POST(req: NextRequest): Promise<Response> {
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+  }
   const data = await req.formData();
   const file = data.get("file");
   if (!file || typeof file === "string") {
