@@ -198,7 +198,12 @@ export default function OnboardingProvider({ provider }: Props) {
       </div>
       <div className="w-full max-w-lg relative z-10">
         <form onSubmit={handleSubmit} className="w-full bg-[#18122b] rounded-2xl p-8 flex flex-col gap-6 shadow-2xl border border-violet-950/60">
-          <h2 className="text-2xl font-bold text-white text-center mb-2 tracking-wide">{t('onboarding.title')}</h2>
+          <div className="flex flex-col items-center mb-4" style={{ gap: 0 }}>
+            <h2 className="text-2xl font-bold text-white text-center tracking-wide">{t('onboarding.title')}</h2>
+            {email && (
+              <div className="text-center text-sm text-white/50">{email}</div>
+            )}
+          </div>
           <div>
             <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.name')}</label>
             <input type="text" className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none" value={nombre} onChange={e => setNombre(e.target.value)} required />
