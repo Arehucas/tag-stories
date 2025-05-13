@@ -40,15 +40,15 @@
 - [ ] Los datos de red/API tienen interfaces o tipos definidos.
 
 ## 7. Endpoints API dinámicos en Next.js App Router
-- Cuando crees endpoints dinámicos (por ejemplo, `/api/templates/[templateId]/route.ts`), la firma del handler debe ser:
+- Cuando crees endpoints dinámicos (por ejemplo, `/api/templates/[templateId]/route.ts`), **el segundo argumento debe ser**:
   ```ts
   export async function GET(
     req: NextRequest,
-    context: { params: { templateId: string } }
+    { params }: { params: Record<string, string> }
   ) { /* ... */ }
   ```
-- Accede al parámetro dinámico con `context.params.templateId`.
-- **No desestructures params directamente en el argumento** (esto rompe el tipado y el build en Vercel).
+- Accede al parámetro dinámico con `params.templateId`.
+- **No uses tipos concretos ni desestructures context directamente** (por ejemplo, `context: { params: { templateId: string } }` o `{ params: { templateId: string } }`), ya que esto puede romper el build en Vercel.
 - Si ves errores como `invalid "GET" export` o problemas de tipado en despliegue, revisa la firma del handler.
 - Siempre devuelve JSON en la respuesta, incluso en errores.
 
@@ -56,7 +56,7 @@
 ```ts
 export async function GET(
   req: NextRequest,
-  context: { params: { templateId: string } }
+  { params }: { params: Record<string, string> }
 ) {
   // ...
 }

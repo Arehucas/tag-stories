@@ -4,11 +4,11 @@ import { ObjectId } from 'mongodb';
 
 export async function GET(
   req: NextRequest,
-  context: { params: { templateId: string } }
+  { params }: { params: Record<string, string> }
 ) {
   const db = await getDb();
   try {
-    const template = await db.collection('templates').findOne({ _id: new ObjectId(context.params.templateId) });
+    const template = await db.collection('templates').findOne({ _id: new ObjectId(params.templateId) });
     if (!template) {
       return NextResponse.json({ error: 'Template no encontrada' }, { status: 404 });
     }
