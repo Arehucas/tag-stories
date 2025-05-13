@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
   const db = await getDb();
-  const result = await db.collection("providers").findOneAndUpdate(
+  await db.collection("providers").updateOne(
     { email },
     {
       $set: {
@@ -51,24 +51,19 @@ export async function POST(req: NextRequest) {
         updatedAt: new Date(),
       },
       $setOnInsert: { createdAt: new Date(), email },
-    },
-    { upsert: true, returnDocument: "after" }
+    }
   );
-  // @ts-expect-error: result.value puede ser undefined según el tipado de MongoDB, pero está bien para este flujo
-  const provider = result.value;
 
-  // Usa el overlayPreference recibido en el body, que es el evaluado tras analizar el logo
+  const provider = await db.collection("providers").findOne({ email });
+
   if (provider && provider.shortId) {
-    const campaign = await db.collection("campaigns").findOne({ providerId: provider.shortId });
-    if (campaign) {
-      const templateType = overlayPreference === 'dark-overlay' ? 'defaultDark' : 'defaultLight';
-      const template = await db.collection('templates').findOne({ type: templateType, isActive: true });
-      if (template) {
-        await db.collection("campaigns").updateOne(
-          { providerId: provider.shortId },
-          { $set: { templateId: template._id } }
-        );
-      }
+    const templateType = overlayPreference === 'dark-overlay' ? 'defaultDark' : 'defaultLight';
+    const template = await db.collection('templates').findOne({ type: templateType, isActive: true });
+    if (template) {
+      await db.collection("campaigns").updateOne(
+        { providerId: provider.shortId },
+        { $set: { templateId: template._id } }
+      );
     }
   }
 

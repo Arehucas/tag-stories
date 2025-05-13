@@ -21,8 +21,7 @@ export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTe
         {templates.map(t => (
           <div
             key={t._id}
-            className={`rounded-xl border-4 p-2 flex flex-col items-center transition-all bg-zinc-900 ${t._id === selectedTemplateId ? 'border-blue-500 shadow-lg scale-105' : 'border-gray-700 opacity-60'}`}
-            style={{ width: 160 }}
+            className={`rounded-xl border-4 p-2 flex flex-col items-center transition-all bg-zinc-900 w-full ${t._id === selectedTemplateId ? 'border-blue-500 shadow-lg scale-105' : 'border-gray-700 opacity-60'}`}
           >
             <div className="w-full aspect-[9/16] flex items-center justify-center rounded-lg overflow-hidden">
               <img src={t.previewUrl} alt={t.templateName} className="w-full h-full object-cover rounded-lg" />
