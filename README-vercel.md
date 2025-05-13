@@ -44,11 +44,11 @@
   ```ts
   export async function GET(
     req: NextRequest,
-    { params }: { params: Record<string, string> }
+    context: { params: { [key: string]: string } }
   ) { /* ... */ }
   ```
-- Accede al parámetro dinámico con `params.templateId`.
-- **No uses tipos concretos ni desestructures context directamente** (por ejemplo, `context: { params: { templateId: string } }` o `{ params: { templateId: string } }`), ya que esto puede romper el build en Vercel.
+- Accede al parámetro dinámico con `context.params.templateId`.
+- **Nunca desestructures el segundo argumento en la firma** (no uses `{ params }` ni tipos concretos), ya que esto puede romper el build en Vercel y Next.js 15.
 - Si ves errores como `invalid "GET" export` o problemas de tipado en despliegue, revisa la firma del handler.
 - Siempre devuelve JSON en la respuesta, incluso en errores.
 
@@ -56,7 +56,7 @@
 ```ts
 export async function GET(
   req: NextRequest,
-  { params }: { params: Record<string, string> }
+  context: { params: { [key: string]: string } }
 ) {
   // ...
 }
