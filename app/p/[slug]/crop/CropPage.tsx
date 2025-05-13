@@ -161,8 +161,8 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       const dirFontSize = template?.addressText?.size ?? 24;
       const dirColor = template?.addressText?.color ?? 'rgba(255,255,255,0.85)';
       const dirOpacity = template?.addressText?.opacity ?? 0.4;
-      const separation = 16;
-      let baseY = targetHeight - (template?.marginBottom ?? 50) - 3;
+      const separation = 16 + 3;
+      let baseY = targetHeight - (template?.marginBottom ?? 50) - 3 - 5;
       // Dirección
       ctx.font = `400 ${dirFontSize}px 'Instrument Sans', 'Inter', 'Geist', 'Segoe UI', sans-serif`;
       ctx.textAlign = 'center';
