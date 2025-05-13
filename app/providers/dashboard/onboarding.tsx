@@ -133,7 +133,7 @@ export default function OnboardingProvider({ provider }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!nombre || !direccion || !ciudad || !instagram || !logo && !logoUrl) {
+    if (!nombre || !direccion || !ciudad || !instagram) {
       setError(t('onboarding.error_required_fields'));
       return;
     }
@@ -143,6 +143,7 @@ export default function OnboardingProvider({ provider }: Props) {
     }
     setLoading(true);
     let finalLogoUrl = logoUrl;
+    let finalOverlayPreference = overlayPreference;
     if (logo) {
       // Subir a Cloudinary
       const formData = new FormData();
@@ -156,6 +157,10 @@ export default function OnboardingProvider({ provider }: Props) {
         return;
       }
       finalLogoUrl = data.url;
+      finalOverlayPreference = await analyzeLogoColorAndTransparency(data.url);
+    } else if (!logoPreview) {
+      finalLogoUrl = '/logos/logo-provider-default.jpg';
+      finalOverlayPreference = 'dark-overlay';
     }
     // Guardar provider
     const res = await fetch("/api/provider/onboarding", {
@@ -168,7 +173,7 @@ export default function OnboardingProvider({ provider }: Props) {
         instagram_handle: instagram,
         logo_url: finalLogoUrl,
         email,
-        overlayPreference,
+        overlayPreference: finalOverlayPreference,
       }),
     });
     if (!res.ok) {
@@ -176,7 +181,6 @@ export default function OnboardingProvider({ provider }: Props) {
       setLoading(false);
       return;
     }
-    // Quitar alert y redirigir directamente
     setLoading(true);
     window.location.href = "/providers/dashboard";
   };
@@ -276,8 +280,7 @@ export default function OnboardingProvider({ provider }: Props) {
               !nombre ||
               !direccion ||
               !ciudad ||
-              !instagram ||
-              !(logo || logoPreview)
+              !instagram
             }
           >
             {loading ? t('onboarding.saving') : t('onboarding.save_and_continue')}

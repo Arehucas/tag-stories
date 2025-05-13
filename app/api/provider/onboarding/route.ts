@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
   }
   const body = await req.json();
   const { nombre, direccion, ciudad, instagram_handle, logo_url, email, overlayPreference } = body;
-  if (!nombre || !direccion || !ciudad || !instagram_handle || !logo_url || !email) {
+  const finalLogoUrl = logo_url || '/logos/logo-provider-default.jpg';
+  if (!nombre || !direccion || !ciudad || !instagram_handle || !email) {
     return NextResponse.json({ error: "Todos los campos son obligatorios" }, { status: 400 });
   }
   if (email !== session.user.email) {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
         direccion,
         ciudad,
         instagram_handle,
-        logo_url,
+        logo_url: finalLogoUrl,
         email,
         overlayPreference: overlayPreference || 'light-overlay',
         updatedAt: new Date(),
