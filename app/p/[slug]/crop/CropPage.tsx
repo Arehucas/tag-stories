@@ -39,25 +39,16 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  // Función para loguear en terminal vía endpoint temporal, con alert para depuración
+  // Función para loguear en terminal vía endpoint temporal, sin alert para usuario
   async function logToServer(data: any) {
     try {
-      alert('Enviando log');
-      const res = await fetch('/api/log', {
+      await fetch('/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      let result;
-      if (res.ok) {
-        result = await res.json();
-        alert('Log enviado: ' + JSON.stringify(result));
-      } else {
-        const text = await res.text();
-        alert('Error HTTP: ' + res.status + ' - ' + text);
-      }
     } catch (e) {
-      alert('Error enviando log: ' + (e?.toString() || ''));
+      // Silencioso
     }
   }
 
