@@ -142,9 +142,14 @@ export default function BrandData() {
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      if (campaignActive) {
-        setShowOverlayBlockDialog(true);
-        return;
+      if (provider?.slug) {
+        const res = await fetch(`/api/provider/${provider.slug}/campaign`);
+        const camp = res.ok ? await res.json() : null;
+        if (camp && camp.isActive) {
+          setShowOverlayBlockDialog(true);
+          e.target.value = "";
+          return;
+        }
       }
       setLogoFile(e.target.files[0]);
       setLogoPreview(URL.createObjectURL(e.target.files[0]));
@@ -155,16 +160,7 @@ export default function BrandData() {
     }
   };
 
-  const handleLogoButton = async () => {
-    // Comprobar campaña activa antes de abrir el input
-    if (provider?.slug) {
-      const res = await fetch(`/api/provider/${provider.slug}/campaign`);
-      const camp = res.ok ? await res.json() : null;
-      if (camp && camp.isActive) {
-        setShowOverlayBlockDialog(true);
-        return;
-      }
-    }
+  const handleLogoButton = () => {
     if (fileInputRef.current) fileInputRef.current.click();
   };
 
