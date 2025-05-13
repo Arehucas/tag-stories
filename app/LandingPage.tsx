@@ -95,7 +95,7 @@ export default function LandingPage() {
         <h2 className="text-2xl font-bold text-white text-center mb-3">{t('landing.cta.title')}</h2>
         <button
           onClick={() => router.push("/providers/access")}
-          className="w-full max-w-xs py-3 rounded-xl font-bold text-lg bg-white text-[#23243a] shadow-lg hover:scale-105 transition-transform mb-2"
+          className="w-full max-w-xs py-3 rounded-xl font-bold text-lg bg-white text-[#23243a] shadow-lg hover:scale-105 transition-transform cursor-pointer mb-2"
         >
           {t('landing.cta.cta')}
         </button>

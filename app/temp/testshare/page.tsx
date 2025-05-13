@@ -1,0 +1,1 @@
+<button onClick={handleShare} className="cursor-pointer">Compartir imagen</button> 

@@ -4,6 +4,7 @@ import { Gift, Users, Zap, ShieldCheck, TrendingUp, Star, MessageCircle } from "
 import { useRouter } from "next/navigation";
 import styles from './LandingRework.module.css';
 import { useT } from '@/lib/useT';
+import { useId } from 'react';
 
 const CLIENT_LOGOS = [
   "/logos/logo-taun-texto-blanco.svg",
@@ -38,6 +39,7 @@ const FAQS = [
 export default function LandingRework() {
   const router = useRouter();
   const t = useT();
+  const uniqueAnim = useId();
 
   return (
     <main className={`w-full min-h-screen flex flex-col items-center bg-[#0a0618] px-0 pb-12 relative overflow-x-hidden ${styles.landingBody}`}>
@@ -65,7 +67,7 @@ export default function LandingRework() {
           <div className="w-full max-w-xs mb-2 mx-auto">
             <button
               onClick={() => router.push("/providers/access")}
-              className={styles.landingBtn}
+              className={`${styles.landingBtn} landingBtn-anim-${uniqueAnim}`}
             >
               {t('landing_rework.cta_try')}
             </button>
@@ -96,7 +98,7 @@ export default function LandingRework() {
         <div className="w-full max-w-xs mt-8 mx-auto">
           <button
             onClick={() => router.push("/providers/access")}
-            className={styles.landingBtn}
+            className={`${styles.landingBtn} landingBtn-anim-${uniqueAnim}`}
           >
             ¡Probarlo gratis!
           </button>
@@ -186,7 +188,7 @@ export default function LandingRework() {
           <h2 className="text-2xl font-bold text-white text-center mb-3">¿Listo para empezar?</h2>
           <button
             onClick={() => router.push("/providers/access")}
-            className={styles.landingBtn}
+            className={`${styles.landingBtn} landingBtn-anim-${uniqueAnim}`}
           >
             Crear cuenta gratis
           </button>

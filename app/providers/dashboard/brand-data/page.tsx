@@ -231,7 +231,7 @@ export default function BrandData() {
       <div className="w-full max-w-lg relative z-10">
         {/* Cabecera */}
         <div className="flex items-center gap-3 mb-8">
-          <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300">
+          <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300 cursor-pointer">
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
           <h1 className="text-2xl font-bold text-white">{t('dashboard.brand_data_title')}</h1>
@@ -273,17 +273,17 @@ export default function BrandData() {
               <div className="flex items-center gap-4">
                 <Image src={logoPreview.startsWith('http') && logoPreview.includes('cloudinary') ? logoPreview.replace('/upload/', '/upload/f_auto/') : logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded-lg border-2 border-[#a259ff]" width={80} height={80} />
                 {logoFile && (
-                  <button type="button" onClick={() => { setLogoFile(null); setLogoPreview(provider?.logo_url ?? null); }} className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition">Cancelar</button>
+                  <button type="button" onClick={() => { setLogoFile(null); setLogoPreview(provider?.logo_url ?? null); }} className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition cursor-pointer">Cancelar</button>
                 )}
                 {!logoFile && (
-                  <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition">Cambiar logo</button>
+                  <button type="button" onClick={handleLogoButton} className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition cursor-pointer">Cambiar logo</button>
                 )}
               </div>
             )}
             {!logoPreview && logoFile && (
               <div className="flex items-center gap-4">
                 <span className="text-white/80">{logoFile.name}</span>
-                <button type="button" onClick={() => { setLogoFile(null); setLogoPreview(provider?.logo_url ?? null); }} className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition">Cancelar</button>
+                <button type="button" onClick={() => { setLogoFile(null); setLogoPreview(provider?.logo_url ?? null); }} className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition cursor-pointer">Cancelar</button>
               </div>
             )}
             {!logoPreview && !logoFile && (
@@ -291,7 +291,7 @@ export default function BrandData() {
             )}
             <input type="file" accept="image/png,image/jpeg,image/webp" ref={fileInputRef} className="hidden" onChange={handleLogoChange} />
           </div>
-          <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60" disabled={saving || isAnalyzing}>
+          <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60 cursor-pointer" disabled={saving || isAnalyzing}>
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
           {success && (

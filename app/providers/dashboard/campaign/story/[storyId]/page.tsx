@@ -164,7 +164,7 @@ export default function StoryDetailPage() {
               {STATUS_INFO[story.status as StoryStatus].icon}{t(STATUS_INFO[story.status as StoryStatus].label)}
             </Badge>
           </div>
-          <Button variant="ghost" size="icon" aria-label={t('providerStories.forceState')} onClick={() => setSheetOpen(true)}>
+          <Button variant="ghost" size="icon" aria-label={t('providerStories.forceState')} onClick={() => setSheetOpen(true)} className="cursor-pointer">
             <MoreHorizontal className="w-7 h-7 text-white/80" />
           </Button>
         </div>

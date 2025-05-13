@@ -252,7 +252,7 @@ export default function CampaignDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
       <div className="w-full max-w-lg relative z-10 flex flex-col gap-8">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300">
+          <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300 cursor-pointer">
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
           <h1 className="text-2xl font-bold text-white">Campaña</h1>
@@ -318,7 +318,7 @@ export default function CampaignDashboard() {
             )}
             <button
               type="button"
-              className="mt-8 px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg w-full"
+              className="mt-8 px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg w-full cursor-pointer"
               onClick={handleSave}
               disabled={saving || !form.nombre.trim()}
             >
