@@ -135,6 +135,14 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     }
     // Textos e icono IG
     if (template?.displayText !== false) {
+      // Log de los valores de texto antes de pintar
+      await logToServer({
+        msg: 'DEBUG TEXTOS',
+        igText: template?.igText,
+        addressText: template?.addressText,
+        template,
+        time: new Date().toISOString(),
+      });
       ctx.save();
       const paddingX = 36;
       const paddingY = 48;
