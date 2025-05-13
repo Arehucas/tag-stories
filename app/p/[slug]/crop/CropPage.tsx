@@ -48,8 +48,14 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      const result = await res.json();
-      alert('Log enviado: ' + JSON.stringify(result));
+      let result;
+      if (res.ok) {
+        result = await res.json();
+        alert('Log enviado: ' + JSON.stringify(result));
+      } else {
+        const text = await res.text();
+        alert('Error HTTP: ' + res.status + ' - ' + text);
+      }
     } catch (e) {
       alert('Error enviando log: ' + (e?.toString() || ''));
     }
