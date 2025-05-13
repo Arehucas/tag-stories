@@ -24,10 +24,9 @@ export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTe
             className={`rounded-xl border-4 p-2 flex flex-col items-center transition-all bg-zinc-900 ${t._id === selectedTemplateId ? 'border-blue-500 shadow-lg scale-105' : 'border-gray-700 opacity-60'}`}
             style={{ height: 320, minHeight: 320 }}
           >
-            <div className="w-full flex items-center justify-center rounded-lg overflow-hidden mb-2" style={{ background: '#181824', height: 340 }}>
+            <div className="w-full flex items-center justify-center rounded-lg overflow-hidden" style={{ background: '#181824', height: 320 }}>
               <img src={t.previewUrl} alt={t.templateName} className="w-full h-full object-cover rounded-lg" />
             </div>
-            <span className="text-sm font-medium text-center text-white mt-2">{t.templateName}</span>
           </div>
         ))}
       </div>
