@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils"
 function Switch({
   className,
   checked,
+  onCheckedChange,
   ...props
-}: React.ComponentProps<typeof SwitchPrimitive.Root> & { checked?: boolean }) {
+}: React.ComponentProps<typeof SwitchPrimitive.Root> & { checked?: boolean; onCheckedChange?: (checked: boolean) => void }) {
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
@@ -19,6 +20,7 @@ function Switch({
         className
       )}
       checked={checked}
+      onCheckedChange={onCheckedChange}
       {...props}
     >
       {/* Icono check */}

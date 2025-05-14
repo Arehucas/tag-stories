@@ -221,7 +221,7 @@ export default function BrandData() {
           </button>
           <h1 className="text-2xl font-bold text-white">{t('dashboard.brand_data_title')}</h1>
         </div>
-        <form className="bg-[#18122b] rounded-xl p-8 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={handleSubmit}>
+        <form className="bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
             <label className="text-white/80 font-semibold">{common.onboarding.name}</label>
             <input name="nombre" value={form.nombre || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />

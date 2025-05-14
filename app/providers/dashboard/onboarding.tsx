@@ -201,7 +201,7 @@ export default function OnboardingProvider({ provider }: Props) {
         <div className="hero-gradient-bg-inner" />
       </div>
       <div className="w-full max-w-lg relative z-10">
-        <form onSubmit={handleSubmit} className="w-full bg-[#18122b] rounded-2xl p-8 flex flex-col gap-6 shadow-2xl border border-violet-950/60">
+        <form onSubmit={handleSubmit} className="w-full bg-[#18122b] rounded-2xl p-6 flex flex-col gap-6 shadow-2xl border border-violet-950/60">
           <div className="flex flex-col items-center mb-4" style={{ gap: 0 }}>
             <h2 className="text-2xl font-bold text-white text-center tracking-wide">{t('onboarding.title')}</h2>
             {email && (

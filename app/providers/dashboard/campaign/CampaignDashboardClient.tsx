@@ -64,6 +64,7 @@ export default function CampaignDashboardClient() {
   const [activeTab, setActiveTab] = useState('estado');
   const [stories, setStories] = useState<any[]>([]);
   const [loadingStories, setLoadingStories] = useState(false);
+  const [pendingActiveSwitch, setPendingActiveSwitch] = useState<null | boolean>(null);
 
   useEffect(() => {
     // Leer tab de la query
@@ -234,6 +235,40 @@ export default function CampaignDashboardClient() {
     setSaving(false);
   };
 
+  const handleActiveSwitch = async (checked: boolean) => {
+    if (checked && hasOtherActive) {
+      setPendingActiveSwitch(true);
+      setShowActiveConflictDialog(true);
+      return;
+    }
+    await updateCampaignActiveState(checked);
+  };
+
+  const updateCampaignActiveState = async (checked: boolean) => {
+    setForm({ ...form, isActive: checked });
+    setSaving(true);
+    if (!provider?.slug) return;
+    const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        campaignId: campaign?._id,
+        isActive: checked,
+        nombre: form.nombre,
+        descripcion: form.descripcion,
+        requiredStories: form.requiredStories,
+        overlayType: form.overlayType,
+        overlayUrl: form.overlayUrl,
+        templateId: selectedTemplateId,
+      }),
+    });
+    setSaving(false);
+    if (!res.ok) {
+      setError('Error al actualizar el estado de la campaña');
+      setTimeout(() => setError(null), 3000);
+    }
+  };
+
   // Si no hay campaignId, mostrar directamente el formulario de creación
   if (!campaignId) {
     return (
@@ -245,7 +280,42 @@ export default function CampaignDashboardClient() {
             </button>
             <h1 className="text-2xl font-bold text-white">Campaña</h1>
           </div>
-          {/* ...resto del formulario de creación... */}
+          <form className="bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={e => { e.preventDefault(); handleSave(); }}>
+            <div className="flex flex-col gap-2">
+              <label className="text-white/80 font-semibold">Nombre de campaña</label>
+              <input
+                className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700"
+                value={form.nombre}
+                onChange={handleNameChange}
+                disabled={saving}
+                required
+                maxLength={60}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-white/80 font-semibold">Descripción</label>
+              <textarea
+                className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700 min-h-[60px]"
+                value={form.descripcion}
+                onChange={handleDescriptionChange}
+                disabled={saving}
+                maxLength={200}
+              />
+            </div>
+            <button
+              type="submit"
+              className="mt-4 px-6 py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
+              disabled={saving}
+            >
+              {saving ? 'Guardando...' : 'Crear campaña'}
+            </button>
+            {success && (
+              <div className="mt-4 text-center text-blue-400 bg-blue-950/60 rounded-lg py-2 px-4 animate-fade-in-out">
+                Se han guardado los cambios correctamente
+              </div>
+            )}
+            {error && <div className="text-red-400 font-semibold mt-2">{error}</div>}
+          </form>
         </div>
       </div>
     );
@@ -271,13 +341,13 @@ export default function CampaignDashboardClient() {
         />
         {/* Contenido de la tab activa */}
         {activeTab === 'estado' && (
-          <form className="bg-[#18122b] rounded-xl p-8 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={e => { e.preventDefault(); handleSave(); }}>
+          <form className="bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={e => { e.preventDefault(); handleSave(); }}>
             {campaign && (
               <div className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-4 flex items-center justify-between">
                 <span className="text-white/80 font-semibold">Campaña activa</span>
                 <Switch
-                  checked={form.isActive}
-                  onCheckedChange={() => {}}
+                  checked={!!form.isActive}
+                  onCheckedChange={handleActiveSwitch}
                   disabled={saving}
                 />
               </div>
@@ -336,7 +406,11 @@ export default function CampaignDashboardClient() {
             >
               {saving ? 'Guardando...' : 'Guardar cambios'}
             </button>
-            {success && <div className="text-green-400 font-semibold mt-2">Guardado correctamente</div>}
+            {success && (
+              <div className="mt-4 text-center text-blue-400 bg-blue-950/60 rounded-lg py-2 px-4 animate-fade-in-out">
+                Se han guardado los cambios correctamente
+              </div>
+            )}
             {error && <div className="text-red-400 font-semibold mt-2">{error}</div>}
           </form>
         )}
@@ -348,6 +422,36 @@ export default function CampaignDashboardClient() {
           )
         )}
       </div>
+      <AlertDialog open={showActiveConflictDialog} onOpenChange={(open) => {
+        setShowActiveConflictDialog(open);
+        if (!open && pendingActiveSwitch) {
+          updateCampaignActiveState(true);
+          setPendingActiveSwitch(null);
+        }
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ya hay una campaña activa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Solo puede haber una campaña activa a la vez. Si continúas, la otra campaña se desactivará y esta se activará.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => {
+              setShowActiveConflictDialog(false);
+              // El update se dispara en onOpenChange
+            }}>
+              Continuar
+            </AlertDialogAction>
+            <AlertDialogCancel onClick={() => {
+              setPendingActiveSwitch(null);
+              setShowActiveConflictDialog(false);
+            }}>
+              Cancelar
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
   // --- FIN LÓGICA Y RETURN DE CampaignDashboard ---
