@@ -440,7 +440,7 @@ export default function CampaignDashboard() {
         {activeTab === 'estado' && (
           <form className="bg-[#18122b] rounded-xl p-8 flex flex-col gap-6 border border-violet-950/60 shadow-lg">
             {campaign && (
-              <div className="flex items-center justify-between mb-4">
+              <div className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-4 flex items-center justify-between">
                 <span className="text-white/80 font-semibold">Campaña activa</span>
                 <Switch
                   checked={form.isActive}
