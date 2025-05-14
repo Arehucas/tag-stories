@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
       },
       { upsert: true, returnDocument: "after" }
     );
-    provider = result.value;
+    const updatedProvider = result && result.value ? result.value : null;
     return NextResponse.json(
-      provider ? { ...JSON.parse(JSON.stringify(provider)), _id: provider._id.toString() } : null
+      updatedProvider ? { ...JSON.parse(JSON.stringify(updatedProvider)), _id: updatedProvider._id.toString() } : null
     );
   }
 
@@ -80,8 +80,8 @@ export async function POST(req: NextRequest) {
     },
     { upsert: true, returnDocument: "after" }
   );
-  provider = result.value;
+  const updatedProvider = result && result.value ? result.value : null;
   return NextResponse.json(
-    provider ? { ...JSON.parse(JSON.stringify(provider)), _id: provider._id.toString() } : null
+    updatedProvider ? { ...JSON.parse(JSON.stringify(updatedProvider)), _id: updatedProvider._id.toString() } : null
   );
 } 
