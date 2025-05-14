@@ -100,8 +100,8 @@ export default function StoryDetailPage() {
     setSheetOpen(false);
   };
 
-  // Obtener el templateId de la campaña
-  const templateId = campaign?.templateId;
+  // Usar el templateId de la story si existe, si no el de la campaña
+  const templateId = story?.templateId || campaign?.templateId;
   const template = templates.find((t: any) => t._id === templateId);
 
   if (loading) {
@@ -126,14 +126,8 @@ export default function StoryDetailPage() {
   // Colores de gradiente según estado
   const [colorFrom, colorTo] = GRADIENTS[story.status as StoryStatus] || GRADIENTS.pending;
 
-  // Obtener campaignNames del dashboard si existe en window (demo/SSR safe)
-  let campaignName = story.campaignNombre || story.campaign || "";
-  if (!campaignName && typeof window !== "undefined" && story.campaignId) {
-    const globalCampaignNames = (window as any).campaignNames;
-    if (globalCampaignNames && globalCampaignNames[String(story.campaignId)]) {
-      campaignName = globalCampaignNames[String(story.campaignId)];
-    }
-  }
+  // Definir campaignName aquí
+  const campaignName = story.campaignName || story.campaignNombre || "";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
@@ -148,6 +142,11 @@ export default function StoryDetailPage() {
                 if (typeof window !== 'undefined') {
                   const origin = sessionStorage.getItem('storyBackOrigin');
                   sessionStorage.removeItem('storyBackOrigin');
+                  if (origin && origin.startsWith('campaign:')) {
+                    const campaignId = origin.split(':')[1];
+                    router.push(`/providers/dashboard/campaign?campaignId=${campaignId}&tab=stories`);
+                    return;
+                  }
                   if (origin === 'stories') {
                     router.push('/providers/dashboard/stories');
                     return;
@@ -277,7 +276,7 @@ export default function StoryDetailPage() {
             <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
               <Megaphone className="w-5 h-5 text-white" />
             </div>
-            <span>{campaignName || t('providerStories.noCampaign')}</span>
+            <span>{story.campaignName || story.campaignNombre || t('providerStories.noCampaign')}</span>
           </div>
         </div>
         {/* Acciones sticky/flotantes */}
@@ -301,4 +300,4 @@ export default function StoryDetailPage() {
       </div>
     </div>
   );
-} 
+}

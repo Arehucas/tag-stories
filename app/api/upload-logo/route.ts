@@ -10,6 +10,32 @@ cloudinary.config({
 
 export async function POST(req: NextRequest): Promise<Response> {
   const session = await getServerSession();
+  // BYPASS SOLO EN DESARROLLO PARA DEMO
+  if (
+    process.env.NODE_ENV === "development" &&
+    (!session || !session.user?.email)
+  ) {
+    const data = await req.formData();
+    const file = data.get("file");
+    if (!file || typeof file === "string") {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    return await new Promise<Response>((resolve) => {
+      const upload = cloudinary.uploader.upload_stream(
+        { folder: "provider_logos", resource_type: "image" },
+        (error, result) => {
+          if (error || !result) {
+            resolve(NextResponse.json({ error: "Upload failed" }, { status: 500 }));
+          } else {
+            resolve(NextResponse.json({ url: result.secure_url }));
+          }
+        }
+      );
+      upload.end(buffer);
+    });
+  }
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }

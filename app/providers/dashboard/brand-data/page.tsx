@@ -199,17 +199,6 @@ export default function BrandData() {
       setLogoFile(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-      // Actualizar overlay de la campaña usando shortId
-      if (provider?.shortId) {
-        let overlayUrl = overlayPreference === 'dark-overlay'
-          ? '/overlays/overlay-dark-default.png'
-          : '/overlays/overlay-white-default.png';
-        fetch(`/api/provider/${provider.shortId}/campaign`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ overlayType: 'default', overlayUrl }),
-        });
-      }
     }
     setSaving(false);
   };

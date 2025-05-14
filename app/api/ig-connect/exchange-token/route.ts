@@ -4,6 +4,26 @@ import { getDb } from '@/lib/mongo';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession();
+  // BYPASS SOLO EN DESARROLLO PARA DEMO
+  if (
+    process.env.NODE_ENV === "development" &&
+    (!session || !session.user?.email)
+  ) {
+    const { code } = await req.json();
+    if (!code) {
+      return NextResponse.json({ error: 'Falta el código de Instagram' }, { status: 400 });
+    }
+    const db = await getDb();
+    await db.collection('providers').updateOne(
+      { email: "demo@demo.com" },
+      { $set: { instagram_access_token: "demo-token" } }
+    );
+    await db.collection('users').updateOne(
+      { email: "demo@demo.com" },
+      { $unset: { instagram_access_token: "" } }
+    );
+    return NextResponse.json({ ok: true, demo: true });
+  }
   if (!session || !session.user?.email) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }

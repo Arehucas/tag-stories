@@ -8,15 +8,17 @@ interface Story {
   id: string;
   _id?: string;
   campaignNombre?: string;
+  campaignName?: string;
   campaignId?: string;
 }
 
 interface ProviderStoryCardListProps {
   stories: Story[];
   campaignNames?: Record<string, string>;
+  campaignId?: string;
 }
 
-const ProviderStoryCardList: FC<ProviderStoryCardListProps> = ({ stories, campaignNames = {} }) => {
+const ProviderStoryCardList: FC<ProviderStoryCardListProps> = ({ stories, campaignNames = {}, campaignId }) => {
   const t = useT();
 
   if (!stories.length) {
@@ -29,8 +31,13 @@ const ProviderStoryCardList: FC<ProviderStoryCardListProps> = ({ stories, campai
         <ProviderDashboardStoryCard
           key={idx}
           story={story}
-          campaignName={story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
-          onClick={() => window.location.assign(`/providers/dashboard/campaign/story/${story._id || story.id}`)}
+          campaignName={story.campaignName || story.campaignNombre || ''}
+          onClick={() => {
+            if (campaignId && typeof window !== 'undefined') {
+              sessionStorage.setItem('storyBackOrigin', `campaign:${campaignId}`);
+            }
+            window.location.assign(`/providers/dashboard/campaign/story/${story._id || story.id}`);
+          }}
           origin="stories"
         />
       ))}

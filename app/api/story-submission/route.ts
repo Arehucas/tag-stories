@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
 import { getServerSession } from 'next-auth';
+import { ObjectId } from 'mongodb';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +19,8 @@ export async function POST(req: NextRequest) {
     const submission = {
       providerId,
       campaignId: campaign._id,
+      campaignName: campaign.nombre,
+      templateId: campaign.templateId,
       imageUrl, // URL de la imagen en Cloudinary
       status: 'pending',
       createdAt: new Date(),
@@ -32,15 +35,52 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession();
-    if (!session || !session.user?.email) {
-      return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-    }
     const { searchParams } = new URL(req.url);
     const providerId = searchParams.get('providerId');
+    const campaignId = searchParams.get('campaignId');
     if (!providerId) {
       return NextResponse.json({ error: 'Falta providerId' }, { status: 400 });
     }
     const db = await getDb();
+    // BYPASS SOLO EN DESARROLLO PARA DEMO
+    if (
+      process.env.NODE_ENV === "development" &&
+      (!session || !session.user?.email)
+    ) {
+      const provider = await db.collection('providers').findOne({
+        $or: [
+          { _id: providerId } as any,
+          { shortId: providerId },
+          { slug: providerId },
+          { email: providerId },
+        ],
+      });
+      if (provider && provider.email === "demo@demo.com") {
+        const filter: any = { providerId };
+        if (campaignId) {
+          try {
+            filter.campaignId = new ObjectId(campaignId);
+          } catch {
+            filter.campaignId = campaignId;
+          }
+        }
+        const stories = await db
+          .collection('storySubmissions')
+          .find(filter)
+          .sort({ createdAt: -1 })
+          .toArray();
+        const storiesWithId = stories.map(s => ({
+          ...s,
+          _id: s._id?.toString?.() || s.id || "",
+        }));
+        return NextResponse.json(storiesWithId);
+      }
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    }
+    // Lógica original
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    }
     // Verificar que el providerId pertenece al usuario autenticado
     const provider = await db.collection('providers').findOne({
       $or: [
@@ -53,9 +93,17 @@ export async function GET(req: NextRequest) {
     if (!provider || provider.email !== session.user.email) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
+    const filter: any = { providerId };
+    if (campaignId) {
+      try {
+        filter.campaignId = new ObjectId(campaignId);
+      } catch {
+        filter.campaignId = campaignId;
+      }
+    }
     const stories = await db
       .collection('storySubmissions')
-      .find({ providerId })
+      .find(filter)
       .sort({ createdAt: -1 })
       .toArray();
     // Serializar _id

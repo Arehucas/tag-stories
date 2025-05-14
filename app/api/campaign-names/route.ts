@@ -5,8 +5,13 @@ import { getServerSession } from 'next-auth';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession();
+  // BYPASS SOLO EN DESARROLLO PARA DEMO
   if (!session?.user?.email) {
-    return NextResponse.json({}, { status: 401 });
+    if (process.env.NODE_ENV === 'development') {
+      // Permitir acceso en local/demo
+    } else {
+      return NextResponse.json({}, { status: 401 });
+    }
   }
   const { searchParams } = new URL(req.url);
   const idsParam = searchParams.get('ids');

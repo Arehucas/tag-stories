@@ -80,9 +80,29 @@ const ProviderDashboardStoryCard: FC<ProviderDashboardStoryCardProps> = ({ story
           {`${day}/${month}/${year}`}
           <span className="font-normal text-white/50">· {hour}:{min}h</span>
         </div>
-        <div className="text-xs text-gray-400">
-          {campaignName || "-"}
-        </div>
+        {(campaignName || story.campaignName || story.campaignNombre) && (
+          <div className="text-xs flex items-center gap-1">
+            <span
+              className={
+                story.status === 'pending' ? 'text-purple-400 font-semibold' :
+                story.status === 'validated' ? 'text-blue-400 font-semibold' :
+                story.status === 'redeemed' ? 'text-green-400 font-semibold' :
+                story.status === 'rejected' ? 'text-red-400 font-semibold' :
+                'text-gray-400 font-semibold'
+              }
+              style={{ minWidth: 70 }}
+            >
+              {story.status === 'pending' && 'Pendiente'}
+              {story.status === 'validated' && 'Validada'}
+              {story.status === 'redeemed' && 'Canjeada'}
+              {story.status === 'rejected' && 'Rechazada'}
+            </span>
+            <span className="text-gray-400 mx-1">·</span>
+            <span className="truncate max-w-[120px] text-gray-400" title={campaignName || story.campaignName || story.campaignNombre}>
+              {campaignName || story.campaignName || story.campaignNombre}
+            </span>
+          </div>
+        )}
       </div>
       <ChevronRight className="w-6 h-6" style={{ color: getChevronColor(story.status) }} />
     </div>

@@ -8,12 +8,26 @@ export async function GET(
   context: { params: any }
 ) {
   const session = await getServerSession();
+  const db = await getDb();
+  const templateId = context.params?.templateId;
+
+  // BYPASS SOLO EN DESARROLLO PARA DEMO
+  if (
+    process.env.NODE_ENV === "development" &&
+    (!session || !session.user?.email)
+  ) {
+    const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId) });
+    // Permitir acceso si existe el template (modo demo)
+    if (template) {
+      return NextResponse.json(template);
+    }
+    return NextResponse.json({ error: 'Template no encontrada' }, { status: 404 });
+  }
+
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
-  const db = await getDb();
   try {
-    const templateId = context.params?.templateId;
     const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId) });
     if (!template) {
       return NextResponse.json({ error: 'Template no encontrada' }, { status: 404 });

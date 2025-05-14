@@ -72,6 +72,7 @@ export default function ProviderDashboard() {
   const [hasIGToken, setHasIGToken] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [campaignActive, setCampaignActive] = useState<boolean | null>(null);
+  const [loadingCampaignActive, setLoadingCampaignActive] = useState(true);
   const [campaignNames, setCampaignNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -130,8 +131,9 @@ export default function ProviderDashboard() {
   }, []);
 
   useEffect(() => {
-    // Comprobar campaña activa
-    if (provider?.slug) {
+    // Comprobar campaña activa solo cuando provider está completamente cargado
+    if (!loadingProvider && provider?.slug) {
+      setLoadingCampaignActive(true);
       fetch(`/api/provider/${provider.slug}/campaign`)
         .then(res => res.ok ? res.json() : null)
         .then(camp => {
@@ -140,9 +142,10 @@ export default function ProviderDashboard() {
           } else {
             setCampaignActive(true);
           }
+          setLoadingCampaignActive(false);
         });
     }
-  }, [provider?.slug]);
+  }, [provider?.slug, loadingProvider]);
 
   // Efecto para obtener nombres de campañas de las stories
   useEffect(() => {
@@ -210,12 +213,12 @@ export default function ProviderDashboard() {
                 className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
                 onClick={() => {
                   setMenuOpen(false);
-                  router.push('/providers/dashboard/campaign');
+                  router.push('/providers/dashboard/campaigns');
                 }}
               >
                 {/* Icono Megáfono (verde) */}
                 <Megaphone size={32} stroke="#00E676" />
-                <span>Campaña</span>
+                <span>Campañas</span>
               </button>
               <button
                 className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
@@ -359,8 +362,22 @@ export default function ProviderDashboard() {
           </div>
         </div>
         {/* Warning campaña desactivada */}
-        {campaignActive === false && (
-          <Link href="/providers/dashboard/campaign" className="block mb-6 p-5 rounded-xl bg-gradient-to-r from-fuchsia-800 via-violet-900 to-violet-950 border border-violet-700 text-violet-100 font-semibold flex items-center gap-3 cursor-pointer hover:bg-violet-900/80 transition shadow-lg animate-fade-in-out">
+        {!loadingCampaignActive && campaignActive === false ? (
+          <div
+            className="block mb-6 p-5 rounded-xl bg-gradient-to-r from-fuchsia-800 via-violet-900 to-violet-950 border border-violet-700 text-violet-100 font-semibold flex items-center gap-3 cursor-pointer hover:bg-violet-900/80 transition shadow-lg animate-fade-in-out"
+            onClick={async () => {
+              if (!provider?.slug) return;
+              const res = await fetch(`/api/provider/${provider.slug}/campaigns`);
+              if (!res.ok) return;
+              const campaigns = await res.json();
+              const visibles = Array.isArray(campaigns) ? campaigns.filter((c: any) => !c.deleted) : [];
+              if (visibles.length === 0) {
+                router.push('/providers/dashboard/campaign');
+              } else {
+                router.push('/providers/dashboard/campaigns');
+              }
+            }}
+          >
             <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
               <polygon points="13,3 25,23 1,23" fill="#fde68a" />
               <rect x="12" y="10" width="2" height="6" rx="1" fill="#222" />
@@ -368,8 +385,8 @@ export default function ProviderDashboard() {
             </svg>
             <span className="flex-1">No tienes campaña activa: las stories de tus usuarios serán ignoradas.</span>
             <svg width="22" height="22" fill="none" stroke="#a259ff" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </Link>
-        )}
+          </div>
+        ) : null}
         {/* Lista de stories validadas */}
         {validatedStories.length > 0 && (
           <div className="w-full mt-6">
@@ -381,7 +398,7 @@ export default function ProviderDashboard() {
                 <ProviderDashboardStoryCard
                   key={i}
                   story={story}
-                  campaignName={story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
+                  campaignName={story.campaignName || story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
                   onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
                   origin="dashboard"
                 />
@@ -405,7 +422,7 @@ export default function ProviderDashboard() {
                   <ProviderDashboardStoryCard
                     key={i}
                     story={story}
-                    campaignName={story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
+                    campaignName={story.campaignName || story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
                     onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
                     origin="dashboard"
                   />
