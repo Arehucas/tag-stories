@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import CampaignDashboardClient from './CampaignDashboardClient';
 
 export default function Page() {
-  return <CampaignDashboardClient />;
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <CampaignDashboardClient />
+    </Suspense>
+  );
 } 
