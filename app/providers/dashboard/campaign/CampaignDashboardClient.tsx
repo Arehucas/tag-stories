@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LoaderBolas from "@/components/ui/LoaderBolas";
@@ -38,6 +38,27 @@ interface Form {
   overlayUrl: string;
 }
 
+// Contexto temporal para transición de campaña
+const CampaignTransitionContext = createContext({
+  data: null as any,
+  setData: (_: any) => {},
+  clear: () => {},
+});
+
+export function useCampaignTransition() {
+  return useContext(CampaignTransitionContext);
+}
+
+export function CampaignTransitionProvider({ children }: { children: React.ReactNode }) {
+  const [data, setData] = useState<any>(null);
+  const clear = () => setData(null);
+  return (
+    <CampaignTransitionContext.Provider value={{ data, setData, clear }}>
+      {children}
+    </CampaignTransitionContext.Provider>
+  );
+}
+
 export default function CampaignDashboardClient() {
   // --- INICIO LÓGICA Y RETURN DE CampaignDashboard ---
   const { data: session, status } = useSession();
@@ -65,6 +86,7 @@ export default function CampaignDashboardClient() {
   const [stories, setStories] = useState<any[]>([]);
   const [loadingStories, setLoadingStories] = useState(false);
   const [pendingActiveSwitch, setPendingActiveSwitch] = useState<null | boolean>(null);
+  const { data: transitionData, setData: setTransitionData, clear: clearTransition } = useCampaignTransition();
 
   useEffect(() => {
     // Leer tab de la query
@@ -178,6 +200,26 @@ export default function CampaignDashboardClient() {
       .finally(() => setLoadingStories(false));
   }, [activeTab, campaign?._id, provider?.slug]);
 
+  useEffect(() => {
+    if (transitionData && campaignId && !campaign) {
+      setForm({
+        nombre: transitionData.nombre || '',
+        descripcion: transitionData.descripcion || '',
+        isActive: transitionData.isActive === undefined ? true : transitionData.isActive,
+        requiredStories: transitionData.requiredStories ?? 1,
+        overlayType: transitionData.overlayType || 'default',
+        overlayUrl: transitionData.overlayUrl || '/overlays/overlay-white-default.png',
+      });
+      setSelectedTemplateId(transitionData.templateId || null);
+      setCampaign(transitionData);
+      clearTransition();
+    }
+  }, [transitionData, campaignId]);
+
+  useEffect(() => {
+    setSaving(false);
+  }, [campaignId]);
+
   if (!hydrated) {
     return null;
   }
@@ -225,7 +267,8 @@ export default function CampaignDashboardClient() {
       setTimeout(() => setSuccess(false), 3000);
       // Redirigir al detalle de la campaña recién creada
       if (!campaign && data && data._id) {
-        window.location.href = `/providers/dashboard/campaign?campaignId=${data._id}`;
+        setTransitionData(data);
+        router.push(`/providers/dashboard/campaign?campaignId=${data._id}`);
         return;
       }
     } else {
@@ -341,14 +384,14 @@ export default function CampaignDashboardClient() {
         />
         {/* Contenido de la tab activa */}
         {activeTab === 'estado' && (
-          <form className="bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={e => { e.preventDefault(); handleSave(); }}>
-            {campaign && (
+          <form className={`bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg${transitionData ? ' animate-fade-in' : ''}`} onSubmit={e => { e.preventDefault(); handleSave(); }}>
+            {campaignId && (
               <div className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-4 flex items-center justify-between">
                 <span className="text-white/80 font-semibold">Campaña activa</span>
                 <Switch
                   checked={!!form.isActive}
                   onCheckedChange={handleActiveSwitch}
-                  disabled={saving}
+                  disabled={saving || !campaign}
                 />
               </div>
             )}
@@ -374,7 +417,7 @@ export default function CampaignDashboardClient() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-white/80 font-semibold">Stories requeridas</label>
+              <label className="text-white/80 font-semibold">Stories para recompensa</label>
               <div className="flex gap-2 mt-1">
                 {[1,2,5,10].map(n => (
                   <button
@@ -422,13 +465,7 @@ export default function CampaignDashboardClient() {
           )
         )}
       </div>
-      <AlertDialog open={showActiveConflictDialog} onOpenChange={(open) => {
-        setShowActiveConflictDialog(open);
-        if (!open && pendingActiveSwitch) {
-          updateCampaignActiveState(true);
-          setPendingActiveSwitch(null);
-        }
-      }}>
+      <AlertDialog open={showActiveConflictDialog} onOpenChange={setShowActiveConflictDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Ya hay una campaña activa</AlertDialogTitle>
@@ -437,16 +474,21 @@ export default function CampaignDashboardClient() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => {
-              setShowActiveConflictDialog(false);
-              // El update se dispara en onOpenChange
-            }}>
+            <AlertDialogAction
+              onClick={() => {
+                setShowActiveConflictDialog(false);
+                updateCampaignActiveState(true);
+                setPendingActiveSwitch(null);
+              }}
+            >
               Continuar
             </AlertDialogAction>
-            <AlertDialogCancel onClick={() => {
-              setPendingActiveSwitch(null);
-              setShowActiveConflictDialog(false);
-            }}>
+            <AlertDialogCancel
+              onClick={() => {
+                setPendingActiveSwitch(null);
+                setShowActiveConflictDialog(false);
+              }}
+            >
               Cancelar
             </AlertDialogCancel>
           </AlertDialogFooter>

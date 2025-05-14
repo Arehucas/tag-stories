@@ -26,9 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body
-        className={`dark bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e] min-h-screen ${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] min-h-screen antialiased">
         <div className="w-full min-h-screen flex flex-col items-center">
           <div className="w-full max-w-[1024px] min-h-screen flex flex-col flex-1 mx-auto">
             <NextIntlClientProvider locale="es">

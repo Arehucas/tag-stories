@@ -21,7 +21,11 @@ export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTe
     : 'En base a tu logo actual, te recomendaríamos una plantilla clara';
   return (
     <section className="mt-8">
-      <h3 className="text-xl font-bold mb-4 pb-[10px]">Selecciona tu plantilla</h3>
+      <h3 className="text-white/80 font-semibold text-base pb-[10px]">Selecciona tu plantilla</h3>
+      <div className="flex items-start gap-2 mb-4">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" className="mt-0.5"><circle cx="12" cy="12" r="10" fill="#a259ff"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="#fff" fontFamily="Arial" fontWeight="bold">i</text></svg>
+        <span className="text-xs text-zinc-400 mt-0.5">{infoMsg}.</span>
+      </div>
       <div className="grid grid-cols-2 gap-6 mb-4">
         {templates.map(t => (
           <div
@@ -38,10 +42,6 @@ export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTe
             <span className="text-sm font-medium text-center text-white mt-2">{t.templateName}</span>
           </div>
         ))}
-      </div>
-      <div className="flex items-center gap-2 text-base text-gray-200 mb-1 mt-[10px]">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#a259ff"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="#fff" fontFamily="Arial" fontWeight="bold">i</text></svg>
-        <span>{infoMsg}.</span>
       </div>
     </section>
   );
