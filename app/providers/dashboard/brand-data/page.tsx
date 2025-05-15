@@ -142,15 +142,6 @@ export default function BrandData() {
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      if (provider?.slug) {
-        const res = await fetch(`/api/provider/${provider.slug}/campaign`);
-        const camp = res.ok ? await res.json() : null;
-        if (camp && camp.isActive) {
-          setShowOverlayBlockDialog(true);
-          e.target.value = "";
-          return;
-        }
-      }
       setLogoFile(e.target.files[0]);
       setLogoPreview(URL.createObjectURL(e.target.files[0]));
       setIsAnalyzing(true);
@@ -160,8 +151,23 @@ export default function BrandData() {
     }
   };
 
-  const handleLogoButton = () => {
+  const handleLogoButton = async () => {
+    if (provider?.slug) {
+      const res = await fetch(`/api/provider/${provider.slug}/campaign`);
+      const camp = res.ok ? await res.json() : null;
+      if (camp && camp.isActive) {
+        setShowOverlayBlockDialog(true);
+        return;
+      }
+    }
     if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  const handleDialogConfirm = () => {
+    setShowOverlayBlockDialog(false);
+    setTimeout(() => {
+      if (fileInputRef.current) fileInputRef.current.click();
+    }, 200);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -290,14 +296,38 @@ export default function BrandData() {
         <AlertDialog open={showOverlayBlockDialog} onOpenChange={setShowOverlayBlockDialog}>
           <AlertDialogContent className="bg-[#18122b] rounded-xl p-8 border border-violet-950/60 shadow-lg text-white max-w-md mx-auto">
             <AlertDialogHeader>
-              <AlertDialogTitle>No es posible cambiar el logo de una marca si hay una campaña activa</AlertDialogTitle>
+              <AlertDialogTitle>
+                ¿Estás seguro?
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                Esto puede afectar al look and feel de tu marca. Desactiva tu campaña actual y podrás cambiar el logo de tu marca.
+                Tienes una campaña activa. El cambio de logo puede entrar en conflicto con el look and feel de marca con tu actual plantilla.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold">Entendido</AlertDialogCancel>
-              <AlertDialogAction className="px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold" onClick={() => { setShowOverlayBlockDialog(false); router.push('/providers/dashboard/campaign'); }}>Ir a campaña</AlertDialogAction>
+            <AlertDialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+              <button
+                className="px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition cursor-pointer w-full"
+                onClick={handleDialogConfirm}
+                type="button"
+              >
+                Sí, cambiar el logo
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition cursor-pointer w-full"
+                onClick={() => {
+                  setShowOverlayBlockDialog(false);
+                  router.push('/providers/dashboard/campaigns');
+                }}
+                type="button"
+              >
+                Ir a campañas
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition cursor-pointer w-full"
+                onClick={() => setShowOverlayBlockDialog(false)}
+                type="button"
+              >
+                Cancelar
+              </button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
