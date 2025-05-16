@@ -283,6 +283,32 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
           const tpl = await templateRes.json();
           setTemplate(tpl);
         }
+      } else {
+        // No hay campaña activa: forzar template dark por defecto
+        setTemplate({
+          _id: 'defaultDark',
+          templateName: 'Basic Dark',
+          providerParentId: null,
+          logoSize: 280,
+          marginBottom: 50,
+          marginRight: 50,
+          displayLogo: true,
+          displayText: true,
+          igText: { size: 32, color: '#fff', opacity: 0.9 },
+          addressText: { size: 24, color: '#fff', opacity: 0.7 },
+          overlayUrl: '/overlays/overlay-dark-default.png',
+          plan: 'free',
+          type: 'defaultDark',
+          description: 'Plantilla oscura por defecto',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isActive: true,
+          previewUrl: '/overlays/default-dark-preview.jpg',
+          order: 2,
+          tags: ['default', 'dark'],
+          supportedFormats: ['jpg', 'png'],
+          aspectRatio: '1:1',
+        });
       }
     });
   }, [slug]);
