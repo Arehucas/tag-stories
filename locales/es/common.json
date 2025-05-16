@@ -256,6 +256,7 @@
     "confirm_desc": "Si desactivas una campaña en curso con stories pendientes de canjear, las stories se borrarán y no se podrán recuperar.",
     "cancel": "Cancelar",
     "confirm_action": "Sí, borrar y desactivar",
+    "delete": "Borrar campaña",
     "error_update": "Error al actualizar el estado de la campaña",
     "error_save": "Error al guardar la campaña",
     "error_load": "No se pudo cargar el provider. Revisa que el email esté bien y que el provider tenga slug."

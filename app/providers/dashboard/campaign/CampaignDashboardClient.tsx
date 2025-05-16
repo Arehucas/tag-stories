@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { useT } from '@/lib/useT';
 import { useTemplates } from '@/hooks/useTemplates';
 import { SelectedTemplateSection } from '@/components/SelectedTemplateSection';
 import ProviderStoryCardList from '@/components/ui/ProviderStoryCardList';
 import ProviderDashboardTabs from '@/components/ui/ProviderDashboardTabs';
 import LoaderTable from '@/components/ui/LoaderTable';
+import { Button } from "@/components/ui/button";
 
 // Defino interfaces para los estados
 interface Provider {
@@ -337,7 +339,7 @@ export default function CampaignDashboardClient() {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-white/80 font-semibold">Descripción</label>
-              <textarea
+              <Textarea
                 className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700 min-h-[60px]"
                 value={form.descripcion}
                 onChange={handleDescriptionChange}
@@ -408,7 +410,7 @@ export default function CampaignDashboardClient() {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-white/80 font-semibold">Descripción</label>
-              <textarea
+              <Textarea
                 className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700 min-h-[60px]"
                 value={form.descripcion}
                 onChange={handleDescriptionChange}
@@ -464,9 +466,67 @@ export default function CampaignDashboardClient() {
             <ProviderStoryCardList stories={stories} campaignId={campaign._id} />
           )
         )}
+        {/* Botón de borrado de campaña */}
+        {campaign && (
+          <div style={{ marginTop: 100 }}>
+            <Button
+              variant="outline"
+              className="border-2 border-red-700 text-red-500 bg-transparent hover:text-red-700 hover:bg-transparent font-semibold py-5 rounded-xl w-full text-lg"
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={saving}
+              type="button"
+            >
+              {t('campaign.delete')}
+            </Button>
+          </div>
+        )}
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent className="bg-[#18122b] rounded-xl p-8 border border-violet-950/60 shadow-lg text-white max-w-md mx-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('campaign.confirm_title')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                Si borras la campaña puede ser que queden stories pendientes de revisar o canjear. Perderás la campaña para siempre.
+                {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                disabled={saving}
+                className="border border-white text-white bg-transparent hover:bg-white/10 hover:text-white rounded-xl font-semibold py-4 w-full text-lg"
+              >
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-700 hover:bg-red-800 text-white rounded-xl font-semibold py-4 w-full text-lg"
+                disabled={saving}
+                onClick={async () => {
+                  if (!provider?.slug || !campaign?._id) return;
+                  setSaving(true);
+                  setError(null);
+                  try {
+                    const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
+                      method: 'DELETE',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ campaignId: campaign._id }),
+                    });
+                    if (!res.ok) throw new Error(await res.text());
+                    setShowDeleteDialog(false);
+                    router.push('/providers/dashboard/campaigns');
+                  } catch (e) {
+                    setError('Error al borrar la campaña');
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+              >
+                Sí, borrar campaña
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <AlertDialog open={showActiveConflictDialog} onOpenChange={setShowActiveConflictDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-[#18122b] rounded-xl p-8 border border-violet-950/60 shadow-lg text-white max-w-md mx-auto">
           <AlertDialogHeader>
             <AlertDialogTitle>Ya hay una campaña activa</AlertDialogTitle>
             <AlertDialogDescription>
