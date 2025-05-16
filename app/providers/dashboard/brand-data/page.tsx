@@ -8,6 +8,8 @@ import Image from 'next/image';
 import { useT } from '@/lib/useT';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 
 interface Provider {
   slug?: string;
@@ -40,6 +42,8 @@ export default function BrandData() {
   const [campaignActive, setCampaignActive] = useState<boolean>(false);
   const [showOverlayBlockDialog, setShowOverlayBlockDialog] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [overlayBlockDialogError, setOverlayBlockDialogError] = useState<string | null>(null);
+  const [overlayBlockDialogLoading, setOverlayBlockDialogLoading] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -308,46 +312,38 @@ export default function BrandData() {
           )}
         </form>
       </div>
-      {showOverlayBlockDialog && (
-        <AlertDialog open={showOverlayBlockDialog} onOpenChange={setShowOverlayBlockDialog}>
-          <AlertDialogContent className="bg-[#18122b] rounded-xl p-8 border border-violet-950/60 shadow-lg text-white max-w-md mx-auto">
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                ¿Estás seguro?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Tienes una campaña activa. El cambio de logo puede entrar en conflicto con el look and feel de marca con tu actual plantilla.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-              <button
-                className="px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition cursor-pointer w-full"
-                onClick={handleDialogConfirm}
-                type="button"
-              >
-                Sí, cambiar el logo
-              </button>
-              <button
-                className="px-4 py-2 rounded-lg bg-violet-700 text-white font-semibold hover:bg-violet-800 transition cursor-pointer w-full"
-                onClick={() => {
-                  setShowOverlayBlockDialog(false);
-                  router.push('/providers/dashboard/campaigns');
-                }}
-                type="button"
-              >
-                Ir a campañas
-              </button>
-              <button
-                className="px-4 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-800 transition cursor-pointer w-full"
-                onClick={() => setShowOverlayBlockDialog(false)}
-                type="button"
-              >
-                Cancelar
-              </button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+      <CustomAlertDialog
+        open={showOverlayBlockDialog}
+        onOpenChange={setShowOverlayBlockDialog}
+        title="¿Seguro que quieres cambiar el logo?"
+        description={<>
+          Si cambias el logo, se actualizará en todas las campañas y stories asociadas a tu marca.
+          {overlayBlockDialogError && <div className="text-red-500 text-sm mt-2">{overlayBlockDialogError}</div>}
+        </>}
+        actions={[
+          {
+            label: 'Sí, cambiar el logo',
+            color: 'primary',
+            disabled: overlayBlockDialogLoading,
+            onClick: handleDialogConfirm
+          },
+          {
+            label: 'Ir a campañas',
+            color: 'secondary',
+            disabled: overlayBlockDialogLoading,
+            onClick: () => {
+              setShowOverlayBlockDialog(false);
+              router.push('/providers/dashboard/campaigns');
+            }
+          },
+          {
+            label: 'Cancelar',
+            color: 'cancel',
+            disabled: overlayBlockDialogLoading,
+            onClick: () => setShowOverlayBlockDialog(false)
+          }
+        ]}
+      />
     </div>
   );
 } 

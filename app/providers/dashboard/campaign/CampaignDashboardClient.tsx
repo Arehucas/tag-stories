@@ -13,6 +13,7 @@ import ProviderStoryCardList from '@/components/ui/ProviderStoryCardList';
 import ProviderDashboardTabs from '@/components/ui/ProviderDashboardTabs';
 import LoaderTable from '@/components/ui/LoaderTable';
 import { Button } from "@/components/ui/button";
+import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 
 // Defino interfaces para los estados
 interface Provider {
@@ -471,89 +472,84 @@ export default function CampaignDashboardClient() {
           <div style={{ marginTop: 100 }}>
             <Button
               variant="outline"
-              className="border-2 border-red-700 text-red-500 bg-transparent hover:text-red-700 hover:bg-transparent font-semibold py-5 rounded-xl w-full text-lg"
+              className="border-2 border-red-700 text-red-500 bg-transparent hover:text-red-700 hover:bg-transparent font-semibold py-5 rounded-xl w-full text-lg mt-12"
               onClick={() => setShowDeleteDialog(true)}
               disabled={saving}
               type="button"
             >
               {t('campaign.delete')}
             </Button>
-          </div>
-        )}
-        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogContent className="bg-[#18122b] rounded-xl p-8 border border-violet-950/60 shadow-lg text-white max-w-md mx-auto">
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t('campaign.confirm_title')}</AlertDialogTitle>
-              <AlertDialogDescription>
+            <CustomAlertDialog
+              open={showDeleteDialog}
+              onOpenChange={setShowDeleteDialog}
+              title={t('campaign.confirm_title')}
+              description={<>
                 Si borras la campaña puede ser que queden stories pendientes de revisar o canjear. Perderás la campaña para siempre.
                 {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel
-                disabled={saving}
-                className="border border-white text-white bg-transparent hover:bg-white/10 hover:text-white rounded-xl font-semibold py-4 w-full text-lg"
-              >
-                Cancelar
-              </AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-red-700 hover:bg-red-800 text-white rounded-xl font-semibold py-4 w-full text-lg"
-                disabled={saving}
-                onClick={async () => {
-                  if (!provider?.slug || !campaign?._id) return;
-                  setSaving(true);
-                  setError(null);
-                  try {
-                    const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
-                      method: 'DELETE',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ campaignId: campaign._id }),
-                    });
-                    if (!res.ok) throw new Error(await res.text());
-                    setShowDeleteDialog(false);
-                    router.push('/providers/dashboard/campaigns');
-                  } catch (e) {
-                    setError('Error al borrar la campaña');
-                  } finally {
-                    setSaving(false);
+              </>}
+              actions={[
+                {
+                  label: 'Sí, borrar campaña',
+                  color: 'danger',
+                  disabled: saving,
+                  onClick: async () => {
+                    if (!provider?.slug || !campaign?._id) return;
+                    setSaving(true);
+                    setError(null);
+                    try {
+                      const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ campaignId: campaign._id }),
+                      });
+                      if (!res.ok) throw new Error(await res.text());
+                      setShowDeleteDialog(false);
+                      router.push('/providers/dashboard/campaigns');
+                    } catch (e) {
+                      setError('Error al borrar la campaña');
+                    } finally {
+                      setSaving(false);
+                    }
                   }
-                }}
-              >
-                Sí, borrar campaña
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                },
+                {
+                  label: 'Cancelar',
+                  color: 'cancel',
+                  disabled: saving,
+                  onClick: () => setShowDeleteDialog(false)
+                }
+              ]}
+            />
+          </div>
+        )}
       </div>
-      <AlertDialog open={showActiveConflictDialog} onOpenChange={setShowActiveConflictDialog}>
-        <AlertDialogContent className="bg-[#18122b] rounded-xl p-8 border border-violet-950/60 shadow-lg text-white max-w-md mx-auto">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Ya hay una campaña activa</AlertDialogTitle>
-            <AlertDialogDescription>
-              Solo puede haber una campaña activa a la vez. Si continúas, la otra campaña se desactivará y esta se activará.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction
-              onClick={() => {
-                setShowActiveConflictDialog(false);
-                updateCampaignActiveState(true);
-                setPendingActiveSwitch(null);
-              }}
-            >
-              Continuar
-            </AlertDialogAction>
-            <AlertDialogCancel
-              onClick={() => {
-                setPendingActiveSwitch(null);
-                setShowActiveConflictDialog(false);
-              }}
-            >
-              Cancelar
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CustomAlertDialog
+        open={showActiveConflictDialog}
+        onOpenChange={setShowActiveConflictDialog}
+        title="Ya hay una campaña activa"
+        description={"Solo puede haber una campaña activa a la vez. Si continúas, la otra campaña se desactivará y esta se activará."}
+        actions={[
+          {
+            label: 'Continuar',
+            color: 'primary',
+            disabled: saving,
+            onClick: () => {
+              setShowActiveConflictDialog(false);
+              updateCampaignActiveState(true);
+              setPendingActiveSwitch(null);
+            }
+          },
+          {
+            label: 'Cancelar',
+            color: 'cancel',
+            disabled: saving,
+            onClick: () => {
+              setPendingActiveSwitch(null);
+              setShowActiveConflictDialog(false);
+            }
+          }
+        ]}
+      />
     </div>
   );
   // --- FIN LÓGICA Y RETURN DE CampaignDashboard ---

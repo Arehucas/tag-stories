@@ -12,7 +12,7 @@ import { useT } from '@/lib/useT';
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import ProviderHeader from "@/components/ui/ProviderHeader";
 import HeroGradient from "@/components/ui/HeroGradient";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 import { useTemplates } from '@/hooks/useTemplates';
 
 // Tipos
@@ -169,7 +169,7 @@ export default function StoryDetailPage() {
         </div>
         {/* Sheet lateral para forzar estado, look and feel mejorado */}
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetContent side="right" className="w-80 pt-8 px-6" style={{ background: '#18122b' }}>
+          <SheetContent side="right" className="w-80 pt-8 px-6" style={{ background: '#18122b', border: 'none' }}>
             <h2 className="text-lg font-semibold mb-6 text-white">{t('providerStories.forceState')}</h2>
             <div className="flex flex-col gap-4 mb-8">
               {Object.entries(STATUS_INFO).map(([key, info]) => {
@@ -194,49 +194,50 @@ export default function StoryDetailPage() {
             <div className="pt-2 pb-4 px-2">
               <Button
                 variant="outline"
-                className="border-2 border-red-700 text-red-400 hover:bg-red-900/20 font-semibold py-5 rounded-xl w-full text-lg"
+                style={{ border: '2px solid #e11d48', color: '#e11d48', background: 'transparent', fontWeight: 600, fontSize: '1.1rem', padding: '1rem 0', width: '100%', borderRadius: '0.75rem', margin: 0 }}
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={deleting}
-                style={{margin: 0}}
               >
                 Borrar story
               </Button>
             </div>
-            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción no se puede deshacer y perderás la información de la story subida por el usuario.
-                  </AlertDialogDescription>
-                  {deleteError && <div className="text-red-500 text-sm mt-2">{deleteError}</div>}
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-violet-700 hover:bg-violet-800 text-white"
-                    disabled={deleting}
-                    onClick={async () => {
-                      setDeleting(true);
-                      setDeleteError(null);
-                      try {
-                        const res = await fetch(`/api/story-submission/${storyId}`, { method: 'DELETE' });
-                        if (!res.ok) throw new Error(await res.text());
-                        setShowDeleteDialog(false);
-                        setSheetOpen(false);
-                        router.push('/providers/dashboard');
-                      } catch (e) {
-                        setDeleteError('Error al borrar la story');
-                      } finally {
-                        setDeleting(false);
-                      }
-                    }}
-                  >
-                    Borrar story
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <CustomAlertDialog
+              open={showDeleteDialog}
+              onOpenChange={setShowDeleteDialog}
+              title="¿Estás seguro?"
+              description={<>
+                Esta acción no se puede deshacer y perderás la información de la story subida por el usuario.
+                {deleteError && <div className="text-red-500 text-sm mt-2">{deleteError}</div>}
+              </>}
+              actions={[
+                {
+                  label: 'Borrar story',
+                  color: 'danger',
+                  disabled: deleting,
+                  onClick: async () => {
+                    setDeleting(true);
+                    setDeleteError(null);
+                    try {
+                      const res = await fetch(`/api/story-submission/${storyId}`, { method: 'DELETE' });
+                      if (!res.ok) throw new Error(await res.text());
+                      setShowDeleteDialog(false);
+                      setSheetOpen(false);
+                      router.push('/providers/dashboard');
+                    } catch (e) {
+                      setDeleteError('Error al borrar la story');
+                    } finally {
+                      setDeleting(false);
+                    }
+                  }
+                },
+                {
+                  label: 'Cancelar',
+                  color: 'cancel',
+                  disabled: deleting,
+                  onClick: () => setShowDeleteDialog(false)
+                }
+              ]}
+            />
           </SheetContent>
         </Sheet>
         {/* Preview con overlay, siempre 9/16, alterna entre 30% y 75% al hacer click */}

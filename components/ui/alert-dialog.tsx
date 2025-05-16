@@ -142,6 +142,83 @@ function AlertDialogCancel({
   )
 }
 
+interface CustomAlertAction {
+  label: string;
+  onClick: () => void | Promise<void>;
+  color: 'primary' | 'secondary' | 'danger' | 'cancel';
+  disabled?: boolean;
+}
+
+interface CustomAlertDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: React.ReactNode;
+  actions: CustomAlertAction[]; // Máximo 3
+}
+
+export function CustomAlertDialog({ open, onOpenChange, title, description, actions }: CustomAlertDialogProps) {
+  // Orden: principal (azul), secundaria (violeta), cancelar (gris)
+  // Cancelar siempre el último
+  const getButtonStyle = (color: string, isLast: boolean) => {
+    switch (color) {
+      case 'primary':
+        return { background: '#2563eb', color: '#fff', border: 'none', fontWeight: 600, fontSize: '1.1rem', padding: '1rem 0', width: '100%', borderRadius: '0.75rem', marginBottom: isLast ? 0 : 16 };
+      case 'secondary':
+        return { background: '#7c3aed', color: '#fff', border: 'none', fontWeight: 600, fontSize: '1.1rem', padding: '1rem 0', width: '100%', borderRadius: '0.75rem', marginBottom: isLast ? 0 : 16 };
+      case 'danger':
+        return { background: '#e11d48', color: '#fff', border: 'none', fontWeight: 600, fontSize: '1.1rem', padding: '1rem 0', width: '100%', borderRadius: '0.75rem', marginBottom: isLast ? 0 : 16 };
+      case 'cancel':
+      default:
+        return { background: '#353744', color: '#fff', border: 'none', fontWeight: 600, fontSize: '1.1rem', padding: '1rem 0', width: '100%', borderRadius: '0.75rem', marginBottom: isLast ? 0 : 16 };
+    }
+  };
+  // Cancel siempre el último
+  const ordered = [
+    ...actions.filter(a => a.color !== 'cancel'),
+    ...actions.filter(a => a.color === 'cancel'),
+  ];
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent style={{ background: '#18122b', borderRadius: '1rem', border: '1px solid #7c3aed', color: '#fff', maxWidth: 400, margin: '0 auto' }}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {ordered.map((action, idx) => {
+            const isLast = idx === ordered.length - 1;
+            if (action.color === 'cancel') {
+              return (
+                <AlertDialogCancel asChild key={action.label}>
+                  <button
+                    style={getButtonStyle('cancel', isLast)}
+                    onClick={action.onClick}
+                    disabled={action.disabled}
+                  >
+                    {action.label}
+                  </button>
+                </AlertDialogCancel>
+              );
+            }
+            return (
+              <AlertDialogAction asChild key={action.label}>
+                <button
+                  style={getButtonStyle(action.color, isLast)}
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                >
+                  {action.label}
+                </button>
+              </AlertDialogAction>
+            );
+          })}
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export {
   AlertDialog,
   AlertDialogPortal,

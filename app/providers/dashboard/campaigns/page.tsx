@@ -6,6 +6,19 @@ import LoaderBolas from "@/components/ui/LoaderBolas";
 import Link from "next/link";
 import { useT } from '@/lib/useT';
 import EmptyState from '@/components/ui/EmptyState';
+import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 
 interface Campaign {
   _id: string;
@@ -25,6 +38,10 @@ export default function CampaignsListPage() {
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<any>(null);
   const t = useT();
+  const [showActiveConflictDialog, setShowActiveConflictDialog] = useState(false);
+  const [pendingCampaignId, setPendingCampaignId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [hasOtherActive, setHasOtherActive] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -93,6 +110,55 @@ export default function CampaignsListPage() {
   const activeCampaign = sortedCampaigns.find(c => c.isActive);
   const inactiveCampaigns = sortedCampaigns.filter(c => !c.isActive);
 
+  // Comprobar si hay otra campaña activa (distinta de la seleccionada)
+  const checkOtherActive = async (campaignId: string) => {
+    if (!provider?.slug) return false;
+    const res = await fetch(`/api/provider/${provider.slug}/campaigns`);
+    if (!res.ok) return false;
+    const allCamps = await res.json();
+    return allCamps.some((c: any) => c.isActive && String(c._id) !== String(campaignId));
+  };
+
+  // Actualizar estado activo de campaña
+  const updateCampaignActiveState = async (campaignId: string, checked: boolean) => {
+    setSaving(true);
+    if (!provider?.slug) return;
+    const camp = campaigns.find(c => c._id === campaignId);
+    if (!camp) return;
+    const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        campaignId: camp._id,
+        isActive: checked,
+        nombre: camp.nombre,
+        descripcion: camp.descripcion,
+      }),
+    });
+    setSaving(false);
+    if (res.ok) {
+      // Refrescar campañas
+      const campsRes = await fetch(`/api/provider/${provider.slug}/campaigns`);
+      if (campsRes.ok) {
+        const camps = await campsRes.json();
+        setCampaigns(camps);
+      }
+    }
+  };
+
+  // Handler del switch
+  const handleSwitch = async (campaignId: string, checked: boolean) => {
+    if (checked) {
+      const otherActive = await checkOtherActive(campaignId);
+      if (otherActive) {
+        setPendingCampaignId(campaignId);
+        setShowActiveConflictDialog(true);
+        return;
+      }
+    }
+    await updateCampaignActiveState(campaignId, checked);
+  };
+
   // Mostrar empty state si no hay campañas visibles
   if (filteredCampaigns.length === 0) {
     return (
@@ -126,12 +192,12 @@ export default function CampaignsListPage() {
             </button>
             <h1 className="text-2xl font-bold text-white">Campañas</h1>
           </div>
-          <button
-            className="px-5 py-2 rounded-full border border-blue-700 text-blue-100 bg-gradient-to-r from-blue-900 to-blue-800 hover:bg-blue-800/80 transition text-base font-medium shadow-lg"
+          <Button
+            className="mt-0 px-6 py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
             onClick={() => router.push('/providers/dashboard/campaign')}
           >
             Crear campaña
-          </button>
+          </Button>
         </div>
         {activeCampaign && (
           <div className="mb-6">
@@ -161,6 +227,17 @@ export default function CampaignsListPage() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-lg">{camp.nombre}</span>
+                    <span
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); }}
+                      onMouseDown={e => { e.preventDefault(); e.stopPropagation(); }}
+                      onTouchStart={e => { e.preventDefault(); e.stopPropagation(); }}
+                    >
+                      <Switch
+                        checked={!!camp.isActive}
+                        onCheckedChange={checked => handleSwitch(camp._id, checked)}
+                        disabled={saving}
+                      />
+                    </span>
                   </div>
                   {camp.descripcion && <div className="text-sm mt-1 text-white/60">{camp.descripcion}</div>}
                   <div className="text-xs mt-2 text-white/30">{new Date(camp.updatedAt || camp.createdAt || '').toLocaleString('es-ES')}</div>
@@ -170,6 +247,35 @@ export default function CampaignsListPage() {
           </>
         )}
       </div>
+      <CustomAlertDialog
+        open={showActiveConflictDialog}
+        onOpenChange={setShowActiveConflictDialog}
+        title="Ya hay una campaña activa"
+        description={"Solo puede haber una campaña activa a la vez. Si continúas, la otra campaña se desactivará y esta se activará."}
+        actions={[
+          {
+            label: 'Continuar',
+            color: 'primary',
+            disabled: saving,
+            onClick: async () => {
+              setShowActiveConflictDialog(false);
+              if (pendingCampaignId) {
+                await updateCampaignActiveState(pendingCampaignId, true);
+                setPendingCampaignId(null);
+              }
+            }
+          },
+          {
+            label: 'Cancelar',
+            color: 'cancel',
+            disabled: saving,
+            onClick: () => {
+              setPendingCampaignId(null);
+              setShowActiveConflictDialog(false);
+            }
+          }
+        ]}
+      />
     </div>
   );
 } 
