@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useT } from '@/lib/useT';
 import common from '@/locales/es/common.json';
@@ -25,7 +24,6 @@ export const metadata = {
 };
 
 export default function OnboardingProvider({ provider }: Props) {
-  const { data: session } = useSession();
   const [nombre, setNombre] = useState(provider?.nombre || "");
   const [direccion, setDireccion] = useState(provider?.direccion || "");
   const [ciudad, setCiudad] = useState(provider?.ciudad || "");
@@ -72,11 +70,7 @@ export default function OnboardingProvider({ provider }: Props) {
       setEmail(provider.email);
       return;
     }
-    // Si hay sesión de Google, usar ese email
-    if (session?.user?.email) {
-      setEmail(session.user.email);
-    }
-  }, [provider, session]);
+  }, [provider]);
 
   async function analyzeLogoColorAndTransparency(fileOrUrl: File | string): Promise<'dark-overlay' | 'light-overlay'> {
     return new Promise((resolve) => {

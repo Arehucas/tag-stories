@@ -2,11 +2,11 @@ import React from "react";
 
 export default function LoaderTable() {
   return (
-    <div className="loader-table-holder">
-      <div className="loader-table-bar left"></div>
-      <div className="loader-table-bar top"></div>
-      <div className="loader-table-bar right"></div>
-      <div className="loader-table-bar bottom"></div>
+    <div className="relative w-12 h-12 inline-block" role="status" aria-live="polite">
+      <div className="absolute left-0 top-0 w-0.5 bg-violet-700 rounded animate-loader-table-left" />
+      <div className="absolute left-0 top-0 h-0.5 bg-violet-700 rounded animate-loader-table-top" />
+      <div className="absolute right-0 top-0 w-0.5 bg-violet-700 rounded animate-loader-table-right" />
+      <div className="absolute left-0 bottom-0 h-0.5 bg-violet-700 rounded animate-loader-table-bottom" />
       <style jsx>{`
         .loader-table-holder {
           position: relative;

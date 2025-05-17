@@ -4,7 +4,7 @@ import { useT } from '@/lib/useT';
 export default function LoaderBolas({ text }: { text?: string }) {
   const t = useT();
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#0f111d] relative">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-background relative" role="status" aria-live="polite">
       <div className="ghost-loader w-2/3 max-w-xs sm:w-56 sm:max-w-[220px]" style={{ maxWidth: '90vw', aspectRatio: '1/1' }}>
         <div className="first">
           <ul>
@@ -55,7 +55,7 @@ export default function LoaderBolas({ text }: { text?: string }) {
           <span className="random-stars"></span>
         </div>
       </div>
-      <span className="text-white text-base text-center mt-5" style={{ paddingTop: 18 }}>{text || t('loading')}</span>
+      <span className="text-foreground text-base text-center mt-5 pt-4">{text || t('loading')}</span>
       <style jsx>{`
         .ghost-loader {
           position: relative;
