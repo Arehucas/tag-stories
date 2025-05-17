@@ -184,22 +184,23 @@ export default function BrandData() {
           </div>
           <form className="bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
-              <label className="text-white/80 font-semibold">{common.onboarding.name}</label>
-              <input name="nombre" value={form.nombre || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />
+              <label htmlFor="nombre" className="text-white/80 font-semibold">{common.onboarding.name}</label>
+              <input id="nombre" name="nombre" value={form.nombre || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-white/80 font-semibold">{common.onboarding.address}</label>
-              <input name="direccion" value={form.direccion || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />
+              <label htmlFor="direccion" className="text-white/80 font-semibold">{common.onboarding.address}</label>
+              <input id="direccion" name="direccion" value={form.direccion || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-white/80 font-semibold">{common.onboarding.city}</label>
-              <input name="ciudad" value={form.ciudad || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />
+              <label htmlFor="ciudad" className="text-white/80 font-semibold">{common.onboarding.city}</label>
+              <input id="ciudad" name="ciudad" value={form.ciudad || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-white/80 font-semibold">{common.onboarding.instagram}</label>
+              <label htmlFor="instagram_handle" className="text-white/80 font-semibold">{common.onboarding.instagram}</label>
               <div className="flex items-center">
                 <span className="px-3 py-2 bg-[#23243a] text-white rounded-l-lg select-none">@</span>
                 <input
+                  id="instagram_handle"
                   name="instagram_handle"
                   value={(form.instagram_handle || '').replace(/^@+/, "")}
                   onChange={e => setForm({ ...form, instagram_handle: e.target.value.replace(/^@+/, "") })}
@@ -237,7 +238,7 @@ export default function BrandData() {
               )}
               <input type="file" accept="image/png,image/jpeg,image/webp" ref={fileInputRef} className="hidden" onChange={handleLogoChange} />
             </div>
-            <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60 cursor-pointer" disabled={saving || isAnalyzing}>
+            <button type="submit" className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg disabled:opacity-60 cursor-pointer" disabled={saving || isAnalyzing} aria-busy={saving || isAnalyzing}>
               {saving ? 'Guardando...' : 'Guardar cambios'}
             </button>
             {success && (

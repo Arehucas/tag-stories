@@ -6,7 +6,7 @@ import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeftIcon } from "lucide-react"
 import { Building2, Megaphone, GalleryHorizontal } from "lucide-react"
 import { signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -161,6 +161,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const router = useRouter();
+  const pathname = usePathname();
   return open ? (
     <div className="fixed inset-0 z-40 flex justify-end">
       {/* Fondo oscuro para cerrar */}
@@ -171,6 +172,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           <button
             className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
             onClick={() => { onClose(); router.push('/providers/dashboard/brand-data'); }}
+            aria-current={pathname === '/providers/dashboard/brand-data'}
           >
             <Building2 size={32} stroke="#FF9900" />
             <span>Datos de marca</span>
@@ -178,6 +180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           <button
             className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
             onClick={() => { onClose(); router.push('/providers/dashboard/campaigns'); }}
+            aria-current={pathname === '/providers/dashboard/campaigns'}
           >
             <Megaphone size={32} stroke="#00E676" />
             <span>Campañas</span>
@@ -185,6 +188,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           <button
             className="flex items-center gap-3 px-8 py-4 rounded-xl text-white font-bold text-lg hover:bg-violet-900/10 transition mb-2"
             onClick={() => { onClose(); router.push('/providers/dashboard/stories'); }}
+            aria-current={pathname === '/providers/dashboard/stories'}
           >
             <GalleryHorizontal size={32} stroke="#00E5FF" />
             <span>Stories</span>

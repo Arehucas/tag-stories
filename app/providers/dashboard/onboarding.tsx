@@ -203,23 +203,51 @@ export default function OnboardingProvider({ provider }: Props) {
             )}
           </div>
           <div>
-            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.name')}</label>
-            <input type="text" className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none" value={nombre} onChange={e => setNombre(e.target.value)} required />
+            <label htmlFor="name" className="block text-white/80 mb-1 font-semibold">{t('onboarding.name')}</label>
+            <input
+              type="text"
+              id="name"
+              className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              required
+              aria-invalid={!!error}
+              aria-describedby="form-error"
+            />
           </div>
           <div>
-            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.address')}</label>
-            <input type="text" className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none" value={direccion} onChange={e => setDireccion(e.target.value)} required />
+            <label htmlFor="address" className="block text-white/80 mb-1 font-semibold">{t('onboarding.address')}</label>
+            <input
+              type="text"
+              id="address"
+              className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none"
+              value={direccion}
+              onChange={e => setDireccion(e.target.value)}
+              required
+              aria-invalid={!!error}
+              aria-describedby="form-error"
+            />
           </div>
           <div>
-            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.city')}</label>
-            <input type="text" className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none" value={ciudad} onChange={e => setCiudad(e.target.value)} required />
+            <label htmlFor="city" className="block text-white/80 mb-1 font-semibold">{t('onboarding.city')}</label>
+            <input
+              type="text"
+              id="city"
+              className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none"
+              value={ciudad}
+              onChange={e => setCiudad(e.target.value)}
+              required
+              aria-invalid={!!error}
+              aria-describedby="form-error"
+            />
           </div>
           <div>
-            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.instagram')}</label>
+            <label htmlFor="instagram" className="block text-white/80 mb-1 font-semibold">{t('onboarding.instagram')}</label>
             <div className="flex items-center">
               <span className="px-3 py-2 bg-[#23243a] text-white rounded-l-lg select-none">@</span>
               <input
                 type="text"
+                id="instagram"
                 className="w-full rounded-r-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none"
                 value={instagram.replace(/^@+/, "")}
                 onChange={e => setInstagram(e.target.value.replace(/^@+/, ""))}
@@ -227,12 +255,14 @@ export default function OnboardingProvider({ provider }: Props) {
                 required
                 placeholder="usuario"
                 autoComplete="off"
+                aria-invalid={!!error}
+                aria-describedby="form-error"
               />
             </div>
             <span className="text-xs text-white/50">{t('onboarding.instagram_note')}</span>
           </div>
           <div>
-            <label className="block text-white/80 mb-1 font-semibold">{t('onboarding.logo')}</label>
+            <label htmlFor="logo" className="block text-white/80 mb-1 font-semibold">{t('onboarding.logo')}</label>
             <div className="text-xs text-white/60 mb-2">{t('onboarding.logo_note')}</div>
             {isLocalhost && debugInfo && (
               <div className="mb-2 p-2 bg-black/60 text-xs text-white rounded-lg">
@@ -265,7 +295,7 @@ export default function OnboardingProvider({ provider }: Props) {
               className="hidden"
             />
           </div>
-          {error && <div className="text-red-400 text-sm text-center font-semibold bg-red-900/30 rounded-lg py-2 px-3 border border-red-700/30">{error}</div>}
+          {error && <div id="form-error" role="alert" aria-live="assertive" className="text-red-400 text-sm text-center font-semibold bg-red-900/30 rounded-lg py-2 px-3 border border-red-700/30">{error}</div>}
           <button
             type="submit"
             className="w-full py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-[#3a86ff] to-[#00f2ea] text-white shadow-lg hover:scale-[1.03] transition-transform mt-2 border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed"
@@ -276,6 +306,7 @@ export default function OnboardingProvider({ provider }: Props) {
               !ciudad ||
               !instagram
             }
+            aria-busy={loading}
           >
             {loading ? t('onboarding.saving') : t('onboarding.save_and_continue')}
           </button>
