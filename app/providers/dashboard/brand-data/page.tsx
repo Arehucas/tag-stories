@@ -21,7 +21,6 @@ interface Provider {
   email?: string;
   overlayPreference?: string;
   shortId?: string;
-  descripcion?: string;
   [key: string]: unknown;
 }
 
@@ -199,7 +198,6 @@ export default function BrandData() {
       logo_url: logoUrl,
       email: form.email,
       overlayPreference,
-      descripcion: form.descripcion,
     };
     const res = await fetch("/api/provider/by-email", {
       method: "POST",
@@ -246,19 +244,6 @@ export default function BrandData() {
           <div className="flex flex-col gap-2">
             <label className="text-white/80 font-semibold">{common.onboarding.city}</label>
             <input name="ciudad" value={form.ciudad || ''} onChange={handleChange} required className="bg-[#0a0618] text-white px-3 py-2 rounded-lg border border-violet-950/60 outline-none" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-white/80 font-semibold">Descripción de la marca</label>
-            <Textarea
-              name="descripcion"
-              value={form.descripcion || ''}
-              onChange={handleChange}
-              minLength={0}
-              maxLength={200}
-              placeholder="Describe tu marca (máx. 200 caracteres)"
-              className="bg-[#0a0618] text-white border border-violet-950/60 px-3 py-2 rounded-lg outline-none min-h-[60px]"
-            />
-            <span className="text-xs text-white/50">Máx. 200 caracteres</span>
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-white/80 font-semibold">{common.onboarding.instagram}</label>
