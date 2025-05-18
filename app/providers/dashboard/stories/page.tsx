@@ -48,6 +48,7 @@ export default function StoriesPage() {
   const [copied, setCopied] = useState(false);
   const [campaignNames, setCampaignNames] = useState<Record<string, string>>({});
   const [shareUrl, setShareUrl] = useState('');
+  const [loadingStories, setLoadingStories] = useState(false);
 
   useEffect(() => {
     if (provider?.slug && typeof window !== 'undefined') {
@@ -58,10 +59,12 @@ export default function StoriesPage() {
   useEffect(() => {
     if (loading || !provider?.slug) return;
     setError(null);
+    setLoadingStories(true);
     fetch(`/api/story-submission?providerId=${provider.slug}`)
       .then(res => res.ok ? res.json() : [])
       .then(data => setStories(Array.isArray(data) ? data : []))
-      .catch(() => setStories([]));
+      .catch(() => setStories([]))
+      .finally(() => setLoadingStories(false));
   }, [loading, provider?.slug]);
 
   useEffect(() => {
@@ -76,8 +79,8 @@ export default function StoriesPage() {
     }
   }, [stories]);
 
-  // Mostrar empty state solo cuando loading es false y no hay stories
-  if (!loading && stories.length === 0) {
+  // Mostrar empty state solo cuando loading y loadingStories son false y no hay stories
+  if (!loading && !loadingStories && stories.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
         <div className="w-full max-w-lg relative z-10 flex flex-col items-center">
@@ -129,7 +132,7 @@ export default function StoriesPage() {
   }
 
   return (
-    <WithLoader loading={loading} fallback={
+    <WithLoader loading={loading || loadingStories} fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas />
       </div>

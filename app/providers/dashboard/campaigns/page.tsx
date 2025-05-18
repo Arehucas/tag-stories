@@ -47,15 +47,17 @@ export default function CampaignsListPage() {
   const [pendingCampaignId, setPendingCampaignId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [hasOtherActive, setHasOtherActive] = useState(false);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
 
   useEffect(() => {
     if (loading || !provider?.slug) return;
     setError(null);
-    // Cargar campañas solo cuando provider está listo
+    setLoadingCampaigns(true);
     fetch(`/api/provider/${provider.slug}/campaigns`)
       .then(res => res.ok ? res.json() : [])
       .then(camps => setCampaigns(camps))
-      .catch(() => setCampaigns([]));
+      .catch(() => setCampaigns([]))
+      .finally(() => setLoadingCampaigns(false));
   }, [loading, provider?.slug]);
 
   // Filtrar campañas eliminadas (softdelete)
@@ -114,8 +116,8 @@ export default function CampaignsListPage() {
     await updateCampaignActiveState(campaignId, checked);
   };
 
-  // Mostrar empty state solo cuando loading es false y no hay campañas
-  if (!loading && filteredCampaigns.length === 0) {
+  // Mostrar empty state solo cuando loading y loadingCampaigns son false y no hay campañas
+  if (!loading && !loadingCampaigns && filteredCampaigns.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
         <div className="w-full max-w-lg relative z-10 flex flex-col">
@@ -138,7 +140,7 @@ export default function CampaignsListPage() {
   }
 
   return (
-    <WithLoader loading={loading} fallback={
+    <WithLoader loading={loading || loadingCampaigns} fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas />
       </div>
