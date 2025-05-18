@@ -211,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
             description="¿Estás seguro de que quieres cerrar la sesión?"
             actions={[
               {
-                label: "sí cerrar sesión",
+                label: "sí, cerrar sesión",
                 onClick: () => signOut({ callbackUrl: "/" }),
                 color: "primary",
               },

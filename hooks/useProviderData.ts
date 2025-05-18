@@ -20,7 +20,6 @@ export function useProviderData() {
 
   useEffect(() => {
     if (status === "loading") return;
-    setLoading(true);
     setError(null);
     // Modo demo
     if (typeof window !== "undefined") {
@@ -28,6 +27,7 @@ export function useProviderData() {
       if (demoSession) {
         const demoUser = JSON.parse(demoSession);
         if (demoUser?.provider?.email) {
+          setLoading(true);
           fetch(`/api/provider/by-email?email=${encodeURIComponent(demoUser.provider.email)}`)
             .then(res => res.ok ? res.json() : null)
             .then(data => {
@@ -49,13 +49,20 @@ export function useProviderData() {
       }
     }
     // Modo autenticado normal
-    if (status !== "authenticated" || !session?.user?.email) {
+    if (status !== "authenticated") {
       setError("No hay sesión activa o email de usuario.");
       setProvider(null);
       setLoading(false);
       return;
     }
-    fetch(`/api/provider/by-email?email=${encodeURIComponent(session.user.email)}`)
+    // Esperar a que el email esté realmente disponible
+    const email = session?.user?.email;
+    if (!email) {
+      setLoading(true);
+      return;
+    }
+    setLoading(true);
+    fetch(`/api/provider/by-email?email=${encodeURIComponent(email)}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (!data) {
@@ -71,7 +78,7 @@ export function useProviderData() {
         setProvider(null);
         setLoading(false);
       });
-  }, [status, session]);
+  }, [status, session?.user?.email]);
 
   return { provider, loading, error };
 }
