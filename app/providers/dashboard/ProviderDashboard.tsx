@@ -90,32 +90,25 @@ function ProviderDashboardGate() {
     return mensajes[Math.floor(Math.random() * mensajes.length)];
   });
 
-  // Centralizo la comprobación de si el provider está completo
-  const providerCompleto = provider && provider.nombre && provider.direccion && provider.ciudad && provider.instagram_handle && provider.logo_url;
-
-  // Efecto para decidir si ir a onboarding
+  // Solo comprobamos si existe provider
   useEffect(() => {
     if (!loading) {
-      if (provider?.email && !providerCompleto) {
-        setIrAOnboarding(true);
-      } else {
-        setIrAOnboarding(false);
-      }
+      setIrAOnboarding(!provider);
       setEvaluando(false);
     }
-  }, [loading, providerCompleto, provider]);
+  }, [loading, provider]);
 
-  // Efectos secundarios SOLO cuando provider está listo y completo
+  // Efectos secundarios SOLO cuando provider existe
   useEffect(() => {
-    if (!providerCompleto) return;
-    if (provider?.slug && typeof window !== 'undefined') {
+    if (!provider) return;
+    if (provider.slug && typeof window !== 'undefined') {
       setShareUrl(`${window.location.origin}/p/${provider.slug}`);
     }
-  }, [providerCompleto, provider]);
+  }, [provider]);
 
   useEffect(() => {
-    if (!providerCompleto) return;
-    if (provider?.slug) {
+    if (!provider) return;
+    if (provider.slug) {
       setLoadingStories(true);
       fetch(`/api/story-submission?providerId=${encodeURIComponent(provider.slug)}`)
         .then(res => res.ok ? res.json() : [])
@@ -125,18 +118,18 @@ function ProviderDashboardGate() {
         })
         .catch(() => setLoadingStories(false));
     }
-  }, [providerCompleto, provider]);
+  }, [provider]);
 
   useEffect(() => {
-    if (!providerCompleto) return;
+    if (!provider) return;
     fetch('/api/ig-connect/status')
       .then(res => res.json())
       .then(data => setHasIGToken(!!data.hasIGToken));
-  }, [providerCompleto]);
+  }, [provider]);
 
   useEffect(() => {
-    if (!providerCompleto) return;
-    if (provider?.slug) {
+    if (!provider) return;
+    if (provider.slug) {
       setLoadingCampaignActive(true);
       fetch(`/api/provider/${provider.slug}/campaign`)
         .then(res => res.ok ? res.json() : null)
@@ -149,10 +142,10 @@ function ProviderDashboardGate() {
           setLoadingCampaignActive(false);
         });
     }
-  }, [providerCompleto, provider]);
+  }, [provider]);
 
   useEffect(() => {
-    if (!providerCompleto) return;
+    if (!provider) return;
     const fetchCampaignNames = async () => {
       const ids = Array.from(new Set(stories.map(s => s.campaignId?.toString()).filter(Boolean)));
       if (ids.length === 0) return;
@@ -163,10 +156,10 @@ function ProviderDashboardGate() {
       }
     };
     if (stories.length > 0) fetchCampaignNames();
-  }, [providerCompleto, stories]);
+  }, [provider, stories]);
 
   // Loader global: hasta que todo esté listo
-  if (loading || evaluando || (providerCompleto && (loadingStories || loadingCampaignActive))) {
+  if (loading || evaluando || (provider && (loadingStories || loadingCampaignActive))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas text={mensajeLoader} />
@@ -174,13 +167,8 @@ function ProviderDashboardGate() {
     );
   }
 
-  // Onboarding si corresponde
-  if (irAOnboarding && provider) {
-    return <OnboardingProvider provider={provider} />;
-  }
-
-  // Si no hay provider, onboarding
-  if (!provider) {
+  // Onboarding solo si NO hay provider
+  if (irAOnboarding) {
     return <OnboardingProvider provider={{}} />;
   }
 
@@ -206,9 +194,6 @@ function ProviderDashboardContent({ provider, stories, hasIGToken, setHasIGToken
   const t = useT();
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // Centralizo la comprobación de si el provider está completo
-  const providerCompleto = provider && provider.nombre && provider.direccion && provider.ciudad && provider.instagram_handle && provider.logo_url;
 
   // Filtrar stories validadas y pendientes
   const validatedStories = stories.filter(s => s.status === 'validated');
