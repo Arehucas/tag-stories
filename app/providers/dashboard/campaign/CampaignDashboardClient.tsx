@@ -120,8 +120,8 @@ export default function CampaignDashboardClient() {
           }
         }
       }
-      if (!currentProvider && loading === "authenticated" && provider?.user?.email) {
-        const res = await fetch(`/api/provider/by-email?email=${encodeURIComponent(provider.user.email)}`);
+      if (!currentProvider && !loading && provider?.email) {
+        const res = await fetch(`/api/provider/by-email?email=${encodeURIComponent(provider.email)}`);
         if (!res.ok) {
           if (typeof window !== "undefined") localStorage.removeItem("demoSession");
           router.replace("/providers/access");
@@ -134,7 +134,6 @@ export default function CampaignDashboardClient() {
       if (!currentProvider) {
         setCampaign(null);
         setForm({ nombre: "", descripcion: "", isActive: false, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" });
-        setLoading(false);
         return;
       }
       // Cargar campaña concreta si hay campaignId
@@ -143,7 +142,6 @@ export default function CampaignDashboardClient() {
         if (!res.ok) {
           setCampaign(null);
           setForm({ nombre: "", descripcion: "", isActive: true, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" });
-          setLoading(false);
           return;
         }
         const allCamps = await res.json();
@@ -168,11 +166,9 @@ export default function CampaignDashboardClient() {
             }
         );
         setSelectedTemplateId(camp && camp.templateId ? camp.templateId : null);
-        setLoading(false);
       } else {
         setCampaign(null);
         setForm({ nombre: "", descripcion: "", isActive: true, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" });
-        setLoading(false);
       }
     }
     fetchAndSyncProviderAndCampaign();
