@@ -3,8 +3,21 @@ import { useT } from '@/lib/useT';
 
 export default function LoaderBolas({ text }: { text?: string }) {
   const t = useT();
+  const mensajes = [
+    "Afilando bits y ajustando pixeles...",
+    "Convenciendo a los servidores de que cooperen...",
+    "Tu momento de gloria está a milisegundos...",
+    "Reuniendo datos, café y buena vibra...",
+    "Esto no es magia... pero casi...",
+    "Leyendo las letras pequeñas del universo...",
+    "Enviando palomas mensajeras digitales...",
+    "Haciendo scroll en el código fuente del destino...",
+    "Recargando el karma de los botones...",
+    "Poniéndonos guapos para ti...",
+  ];
+  const randomMensaje = React.useMemo(() => mensajes[Math.floor(Math.random() * mensajes.length)], []);
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-background relative" role="status" aria-live="polite">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#18122b] relative" role="status" aria-live="polite">
       <div className="ghost-loader w-2/3 max-w-xs sm:w-56 sm:max-w-[220px]" style={{ maxWidth: '90vw', aspectRatio: '1/1' }}>
         <div className="first">
           <ul>
@@ -55,7 +68,7 @@ export default function LoaderBolas({ text }: { text?: string }) {
           <span className="random-stars"></span>
         </div>
       </div>
-      <span className="text-foreground text-base text-center mt-5 pt-4">{text || t('loading')}</span>
+      <span className="text-white text-base text-center mt-5 pt-4">{text || randomMensaje}</span>
       <style jsx>{`
         .ghost-loader {
           position: relative;

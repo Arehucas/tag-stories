@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { CustomAlertDialog } from "@/components/ui/alert-dialog"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -162,6 +163,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const [showSignout, setShowSignout] = React.useState(false);
   return open ? (
     <div className="fixed inset-0 z-40 flex justify-end">
       {/* Fondo oscuro para cerrar */}
@@ -198,10 +200,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
         <div className="p-6">
           <button
             className="w-full px-6 py-3 rounded-full border border-violet-900 text-white/90 bg-gradient-to-r from-[#18122b] to-[#0a0618] hover:bg-violet-900/30 transition text-base font-medium shadow-lg"
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => setShowSignout(true)}
           >
             Cerrar sesión
           </button>
+          <CustomAlertDialog
+            open={showSignout}
+            onOpenChange={setShowSignout}
+            title="¿Quieres salir?"
+            description="¿Estás seguro de que quieres cerrar la sesión?"
+            actions={[
+              {
+                label: "sí cerrar sesión",
+                onClick: () => signOut({ callbackUrl: "/" }),
+                color: "primary",
+              },
+              {
+                label: "cancelar",
+                onClick: () => setShowSignout(false),
+                color: "cancel",
+              },
+            ]}
+          />
         </div>
       </aside>
     </div>
