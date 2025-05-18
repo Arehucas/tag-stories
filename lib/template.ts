@@ -23,8 +23,8 @@ export interface Template {
   plan: 'free' | 'pro';
   type: string;
   description?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   isActive: boolean;
   previewUrl?: string;
   order?: number;
