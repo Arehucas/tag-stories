@@ -64,9 +64,7 @@ interface Story {
 // NUEVO COMPONENTE: ProviderDashboardGate
 function ProviderDashboardGate() {
   const t = useT();
-  const { provider, loading } = useProviderData();
-  const [evaluando, setEvaluando] = useState(true);
-  const [irAOnboarding, setIrAOnboarding] = useState(false);
+  const { provider, loading, error } = useProviderData();
   const [stories, setStories] = useState<any[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
   const [hasIGToken, setHasIGToken] = useState(false);
@@ -89,14 +87,6 @@ function ProviderDashboardGate() {
     ];
     return mensajes[Math.floor(Math.random() * mensajes.length)];
   });
-
-  // Solo comprobamos si existe provider
-  useEffect(() => {
-    if (!loading) {
-      setIrAOnboarding(!provider);
-      setEvaluando(false);
-    }
-  }, [loading, provider]);
 
   // Efectos secundarios SOLO cuando provider existe
   useEffect(() => {
@@ -159,7 +149,7 @@ function ProviderDashboardGate() {
   }, [provider, stories]);
 
   // Loader global: hasta que todo esté listo
-  if (loading || evaluando || (provider && (loadingStories || loadingCampaignActive))) {
+  if (loading || (provider && (loadingStories || loadingCampaignActive))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas text={mensajeLoader} />
@@ -167,8 +157,8 @@ function ProviderDashboardGate() {
     );
   }
 
-  // Onboarding solo si NO hay provider
-  if (irAOnboarding) {
+  // Onboarding solo si el backend confirma que no existe provider
+  if (!loading && !provider && error === "No se encontró el provider para este usuario.") {
     return <OnboardingProvider provider={{}} />;
   }
 
