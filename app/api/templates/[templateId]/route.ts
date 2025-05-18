@@ -28,7 +28,14 @@ export async function GET(
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
   try {
-    const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId) });
+    let template;
+    if (templateId === 'defaultDark' || templateId === 'defaultLight') {
+      template = await db.collection('templates').findOne({ type: templateId });
+    } else if (ObjectId.isValid(templateId)) {
+      template = await db.collection('templates').findOne({ _id: new ObjectId(templateId) });
+    } else {
+      return NextResponse.json({ error: 'ID inválido o error de servidor' }, { status: 400 });
+    }
     if (!template) {
       return NextResponse.json({ error: 'Template no encontrada' }, { status: 404 });
     }

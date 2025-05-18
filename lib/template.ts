@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export interface Template {
-  _id: ObjectId;
+  _id: ObjectId | string;
   templateName: string;
   providerParentId: ObjectId | null;
   logoSize: number;
