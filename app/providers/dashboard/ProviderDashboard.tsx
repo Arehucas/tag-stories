@@ -88,54 +88,50 @@ function ProviderDashboardGate() {
     return mensajes[Math.floor(Math.random() * mensajes.length)];
   });
 
-  // Efectos secundarios SOLO cuando provider existe
+  // Efectos secundarios SOLO cuando provider.slug existe
   useEffect(() => {
-    if (!provider) return;
-    if (provider.slug && typeof window !== 'undefined') {
+    if (!provider?.slug) return;
+    if (typeof window !== 'undefined') {
       setShareUrl(`${window.location.origin}/p/${provider.slug}`);
     }
-  }, [provider]);
+  }, [provider?.slug]);
 
   useEffect(() => {
-    if (!provider) return;
-    if (provider.slug) {
-      setLoadingStories(true);
-      fetch(`/api/story-submission?providerId=${encodeURIComponent(provider.slug)}`)
-        .then(res => res.ok ? res.json() : [])
-        .then(data => {
-          setStories(data);
-          setLoadingStories(false);
-        })
-        .catch(() => setLoadingStories(false));
-    }
-  }, [provider]);
+    if (!provider?.slug) return;
+    setLoadingStories(true);
+    fetch(`/api/story-submission?providerId=${encodeURIComponent(provider.slug)}`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setStories(data);
+        setLoadingStories(false);
+      })
+      .catch(() => setLoadingStories(false));
+  }, [provider?.slug]);
 
   useEffect(() => {
-    if (!provider) return;
+    if (!provider?.slug) return;
     fetch('/api/ig-connect/status')
       .then(res => res.json())
       .then(data => setHasIGToken(!!data.hasIGToken));
-  }, [provider]);
+  }, [provider?.slug]);
 
   useEffect(() => {
-    if (!provider) return;
-    if (provider.slug) {
-      setLoadingCampaignActive(true);
-      fetch(`/api/provider/${provider.slug}/campaign`)
-        .then(res => res.ok ? res.json() : null)
-        .then(camp => {
-          if (!camp || camp.error || !camp.isActive) {
-            setCampaignActive(false);
-          } else {
-            setCampaignActive(true);
-          }
-          setLoadingCampaignActive(false);
-        });
-    }
-  }, [provider]);
+    if (!provider?.slug) return;
+    setLoadingCampaignActive(true);
+    fetch(`/api/provider/${provider.slug}/campaign`)
+      .then(res => res.ok ? res.json() : null)
+      .then(camp => {
+        if (!camp || camp.error || !camp.isActive) {
+          setCampaignActive(false);
+        } else {
+          setCampaignActive(true);
+        }
+        setLoadingCampaignActive(false);
+      });
+  }, [provider?.slug]);
 
   useEffect(() => {
-    if (!provider) return;
+    if (!provider?.slug) return;
     const fetchCampaignNames = async () => {
       const ids = Array.from(new Set(stories.map(s => s.campaignId?.toString()).filter(Boolean)));
       if (ids.length === 0) return;
@@ -146,10 +142,10 @@ function ProviderDashboardGate() {
       }
     };
     if (stories.length > 0) fetchCampaignNames();
-  }, [provider, stories]);
+  }, [provider?.slug, stories]);
 
   // Loader global: hasta que todo esté listo
-  if (loading || (provider && (loadingStories || loadingCampaignActive))) {
+  if (loading || !provider?.slug || loadingStories || loadingCampaignActive) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas text={mensajeLoader} />
