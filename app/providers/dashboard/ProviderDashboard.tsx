@@ -324,15 +324,17 @@ function ProviderDashboardContent({ provider, stories, hasIGToken, setHasIGToken
               <CheckCircle className="w-6 h-6 text-blue-600" /> Stories validadas
             </h2>
             <div className="flex flex-col gap-4">
-              {validatedStories.map((story, i) => (
-                <ProviderDashboardStoryCard
-                  key={i}
-                  story={story}
-                  campaignName={story.campaignName || story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
-                  onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
-                  origin="dashboard"
-                />
-              ))}
+              {validatedStories.filter(Boolean).map((story, i) =>
+                story ? (
+                  <ProviderDashboardStoryCard
+                    key={i}
+                    story={story}
+                    campaignName={String(story.campaignName || story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign'))}
+                    onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
+                    origin="dashboard"
+                  />
+                ) : null
+              )}
             </div>
           </div>
         )}
@@ -348,15 +350,17 @@ function ProviderDashboardContent({ provider, stories, hasIGToken, setHasIGToken
               pendingStories.length === 0 ? (
                 <div className="text-gray-400 text-center py-8">No hay stories pendientes</div>
               ) : (
-                pendingStories.map((story, i) => (
-                  <ProviderDashboardStoryCard
-                    key={i}
-                    story={story}
-                    campaignName={story.campaignName || story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign')}
-                    onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
-                    origin="dashboard"
-                  />
-                ))
+                pendingStories.filter(Boolean).map((story, i) =>
+                  story ? (
+                    <ProviderDashboardStoryCard
+                      key={i}
+                      story={story}
+                      campaignName={String(story.campaignName || story.campaignNombre || campaignNames[String(story.campaignId)] || t('providerStories.noCampaign'))}
+                      onClick={() => router.push(`/providers/dashboard/campaign/story/${story._id}`)}
+                      origin="dashboard"
+                    />
+                  ) : null
+                )
               )
             )}
           </div>
