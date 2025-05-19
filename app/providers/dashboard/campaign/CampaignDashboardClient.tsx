@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 import useProviderData from '@/hooks/useProviderData';
 import WithLoader from '@/components/ui/WithLoader';
+import Link from 'next/link';
 
 // Defino interfaces para los estados
 interface Provider {
@@ -165,7 +166,11 @@ export default function CampaignDashboardClient() {
               overlayUrl: "/overlays/overlay-white-default.png",
             }
         );
-        setSelectedTemplateId(camp && camp.templateId ? camp.templateId : null);
+        const params = new URLSearchParams(window.location.search);
+        const queryTemplateId = params.get('selectedTemplateId');
+        if (!queryTemplateId) {
+          setSelectedTemplateId(camp && camp.templateId ? camp.templateId : null);
+        }
       } else {
         setCampaign(null);
         setForm({ nombre: "", descripcion: "", isActive: true, requiredStories: 1, overlayType: "default", overlayUrl: "/overlays/overlay-white-default.png" });
@@ -215,6 +220,14 @@ export default function CampaignDashboardClient() {
   useEffect(() => {
     setSaving(false);
   }, [campaignId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const newTemplateId = params.get('selectedTemplateId');
+    if (newTemplateId && newTemplateId !== selectedTemplateId) {
+      setSelectedTemplateId(newTemplateId);
+    }
+  }, [typeof window !== 'undefined' && window.location.search]);
 
   if (!hydrated) {
     return null;
@@ -437,12 +450,24 @@ export default function CampaignDashboardClient() {
                 <span className="text-xs text-zinc-400 mt-1">Número de stories que debe subir el usuario para completar la campaña.</span>
               </div>
               {/* Selector de template y overlay */}
-              <SelectedTemplateSection
-                templates={templates}
-                selectedTemplateId={selectedTemplateId || ''}
-                overlayPreference={provider?.overlayPreference === 'dark-overlay' ? 'dark-overlay' : 'light-overlay'}
-                onSelectTemplate={setSelectedTemplateId}
-              />
+              <div className="flex gap-4 items-center">
+                {selectedTemplateId && (
+                  <div className="flex-1">
+                    <SelectedTemplateSection
+                      templates={templates.filter(t => t._id === selectedTemplateId)}
+                      selectedTemplateId={selectedTemplateId}
+                      overlayPreference={provider?.overlayPreference === 'dark-overlay' ? 'dark-overlay' : 'light-overlay'}
+                      onSelectTemplate={() => {}}
+                    />
+                  </div>
+                )}
+                <div className="flex flex-col justify-center">
+                  <Link href={`/providers/dashboard/campaign/templates?campaignId=${campaignId || ''}&selectedTemplateId=${selectedTemplateId || ''}`}
+                    className="px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-base shadow-lg transition">
+                    {t('templates.see_templates')}
+                  </Link>
+                </div>
+              </div>
               <button
                 type="submit"
                 className="mt-4 px-6 py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition disabled:opacity-60"

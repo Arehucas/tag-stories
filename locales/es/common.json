@@ -260,5 +260,16 @@
     "error_update": "Error al actualizar el estado de la campaña",
     "error_save": "Error al guardar la campaña",
     "error_load": "No se pudo cargar el provider. Revisa que el email esté bien y que el provider tenga slug."
+  },
+  "templates": {
+    "select_template": "Selecciona tu plantilla",
+    "recommend_dark": "En base a tu logo actual, te recomendaríamos una plantilla oscura",
+    "recommend_light": "En base a tu logo actual, te recomendaríamos una plantilla clara",
+    "aria_select": "Seleccionar plantilla {{name}}",
+    "recommended": "Plantilla recomendada",
+    "recommended_based_on_logo": "En base a tu logo hemos escogido la plantilla <b>{{name}}</b>.",
+    "cannot_change": "No es posible cambiar de plantilla por ahora.",
+    "see_templates": "Ver plantillas",
+    "select_title": "Selecciona tu plantilla"
   }
 } 
