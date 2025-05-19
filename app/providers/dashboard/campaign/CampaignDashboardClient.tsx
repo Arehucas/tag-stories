@@ -16,6 +16,7 @@ import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 import useProviderData from '@/hooks/useProviderData';
 import WithLoader from '@/components/ui/WithLoader';
 import Link from 'next/link';
+import type { Template } from '@/lib/template';
 
 // Defino interfaces para los estados
 interface Provider {
@@ -459,14 +460,14 @@ export default function CampaignDashboardClient() {
                       <div className="w-full aspect-[9/16] flex items-center justify-center rounded-lg overflow-hidden">
                         {selectedTemplateId && (
                           <img
-                            src={templates.find(t => t._id === selectedTemplateId)?.previewUrl}
-                            alt={templates.find(t => t._id === selectedTemplateId)?.templateName}
+                            src={templates.find((t: Template) => t._id === selectedTemplateId)?.previewUrl}
+                            alt={templates.find((t: Template) => t._id === selectedTemplateId)?.templateName}
                             className="w-full h-full object-cover rounded-lg"
                           />
                         )}
                       </div>
                       <span className="text-sm font-medium text-center text-white mt-2">
-                        {templates.find(t => t._id === selectedTemplateId)?.templateName}
+                        {templates.find((t: Template) => t._id === selectedTemplateId)?.templateName}
                       </span>
                     </div>
                     {/* Tarjeta CTA */}
