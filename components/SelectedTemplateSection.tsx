@@ -13,9 +13,11 @@ interface Props {
   selectedTemplateId: string;
   overlayPreference: 'dark-overlay' | 'light-overlay';
   onSelectTemplate: (templateId: string) => void;
+  showRecommendationMsg?: boolean;
+  showTitle?: boolean;
 }
 
-export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTemplateId, overlayPreference, onSelectTemplate }) => {
+export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTemplateId, overlayPreference, onSelectTemplate, showRecommendationMsg = true, showTitle = true }) => {
   const t = useT();
   const selected = templates.find(tpl => tpl._id === selectedTemplateId);
   const infoMsg = overlayPreference === 'dark-overlay'
@@ -23,11 +25,15 @@ export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTe
     : t('templates.recommend_light');
   return (
     <section>
-      <h3 className="text-white/80 font-semibold text-base pb-[10px]">{t('templates.select_template')}</h3>
-      <div className="flex items-start gap-2 mb-4">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" className="mt-0.5"><circle cx="12" cy="12" r="10" fill="#a259ff"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="#fff" fontFamily="Arial" fontWeight="bold">i</text></svg>
-        <span className="text-xs text-zinc-400 mt-0.5">{infoMsg}.</span>
-      </div>
+      {showTitle && (
+        <h3 className="text-white/80 font-semibold text-base pb-[10px]">{t('templates.select_template')}</h3>
+      )}
+      {showRecommendationMsg && (
+        <div className="flex items-start gap-2 pb-6">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" className="mt-0.5"><circle cx="12" cy="12" r="10" fill="#a259ff"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="#fff" fontFamily="Arial" fontWeight="bold">i</text></svg>
+          <span className="text-xs text-zinc-400 mt-0.5">{infoMsg}.</span>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-6 mb-4">
         {templates.map(tpl => (
           <div

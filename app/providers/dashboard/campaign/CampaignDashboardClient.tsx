@@ -398,90 +398,161 @@ export default function CampaignDashboardClient() {
           />
           {/* Contenido de la tab activa */}
           {activeTab === 'estado' && (
-            <form className={`bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg${transitionData ? ' animate-fade-in' : ''}`} onSubmit={e => { e.preventDefault(); handleSave(); }}>
-              {campaignId && (
-                <div className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-4 flex items-center justify-between">
-                  <span className="text-white/80 font-semibold">Campaña activa</span>
-                  <Switch
-                    checked={!!form.isActive}
-                    onCheckedChange={handleActiveSwitch}
-                    disabled={saving || !campaign}
-                  />
-                </div>
-              )}
-              <div className="flex flex-col gap-2">
-                <label className="text-white/80 font-semibold">Nombre de campaña</label>
-                <input
-                  className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700"
-                  value={form.nombre}
-                  onChange={handleNameChange}
-                  disabled={saving}
-                  required
-                  maxLength={60}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-white/80 font-semibold">Descripción</label>
-                <Textarea
-                  className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700 min-h-[60px]"
-                  value={form.descripcion}
-                  onChange={handleDescriptionChange}
-                  disabled={saving}
-                  maxLength={200}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-white/80 font-semibold">Stories para recompensa</label>
-                <div className="flex gap-2 mt-1">
-                  {[1,2,5,10].map(n => (
-                    <button
-                      key={n}
-                      type="button"
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold border transition-all duration-150
-                        ${form.requiredStories === n ? 'bg-blue-800 border-blue-400 text-white shadow-lg' : 'bg-[#0a0618] border-violet-950/60 text-white/70'}
-                        ${n !== 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={true}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-                <span className="text-xs text-zinc-400 mt-1">En esta beta solo puedes elegir 1</span>
-                <span className="text-xs text-zinc-400 mt-1">Número de stories que debe subir el usuario para completar la campaña.</span>
-              </div>
-              {/* Selector de template y overlay */}
-              <div className="flex gap-4 items-center">
-                {selectedTemplateId && (
-                  <div className="flex-1">
-                    <SelectedTemplateSection
-                      templates={templates.filter(t => t._id === selectedTemplateId)}
-                      selectedTemplateId={selectedTemplateId}
-                      overlayPreference={provider?.overlayPreference === 'dark-overlay' ? 'dark-overlay' : 'light-overlay'}
-                      onSelectTemplate={() => {}}
+            <>
+              <form className={`bg-[#18122b] rounded-xl p-6 flex flex-col gap-6 border border-violet-950/60 shadow-lg${transitionData ? ' animate-fade-in' : ''}`} onSubmit={e => { e.preventDefault(); handleSave(); }}>
+                {campaignId && (
+                  <div className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-4 flex items-center justify-between">
+                    <span className="text-white/80 font-semibold">Campaña activa</span>
+                    <Switch
+                      checked={!!form.isActive}
+                      onCheckedChange={handleActiveSwitch}
+                      disabled={saving || !campaign}
                     />
                   </div>
                 )}
-                <div className="flex flex-col justify-center">
-                  <Link href={`/providers/dashboard/campaign/templates?campaignId=${campaignId || ''}&selectedTemplateId=${selectedTemplateId || ''}`}
-                    className="px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-base shadow-lg transition">
-                    {t('templates.see_templates')}
-                  </Link>
+                <div className="flex flex-col gap-2">
+                  <label className="text-white/80 font-semibold">Nombre de campaña</label>
+                  <input
+                    className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700"
+                    value={form.nombre}
+                    onChange={handleNameChange}
+                    disabled={saving}
+                    required
+                    maxLength={60}
+                  />
                 </div>
-              </div>
-              <button
-                type="submit"
-                className="mt-4 px-6 py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
-                disabled={saving}
-              >
-                {saving ? 'Guardando...' : 'Guardar cambios'}
-              </button>
-              {success && (
-                <div className="mt-4 text-center text-blue-400 bg-blue-950/60 rounded-lg py-2 px-4 animate-fade-in-out">
-                  Se han guardado los cambios correctamente
+                <div className="flex flex-col gap-2">
+                  <label className="text-white/80 font-semibold">Descripción</label>
+                  <Textarea
+                    className="bg-[#0a0618] rounded-lg border border-violet-950/60 px-4 py-2 text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-700 min-h-[60px]"
+                    value={form.descripcion}
+                    onChange={handleDescriptionChange}
+                    disabled={saving}
+                    maxLength={200}
+                  />
                 </div>
-              )}
-              {error && <div className="text-red-400 font-semibold mt-2">{error}</div>}
-            </form>
+                <div className="flex flex-col gap-2">
+                  <label className="text-white/80 font-semibold">Stories para recompensa</label>
+                  <div className="flex gap-2 mt-1">
+                    {[1,2,5,10].map(n => (
+                      <button
+                        key={n}
+                        type="button"
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold border transition-all duration-150
+                          ${form.requiredStories === n ? 'bg-blue-800 border-blue-400 text-white shadow-lg' : 'bg-[#0a0618] border-violet-950/60 text-white/70'}
+                          ${n !== 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={true}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-xs text-zinc-400 mt-1">En esta beta solo puedes elegir 1</span>
+                  <span className="text-xs text-zinc-400 mt-1">Número de stories que debe subir el usuario para completar la campaña.</span>
+                </div>
+                {/* Selector de template y overlay */}
+                <div>
+                  <h3 className="text-white/80 font-semibold text-base pb-4">{t('templates.current_template')}</h3>
+                  <div className="grid grid-cols-2 gap-6 mb-4">
+                    {/* Tarjeta plantilla seleccionada */}
+                    <div className="rounded-xl border-4 p-2 flex flex-col items-center transition-all bg-zinc-900 w-full cursor-default border-gray-700">
+                      <div className="w-full aspect-[9/16] flex items-center justify-center rounded-lg overflow-hidden">
+                        {selectedTemplateId && (
+                          <img
+                            src={templates.find(t => t._id === selectedTemplateId)?.previewUrl}
+                            alt={templates.find(t => t._id === selectedTemplateId)?.templateName}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium text-center text-white mt-2">
+                        {templates.find(t => t._id === selectedTemplateId)?.templateName}
+                      </span>
+                    </div>
+                    {/* Tarjeta CTA */}
+                    <div
+                      className="rounded-xl border-4 border-blue-500 p-2 flex flex-col items-center justify-center transition-all bg-blue-500/30 w-full aspect-[9/16] cursor-pointer hover:bg-blue-500/40"
+                      onClick={() => router.push(`/providers/dashboard/campaign/templates?campaignId=${campaignId || ''}&selectedTemplateId=${selectedTemplateId || ''}`)}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={t('templates.change_template')}
+                    >
+                      <span className="text-white/70 font-light text-2xl text-center leading-tight select-none">
+                        {t('templates.change_template')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="mt-4 px-6 py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
+                  disabled={saving}
+                >
+                  {saving ? 'Guardando...' : 'Guardar cambios'}
+                </button>
+                {success && (
+                  <div className="mt-4 text-center text-blue-400 bg-blue-950/60 rounded-lg py-2 px-4 animate-fade-in-out">
+                    Se han guardado los cambios correctamente
+                  </div>
+                )}
+                {error && <div className="text-red-400 font-semibold mt-2">{error}</div>}
+                {/* Botón de borrado de campaña */}
+                {campaign && (
+                  <div style={{ marginTop: 100 }}>
+                    <Button
+                      variant="outline"
+                      className="border-2 border-red-700 text-red-500 bg-transparent hover:text-red-700 hover:bg-transparent font-semibold py-5 rounded-xl w-full text-lg mt-12"
+                      onClick={() => setShowDeleteDialog(true)}
+                      disabled={saving}
+                      type="button"
+                    >
+                      {t('campaign.delete')}
+                    </Button>
+                    <CustomAlertDialog
+                      open={showDeleteDialog}
+                      onOpenChange={setShowDeleteDialog}
+                      title={t('campaign.confirm_title')}
+                      description={<>
+                        Si borras la campaña puede ser que queden stories pendientes de revisar o canjear. Perderás la campaña para siempre.
+                        {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+                      </>}
+                      actions={[
+                        {
+                          label: 'Sí, borrar campaña',
+                          color: 'danger',
+                          disabled: saving,
+                          onClick: async () => {
+                            if (!provider?.slug || !campaign?._id) return;
+                            setSaving(true);
+                            setError(null);
+                            try {
+                              const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ campaignId: campaign._id }),
+                              });
+                              if (!res.ok) throw new Error(await res.text());
+                              setShowDeleteDialog(false);
+                              router.push('/providers/dashboard/campaigns');
+                            } catch (e) {
+                              setError('Error al borrar la campaña');
+                            } finally {
+                              setSaving(false);
+                            }
+                          }
+                        },
+                        {
+                          label: 'Cancelar',
+                          color: 'cancel',
+                          disabled: saving,
+                          onClick: () => setShowDeleteDialog(false)
+                        }
+                      ]}
+                    />
+                  </div>
+                )}
+              </form>
+            </>
           )}
           {activeTab === 'stories' && campaign && (
             loadingStories ? (
@@ -489,61 +560,6 @@ export default function CampaignDashboardClient() {
             ) : (
               <ProviderStoryCardList stories={stories} campaignId={campaign._id} />
             )
-          )}
-          {/* Botón de borrado de campaña */}
-          {campaign && (
-            <div style={{ marginTop: 100 }}>
-              <Button
-                variant="outline"
-                className="border-2 border-red-700 text-red-500 bg-transparent hover:text-red-700 hover:bg-transparent font-semibold py-5 rounded-xl w-full text-lg mt-12"
-                onClick={() => setShowDeleteDialog(true)}
-                disabled={saving}
-                type="button"
-              >
-                {t('campaign.delete')}
-              </Button>
-              <CustomAlertDialog
-                open={showDeleteDialog}
-                onOpenChange={setShowDeleteDialog}
-                title={t('campaign.confirm_title')}
-                description={<>
-                  Si borras la campaña puede ser que queden stories pendientes de revisar o canjear. Perderás la campaña para siempre.
-                  {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-                </>}
-                actions={[
-                  {
-                    label: 'Sí, borrar campaña',
-                    color: 'danger',
-                    disabled: saving,
-                    onClick: async () => {
-                      if (!provider?.slug || !campaign?._id) return;
-                      setSaving(true);
-                      setError(null);
-                      try {
-                        const res = await fetch(`/api/provider/${provider.slug}/campaign`, {
-                          method: 'DELETE',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ campaignId: campaign._id }),
-                        });
-                        if (!res.ok) throw new Error(await res.text());
-                        setShowDeleteDialog(false);
-                        router.push('/providers/dashboard/campaigns');
-                      } catch (e) {
-                        setError('Error al borrar la campaña');
-                      } finally {
-                        setSaving(false);
-                      }
-                    }
-                  },
-                  {
-                    label: 'Cancelar',
-                    color: 'cancel',
-                    disabled: saving,
-                    onClick: () => setShowDeleteDialog(false)
-                  }
-                ]}
-              />
-            </div>
           )}
         </div>
         <CustomAlertDialog

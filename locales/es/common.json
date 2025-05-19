@@ -270,6 +270,8 @@
     "recommended_based_on_logo": "En base a tu logo hemos escogido la plantilla <b>{{name}}</b>.",
     "cannot_change": "No es posible cambiar de plantilla por ahora.",
     "see_templates": "Ver plantillas",
-    "select_title": "Selecciona tu plantilla"
+    "select_title": "Selecciona tu plantilla",
+    "current_template": "Plantilla seleccionada",
+    "change_template": "Cambiar plantilla"
   }
 } 

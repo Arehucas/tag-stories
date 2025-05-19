@@ -54,6 +54,7 @@ export default function SelectTemplatePage() {
           selectedTemplateId={selected}
           overlayPreference="light-overlay"
           onSelectTemplate={handleSelect}
+          showTitle={false}
         />
       </div>
     </div>
