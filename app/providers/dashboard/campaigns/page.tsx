@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 import WithLoader from '@/components/ui/WithLoader';
 import useProviderData from '@/hooks/useProviderData';
+import { Plus } from "lucide-react";
 
 interface Campaign {
   _id: string;
@@ -155,10 +156,12 @@ export default function CampaignsListPage() {
               <h1 className="text-2xl font-bold text-white">Campañas</h1>
             </div>
             <Button
-              className="mt-0 px-6 py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition disabled:opacity-60"
+              className="mt-0 p-0 w-12 h-12 rounded-full bg-blue-700 hover:bg-blue-800 text-white shadow-lg flex items-center justify-center text-2xl transition disabled:opacity-60"
               onClick={() => router.push('/providers/dashboard/campaign')}
+              aria-label="Crear campaña"
+              title="Crear campaña"
             >
-              Crear campaña
+              <Plus className="w-7 h-7" />
             </Button>
           </div>
           {activeCampaign && (
@@ -166,7 +169,8 @@ export default function CampaignsListPage() {
               <div className="text-blue-400 font-semibold mb-4">Campaña activa</div>
               <Link
                 href={`/providers/dashboard/campaign?campaignId=${activeCampaign._id}`}
-                className="block p-5 rounded-xl border border-blue-700 bg-blue-950/40 text-blue-200 shadow-lg hover:bg-violet-900/30 transition"
+                className="block p-5 rounded-xl border border-blue-700"
+                style={{ background: '#0a06184d', color: '#c7d2fe' }}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-lg">{activeCampaign.nombre}</span>

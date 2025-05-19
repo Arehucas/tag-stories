@@ -240,9 +240,10 @@ function ProviderDashboardContent({ provider, stories, hasIGToken, setHasIGToken
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1500);
               }}
-              className="bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 rounded-lg text-xs font-bold transition"
+              className="p-2 rounded-lg text-white hover:scale-105 transition-transform bg-blue-700 hover:bg-blue-800"
+              title="Copiar URL"
             >
-              Copiar
+              <Copy className="w-5 h-5" />
             </button>
           </div>
         </div>

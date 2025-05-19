@@ -8,6 +8,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { Copy } from "lucide-react";
 import useProviderData from '@/hooks/useProviderData';
 import WithLoader from '@/components/ui/WithLoader';
+import LoaderTable from '@/components/ui/LoaderTable';
 
 interface Story {
   createdAt: string | Date;
@@ -118,8 +119,7 @@ export default function StoriesPage() {
                     setTimeout(() => setCopied(false), 2000);
                   }
                 }}
-                className="p-2 rounded-lg text-white hover:scale-105 transition-transform"
-                style={{ background: `linear-gradient(90deg, #3a86ff 0%, #00f2ea 100%)` }}
+                className="p-2 rounded-lg text-white hover:scale-105 transition-transform bg-blue-700 hover:bg-blue-800"
                 title="Copiar URL"
               >
                 <Copy className="w-5 h-5" />
@@ -132,23 +132,29 @@ export default function StoriesPage() {
   }
 
   return (
-    <WithLoader loading={loading || loadingStories} fallback={
+    <WithLoader loading={loading} fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas />
       </div>
     }>
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
-        <div className="w-full max-w-lg relative z-10">
-          {/* Cabecera */}
-          <div className="flex items-center gap-3 mb-8">
-            <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300 cursor-pointer">
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-            <h1 className="text-2xl font-bold text-white">{t('dashboard.stories_title') || 'Stories'}</h1>
-          </div>
-          <ProviderStoryCardList stories={stories.map(s => ({ ...s, id: s._id }))} campaignNames={campaignNames} />
+      <WithLoader loading={loadingStories} fallback={
+        <div className="flex justify-center py-12">
+          <LoaderTable />
         </div>
-      </div>
+      }>
+        <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
+          <div className="w-full max-w-lg relative z-10">
+            {/* Cabecera */}
+            <div className="flex items-center gap-3 mb-8">
+              <button onClick={() => router.push('/providers/dashboard')} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300 cursor-pointer">
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <h1 className="text-2xl font-bold text-white">{t('dashboard.stories_title') || 'Stories'}</h1>
+            </div>
+            <ProviderStoryCardList stories={stories.map(s => ({ ...s, id: s._id }))} campaignNames={campaignNames} />
+          </div>
+        </div>
+      </WithLoader>
     </WithLoader>
   );
 } 
