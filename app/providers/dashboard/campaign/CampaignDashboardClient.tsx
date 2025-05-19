@@ -471,7 +471,7 @@ export default function CampaignDashboardClient() {
                     </div>
                     {/* Tarjeta CTA */}
                     <div
-                      className="rounded-xl border-4 border-blue-500 p-2 flex flex-col items-center justify-center transition-all bg-blue-500/30 w-full aspect-[9/16] cursor-pointer hover:bg-blue-500/40"
+                      className="rounded-xl border-4 border-blue-500 p-2 flex flex-col items-center justify-center transition-all bg-blue-500/10 w-full aspect-[9/16] cursor-pointer hover:bg-blue-500/20"
                       onClick={() => router.push(`/providers/dashboard/campaign/templates?campaignId=${campaignId || ''}&selectedTemplateId=${selectedTemplateId || ''}`)}
                       tabIndex={0}
                       role="button"
