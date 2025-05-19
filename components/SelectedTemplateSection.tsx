@@ -45,7 +45,7 @@ export const SelectedTemplateSection: React.FC<Props> = ({ templates, selectedTe
             aria-label={t('templates.aria_select').replace('{{name}}', tpl.templateName)}
           >
             <div className="w-full aspect-[9/16] flex items-center justify-center rounded-lg overflow-hidden">
-              <img src={tpl.previewUrl} alt={tpl.templateName} className="w-full h-full object-cover rounded-lg" />
+              <img src={tpl.previewUrl} alt={tpl.templateName} className="w-full h-full object-cover rounded-lg border-none" />
             </div>
             <span className="text-sm font-medium text-center text-white mt-2">{tpl.templateName}</span>
           </div>

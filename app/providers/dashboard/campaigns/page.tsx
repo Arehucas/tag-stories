@@ -21,6 +21,7 @@ import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 import WithLoader from '@/components/ui/WithLoader';
 import useProviderData from '@/hooks/useProviderData';
 import { Plus } from "lucide-react";
+import { useTemplates } from '@/hooks/useTemplates';
 
 interface Campaign {
   _id: string;
@@ -30,6 +31,7 @@ interface Campaign {
   createdAt?: string;
   updatedAt?: string;
   deleted?: boolean;
+  templateId?: string;
 }
 
 function formatDate(date: string | Date) {
@@ -49,6 +51,7 @@ export default function CampaignsListPage() {
   const [saving, setSaving] = useState(false);
   const [hasOtherActive, setHasOtherActive] = useState(false);
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const { templates } = useTemplates();
 
   useEffect(() => {
     if (loading || !provider?.slug) return;
@@ -117,6 +120,18 @@ export default function CampaignsListPage() {
     await updateCampaignActiveState(campaignId, checked);
   };
 
+  // Helper para formatear la fecha como 'Última actualización: hh:mmh dd/mm/aa'
+  const formatUpdateDate = (date?: string) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear()).slice(-2);
+    return `Última actualización: ${hh}:${mm}h ${day}/${month}/${year}`;
+  };
+
   // Mostrar empty state solo cuando loading y loadingCampaigns son false y no hay campañas
   if (!loading && !loadingCampaigns && filteredCampaigns.length === 0) {
     return (
@@ -177,7 +192,7 @@ export default function CampaignsListPage() {
                   <span className="ml-2 px-3 py-1 rounded-full bg-blue-700 text-white text-xs font-semibold">Activa</span>
                 </div>
                 {activeCampaign.descripcion && <div className="text-sm mt-1 text-white/60">{activeCampaign.descripcion}</div>}
-                <div className="text-xs mt-2 text-white/30">{formatDate(activeCampaign.updatedAt || activeCampaign.createdAt || '')}</div>
+                <div className="text-xs mt-2 text-white/30">{formatUpdateDate(activeCampaign.updatedAt || activeCampaign.createdAt || '')}</div>
               </Link>
             </div>
           )}
@@ -206,7 +221,7 @@ export default function CampaignsListPage() {
                       </span>
                     </div>
                     {camp.descripcion && <div className="text-sm mt-1 text-white/60">{camp.descripcion}</div>}
-                    <div className="text-xs mt-2 text-white/30">{formatDate(camp.updatedAt || camp.createdAt || '')}</div>
+                    <div className="text-xs mt-2 text-white/30">{formatUpdateDate(camp.updatedAt || camp.createdAt || '')}</div>
                   </Link>
                 ))}
               </div>

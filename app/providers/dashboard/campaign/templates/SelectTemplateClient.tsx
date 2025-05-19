@@ -4,15 +4,19 @@ import { SelectedTemplateSection } from '@/components/SelectedTemplateSection';
 import { useTemplates } from '@/hooks/useTemplates';
 import { useT } from '@/lib/useT';
 import { useState, useEffect } from 'react';
+import { Repeat } from 'lucide-react';
+import useProviderData from '@/hooks/useProviderData';
 
 export default function SelectTemplateClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useT();
   const { templates, loading } = useTemplates();
+  const { provider } = useProviderData();
   const initialSelected = searchParams.get('selectedTemplateId') || '';
   const campaignId = searchParams.get('campaignId') || '';
   const [selected, setSelected] = useState(initialSelected);
+  const [currentTemplateId, setCurrentTemplateId] = useState(searchParams.get('templateId') || '');
 
   // Protección: si no hay campaignId, redirige a la lista de campañas
   useEffect(() => {
@@ -20,6 +24,20 @@ export default function SelectTemplateClient() {
       router.replace('/providers/dashboard/campaigns');
     }
   }, [campaignId, router]);
+
+  // Si no hay templateId en la query, obtén el actual de la campaña usando el slug y la lista de campañas
+  useEffect(() => {
+    if (!currentTemplateId && campaignId && provider?.slug) {
+      fetch(`/api/provider/${provider.slug}/campaigns`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (Array.isArray(data)) {
+            const camp = data.find((c: any) => String(c._id) === String(campaignId));
+            if (camp && camp.templateId) setCurrentTemplateId(camp.templateId);
+          }
+        });
+    }
+  }, [currentTemplateId, campaignId, provider?.slug]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -36,8 +54,7 @@ export default function SelectTemplateClient() {
   };
 
   const handleBack = () => {
-    const url = `/providers/dashboard/campaign?campaignId=${campaignId}${selected ? `&selectedTemplateId=${selected}` : ''}`;
-    router.push(url);
+    router.back();
   };
 
   return (
@@ -58,6 +75,17 @@ export default function SelectTemplateClient() {
           showTitle={false}
         />
       </div>
+      {/* Botón sticky cambiar plantilla */}
+      {campaignId && selected && currentTemplateId && selected !== currentTemplateId && (
+        <button
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition"
+          style={{ boxShadow: '0 4px 24px 0 #0004', minWidth: '75%' }}
+          onClick={handleBack}
+        >
+          <Repeat className="w-6 h-6 mr-1" />
+          {t('templates.change_template') || 'Cambiar plantilla'}
+        </button>
+      )}
     </div>
   );
 } 
