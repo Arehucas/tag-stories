@@ -4,7 +4,8 @@ import { ObjectId } from 'mongodb';
 
 export async function PATCH(req: NextRequest, context: { params: any }) {
   try {
-    const { id } = context.params;
+    const params = await context.params;
+    const { id } = params;
     const body = await req.json();
     const { storyId, providerId, campaignId } = body;
     if (!storyId || !providerId || !campaignId) {

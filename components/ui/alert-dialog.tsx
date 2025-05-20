@@ -157,9 +157,10 @@ interface CustomAlertDialogProps {
   title: string;
   description: React.ReactNode;
   actions: CustomAlertAction[]; // Máximo 3
+  content?: React.ReactNode;
 }
 
-export function CustomAlertDialog({ open, onOpenChange, title, description, actions }: CustomAlertDialogProps) {
+export function CustomAlertDialog({ open, onOpenChange, title, description, actions, content }: CustomAlertDialogProps) {
   // Orden: principal (azul), secundaria (violeta), cancelar (gris)
   // Cancelar siempre el último
   const getButtonStyle = (color: string, isLast: boolean) => {
@@ -187,6 +188,7 @@ export function CustomAlertDialog({ open, onOpenChange, title, description, acti
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
+        {content}
         <AlertDialogFooter style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {ordered.map((action, idx) => {
             const isLast = idx === ordered.length - 1;

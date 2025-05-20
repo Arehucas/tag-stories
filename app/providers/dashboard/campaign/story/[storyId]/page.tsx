@@ -4,7 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Clock, Tag, Check, X, MoreVertical, MoreHorizontal, Instagram, Calendar, Megaphone, Maximize2, CheckCircle } from "lucide-react";
+import { Clock, Tag, Check, X, MoreVertical, MoreHorizontal, Instagram, Calendar, Megaphone, Maximize2, CheckCircle, Pencil } from "lucide-react";
 import Image from "next/image";
 import { FC } from "react";
 import type { JSX } from "react";
@@ -14,6 +14,7 @@ import ProviderHeader from "@/components/ui/ProviderHeader";
 import HeroGradient from "@/components/ui/HeroGradient";
 import { CustomAlertDialog } from "@/components/ui/alert-dialog";
 import { useTemplates } from '@/hooks/useTemplates';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 
 // Tipos
 export type StoryStatus = "pending" | "validated" | "redeemed" | "rejected";
@@ -50,6 +51,11 @@ export default function StoryDetailPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [campaign, setCampaign] = useState<any>(null);
   const { templates, loading: loadingTemplates } = useTemplates();
+  const [ambassadorName, setAmbassadorName] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editValue, setEditValue] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   // Fetch de datos
   useEffect(() => {
@@ -73,6 +79,23 @@ export default function StoryDetailPage() {
       });
     }
   }, [story?.providerId]);
+
+  useEffect(() => {
+    if (story?.ambassadorId) {
+      fetch(`/api/ambassadors/${story.ambassadorId}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.igName) setAmbassadorName(data.igName);
+          else setAmbassadorName(null);
+        });
+    } else {
+      setAmbassadorName(null);
+    }
+  }, [story?.ambassadorId]);
+
+  useEffect(() => {
+    setEditValue(ambassadorName || "");
+  }, [ambassadorName, editOpen]);
 
   // Lógica de cambio de estado
   const nextStatus: StoryStatus = story?.status === "pending"
@@ -265,7 +288,17 @@ export default function StoryDetailPage() {
             <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
               <Instagram className="w-5 h-5 text-white" />
             </div>
-            <span className="font-semibold">{story.igUser || t('providerStories.noUserInfo')}</span>
+            <span className="font-semibold">{ambassadorName || t('providerStories.noUserInfo')}</span>
+            {story?.ambassadorId && (
+              <button
+                className="ml-2 text-zinc-400 hover:text-white transition"
+                aria-label="Editar nombre de usuario"
+                onClick={() => setEditOpen(true)}
+                style={{ lineHeight: 0, padding: 0, background: 'none', border: 'none' }}
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-3 text-zinc-200 text-base">
             <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
@@ -299,6 +332,62 @@ export default function StoryDetailPage() {
           </div>
         </div>
       </div>
+      <CustomAlertDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        title="Cambiar nombre de usuario"
+        description={
+          "Introduce el nuevo nombre de usuario para este ambassador."
+        }
+        content={
+          <>
+            <input
+              className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none mt-4 mb-2 text-base font-semibold placeholder:text-white/40"
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              disabled={editLoading}
+              autoFocus
+              maxLength={64}
+              placeholder="Nombre de usuario de Instagram"
+            />
+            {editError && <div className="text-red-500 text-sm mt-2">{editError}</div>}
+          </>
+        }
+        actions={[
+          {
+            label: editLoading ? 'Guardando...' : 'Cambiar nombre',
+            color: 'primary',
+            disabled: editLoading || !editValue.trim(),
+            onClick: async () => {
+              setEditLoading(true);
+              setEditError(null);
+              try {
+                const res = await fetch(`/api/ambassadors/${story.ambassadorId}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ igName: editValue.trim() }),
+                });
+                if (!res.ok) {
+                  const data = await res.json();
+                  throw new Error(data.error || 'Error al actualizar');
+                }
+                setAmbassadorName(editValue.trim());
+                setEditOpen(false);
+              } catch (e: any) {
+                setEditError(e.message || 'Error al actualizar');
+              } finally {
+                setEditLoading(false);
+              }
+            },
+          },
+          {
+            label: 'Cancelar',
+            color: 'cancel',
+            onClick: () => setEditOpen(false),
+            disabled: editLoading,
+          },
+        ]}
+      />
     </div>
   );
 }

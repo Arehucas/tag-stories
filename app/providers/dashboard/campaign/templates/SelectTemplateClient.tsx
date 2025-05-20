@@ -53,8 +53,12 @@ export default function SelectTemplateClient() {
     setSelected(templateId);
   };
 
-  const handleBack = () => {
-    router.back();
+  const handleChangeTemplate = () => {
+    if (campaignId && selected) {
+      router.push(`/providers/dashboard/campaign?campaignId=${campaignId}&selectedTemplateId=${selected}`);
+    } else {
+      router.push('/providers/dashboard/campaigns');
+    }
   };
 
   return (
@@ -62,7 +66,7 @@ export default function SelectTemplateClient() {
       <div className="w-full max-w-lg relative z-10 flex flex-col gap-6">
         {/* Cabecera consistente */}
         <div className="flex items-center gap-3">
-          <button onClick={handleBack} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300 cursor-pointer" aria-label={t('not_found.back')}>
+          <button onClick={handleChangeTemplate} className="p-2 rounded-full bg-violet-900/20 hover:bg-violet-900/40 text-violet-300 cursor-pointer" aria-label={t('not_found.back')}>
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
           <h1 className="text-2xl font-bold text-white">{t('templates.select_title')}</h1>
@@ -80,7 +84,7 @@ export default function SelectTemplateClient() {
         <button
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-blue-700 hover:bg-blue-800 text-white font-bold text-lg shadow-lg transition"
           style={{ boxShadow: '0 4px 24px 0 #0004', minWidth: '75%' }}
-          onClick={handleBack}
+          onClick={handleChangeTemplate}
         >
           <Repeat className="w-6 h-6 mr-1" />
           {t('templates.change_template') || 'Cambiar plantilla'}

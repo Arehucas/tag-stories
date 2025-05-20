@@ -46,6 +46,9 @@ export default function PLanding({ params }: Props) {
 
   // Carga slug y provider solo una vez
   useEffect(() => {
+    // Limpiar info persistida de campaña y providerId para evitar inconsistencias
+    localStorage.removeItem('taun_campaign_id');
+    localStorage.removeItem('taun_provider_id');
     let isMounted = true;
     clearImage();
     clearProvider();
