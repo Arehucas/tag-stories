@@ -20,4 +20,4 @@ async function migrarStories() {
   process.exit(0);
 }
 
-migrarStories().catch(e => { console.error(e); process.exit(1); }); 
+migrarStories().catch(() => { process.exit(1); }); 

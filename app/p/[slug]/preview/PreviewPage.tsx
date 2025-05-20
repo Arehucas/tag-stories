@@ -322,12 +322,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                     if (!saveRes.ok || !saveData.id) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
                     // 5. Actualizar ambassador con storyId, providerId y campaignId
                     if (saveData.id && campaignId && providerId) {
-                      console.log('[DEBUG] PATCH add-relations', {
-                        ambassadorId: ambassadorData._id,
-                        storyId: saveData.id,
-                        campaignId,
-                        providerId,
-                      });
                       await fetch(`/api/ambassadors/${ambassadorData._id}/add-relations`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
@@ -339,7 +333,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                 } catch (e) {
                   setUploadResponse({ error: e?.toString() });
                   alert('Error en compartir/guardar: ' + (e?.toString() || ''));
-                  console.error('Error en compartir/guardar:', e);
                 } finally {
                   setUploading(false);
                 }

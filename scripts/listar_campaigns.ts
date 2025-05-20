@@ -10,12 +10,12 @@ async function main() {
   const db = client.db();
   const campaigns = await db.collection("campaigns").find({}).toArray();
   campaigns.forEach(c => {
-    console.log({ providerId: c.providerId, nombre: c.nombre, _id: c._id });
+    // console.log({ providerId: c.providerId, nombre: c.nombre, _id: c._id });
   });
   await client.close();
 }
 
 main().catch((err) => {
-  console.error(err);
+  // console.error(err);
   process.exit(1);
 }); 
