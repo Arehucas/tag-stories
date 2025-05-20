@@ -6,24 +6,24 @@ import { ObjectId } from 'mongodb';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { providerId, imageUrl } = body;
-    if (!providerId || !imageUrl) {
+    const { providerId, campaignId, imageUrl, ambassadorId } = body;
+    if (!providerId || !campaignId || !imageUrl || !ambassadorId) {
       return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
     }
     const db = await getDb();
-    // Buscar campaña activa
-    const campaign = await db.collection('campaigns').findOne({ providerId, isActive: true });
+    const campaign = await db.collection('campaigns').findOne({ _id: new ObjectId(campaignId) });
     if (!campaign) {
-      return NextResponse.json({ error: 'No hay campaña activa' }, { status: 403 });
+      return NextResponse.json({ error: 'Campaña no encontrada' }, { status: 403 });
     }
     const submission = {
       providerId,
-      campaignId: campaign._id,
+      campaignId: new ObjectId(campaignId),
       campaignName: campaign.nombre,
       templateId: campaign.templateId,
       imageUrl, // URL de la imagen en Cloudinary
       status: 'pending',
       createdAt: new Date(),
+      ambassadorId: new ObjectId(ambassadorId),
     };
     const result = await db.collection('storySubmissions').insertOne(submission);
     return NextResponse.json({ id: result.insertedId });

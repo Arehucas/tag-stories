@@ -9,7 +9,8 @@ export async function GET(
 ) {
   const session = await getServerSession();
   const db = await getDb();
-  const templateId = context.params?.templateId;
+  const params = await context.params;
+  const templateId = params.templateId;
 
   // BYPASS SOLO EN DESARROLLO PARA DEMO
   if (

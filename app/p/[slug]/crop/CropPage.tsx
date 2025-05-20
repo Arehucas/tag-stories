@@ -227,6 +227,10 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     setCroppedImage(croppedDataUrl);
     await idbSet('taun_cropped_image', croppedDataUrl);
     router.push(`/p/${slug}/preview`);
+    if (campaign && campaign._id) {
+      localStorage.setItem('taun_campaign_id', campaign._id);
+      localStorage.setItem('taun_provider_id', slug);
+    }
   };
 
   useEffect(() => {

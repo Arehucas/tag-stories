@@ -40,6 +40,8 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   const [jpegDataUrl, setJpegDataUrl] = useState<string | null>(null);
   const [jpegSize, setJpegSize] = useState<number | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [campaignId, setCampaignId] = useState<string | null>(null);
+  const [providerId, setProviderId] = useState<string | null>(null);
 
   useEffect(() => {
     // Restaurar provider desde localStorage si no está en el store
@@ -62,6 +64,11 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
       );
     }
   }, [isReady]);
+
+  useEffect(() => {
+    setCampaignId(localStorage.getItem('taun_campaign_id'));
+    setProviderId(localStorage.getItem('taun_provider_id'));
+  }, []);
 
   // Recuperar imagen cropeada de IndexedDB si no está en memoria
   useEffect(() => {
@@ -283,7 +290,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                       compartido = true;
                     } catch (e: any) {
                       compartido = false;
-                      // Siempre mostrar el mensaje personalizado si no se comparte
                       const ig = provider?.instagram_handle ? `@${provider.instagram_handle}` : '@ighandler';
                       alert(`¡No has compartido la story! ${ig} no podrá revisar tu story y darte tu recompensa.`);
                     }
@@ -298,17 +304,38 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                     });
                     const uploadData = await uploadRes.json();
                     if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
-                    // 3. Guardar en BBDD
+                    // 3. Crear ambassador vacío
+                    const ambassadorRes = await fetch('/api/ambassadors', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({}),
+                    });
+                    const ambassadorData = await ambassadorRes.json();
+                    if (!ambassadorRes.ok || !ambassadorData._id) throw new Error('Error creando ambassador: ' + JSON.stringify(ambassadorData));
+                    // 4. Guardar en BBDD
                     const saveRes = await fetch('/api/story-submission', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ providerId: slug, imageUrl: uploadData.url }),
+                      body: JSON.stringify({ providerId, campaignId, imageUrl: uploadData.url, ambassadorId: ambassadorData._id }),
                     });
                     const saveData = await saveRes.json();
-                    if (!saveRes.ok) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
+                    if (!saveRes.ok || !saveData.id) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
+                    // 5. Actualizar ambassador con storyId, providerId y campaignId
+                    if (saveData.id && campaignId && providerId) {
+                      console.log('[DEBUG] PATCH add-relations', {
+                        ambassadorId: ambassadorData._id,
+                        storyId: saveData.id,
+                        campaignId,
+                        providerId,
+                      });
+                      await fetch(`/api/ambassadors/${ambassadorData._id}/add-relations`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ storyId: saveData.id, providerId, campaignId }),
+                      });
+                    }
                     setUploadResponse({ cloudinary: uploadData, db: saveData });
                   }
-                  // Si no se pudo compartir, no hacer nada (ni descarga ni alerta extra)
                 } catch (e) {
                   setUploadResponse({ error: e?.toString() });
                   alert('Error en compartir/guardar: ' + (e?.toString() || ''));
