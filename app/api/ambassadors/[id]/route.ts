@@ -29,11 +29,14 @@ export async function GET(req: NextRequest, context: { params: any }) {
  * Fusiona todos los ambassadors con el mismo igName en el ambassador principal (ambassadorId).
  * Mueve stories, providers y campaigns, elimina duplicados y borra los ambassadors fusionados.
  */
-export async function mergeAmbassadorsByIgName(igName: string, ambassadorId: string) {
+async function mergeAmbassadorsByIgName(igName: string, ambassadorId: string) {
   const db = await getDb();
   const mainId = new ObjectId(ambassadorId);
-  // Buscar todos los ambassadors con ese igName, excepto el actual
-  const others = await db.collection('ambassadors').find({ igName, _id: { $ne: mainId } }).toArray();
+  // Buscar todos los ambassadors con ese igName (case-insensitive), excepto el actual
+  const others = await db.collection('ambassadors').find({
+    igName: { $regex: `^${igName}$`, $options: 'i' },
+    _id: { $ne: mainId }
+  }).toArray();
   if (!others.length) return;
   // Acumular stories, providers y campaigns
   let allStories: ObjectId[] = [];

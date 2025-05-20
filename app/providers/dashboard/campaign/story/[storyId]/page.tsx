@@ -341,15 +341,21 @@ export default function StoryDetailPage() {
         }
         content={
           <>
-            <input
-              className="w-full rounded-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none mt-4 mb-2 text-base font-semibold placeholder:text-white/40"
-              value={editValue}
-              onChange={e => setEditValue(e.target.value)}
-              disabled={editLoading}
-              autoFocus
-              maxLength={64}
-              placeholder="Nombre de usuario de Instagram"
-            />
+            <div className="flex items-center mt-4 mb-2">
+              <span className="px-3 py-2 bg-[#23243a] text-white rounded-l-lg select-none">@</span>
+              <input
+                className="w-full rounded-r-lg px-4 py-2 bg-[#0a0618] text-white border border-violet-950/60 focus:border-fuchsia-500 outline-none text-base font-semibold placeholder:text-white/40"
+                value={editValue.replace(/^@+/, "")}
+                onChange={e => setEditValue(e.target.value.replace(/^@+/, ""))}
+                disabled={editLoading}
+                autoFocus
+                maxLength={64}
+                placeholder="usuario"
+                pattern="[a-zA-Z0-9._]+"
+                autoComplete="off"
+              />
+            </div>
+            <span className="text-xs text-white/50">No incluyas el @, solo el usuario.</span>
             {editError && <div className="text-red-500 text-sm mt-2">{editError}</div>}
           </>
         }
