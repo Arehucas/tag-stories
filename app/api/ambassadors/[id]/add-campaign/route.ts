@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongo';
 import { ObjectId } from 'mongodb';
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, context: { params: any }) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params;
     const body = await req.json();
     const { campaignId } = body;
     if (!campaignId) {

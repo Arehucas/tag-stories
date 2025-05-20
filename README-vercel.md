@@ -63,6 +63,9 @@ export async function GET(
 }
 ```
 
+**Advertencia:**
+> Si usas destructuring en la firma del handler (por ejemplo, `export async function GET(req, { params })`), o tipos concretos como `{ params: { id: string } }`, el build de Vercel puede fallar en Next.js 15. Usa siempre la firma recomendada arriba.
+
 ---
 
 **Sigue esta guía para evitar bloqueos en despliegues y mantener la calidad del código en producción.** 
