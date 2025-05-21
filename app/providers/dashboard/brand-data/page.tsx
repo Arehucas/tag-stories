@@ -59,6 +59,12 @@ export default function BrandData() {
     }
   }, [loading, provider]);
 
+  useEffect(() => {
+    if (!loading && !provider) {
+      router.replace('/providers/onboarding/slider');
+    }
+  }, [loading, provider, router]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };

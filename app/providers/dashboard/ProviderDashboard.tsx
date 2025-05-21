@@ -65,6 +65,7 @@ interface Story {
 function ProviderDashboardGate() {
   const t = useT();
   const { provider, loading, error } = useProviderData();
+  const router = useRouter();
   const [stories, setStories] = useState<any[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
   const [hasIGToken, setHasIGToken] = useState(false);
@@ -144,6 +145,12 @@ function ProviderDashboardGate() {
     if (stories.length > 0) fetchCampaignNames();
   }, [provider?.slug, stories]);
 
+  useEffect(() => {
+    if (!loading && !provider) {
+      router.replace('/providers/onboarding/slider');
+    }
+  }, [loading, provider, router]);
+
   // Loader global: hasta que todo esté listo
   if (loading || !provider?.slug || loadingStories || loadingCampaignActive) {
     return (
@@ -151,11 +158,6 @@ function ProviderDashboardGate() {
         <LoaderBolas text={mensajeLoader} />
       </div>
     );
-  }
-
-  // Onboarding solo si el backend confirma que no existe provider
-  if (!loading && !provider && error === "No se encontró el provider para este usuario.") {
-    return <OnboardingProvider provider={{}} />;
   }
 
   // Renderizo el dashboard real

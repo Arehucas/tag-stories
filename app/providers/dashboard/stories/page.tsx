@@ -80,6 +80,12 @@ export default function StoriesPage() {
     }
   }, [stories]);
 
+  useEffect(() => {
+    if (!loading && !provider) {
+      router.replace('/providers/onboarding/slider');
+    }
+  }, [loading, provider, router]);
+
   // Mostrar empty state solo cuando loading y loadingStories son false y no hay stories
   if (!loading && !loadingStories && stories.length === 0) {
     return (

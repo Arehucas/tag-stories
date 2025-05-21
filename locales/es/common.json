@@ -273,5 +273,23 @@
     "select_title": "Selecciona tu plantilla",
     "current_template": "Plantilla seleccionada",
     "change_template": "Cambiar plantilla"
+  },
+  "onboardingSlider": {
+    "steps": [
+      {
+        "title": "Bienvenido a Provider Rewards",
+        "description": "Descubre cómo nuestra plataforma te ayuda a convertir a tus clientes en embajadores de tu marca."
+      },
+      {
+        "title": "Gestiona campañas fácilmente",
+        "description": "Crea y administra campañas de promoción en minutos. Todo desde un panel intuitivo y seguro."
+      },
+      {
+        "title": "Analiza y premia",
+        "description": "Obtén métricas detalladas y premia a quienes comparten tu local en Instagram Stories."
+      }
+    ],
+    "skip": "Saltar por ahora",
+    "currentStep": "Paso actual"
   }
 } 

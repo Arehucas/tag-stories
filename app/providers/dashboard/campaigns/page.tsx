@@ -64,6 +64,12 @@ export default function CampaignsListPage() {
       .finally(() => setLoadingCampaigns(false));
   }, [loading, provider?.slug]);
 
+  useEffect(() => {
+    if (!loading && !provider) {
+      router.replace('/providers/onboarding/slider');
+    }
+  }, [loading, provider, router]);
+
   // Filtrar campañas eliminadas (softdelete)
   const filteredCampaigns = campaigns.filter(c => !c.deleted);
   // Ordenar campañas por updatedAt descendente
