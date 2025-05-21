@@ -191,7 +191,7 @@ export default function OnboardingProvider({ provider }: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center py-12 px-4 sm:px-8 transition-colors duration-500 relative overflow-hidden">
       {/* Animación de fondo tipo hero-gradient-bg */}
-      <div className="hero-gradient-bg" style={{ top: 0, left: 0, right: 0, height: 400, position: 'absolute', zIndex: 0 }}>
+      <div className="hero-gradient-bg" style={{ top: 0, left: 0, right: 0, height: '40vh', position: 'absolute', zIndex: 0 }}>
         <div className="hero-gradient-bg-inner" />
       </div>
       <div className="w-full max-w-lg relative z-10">
