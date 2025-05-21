@@ -56,7 +56,21 @@ export function OnboardingSlider({ onSkip }: OnboardingSliderProps) {
           {SLIDES.map((slide, idx) => (
             <CarouselItem key={idx} className="flex flex-col items-center">
               <div className="w-70 h-70 rounded-xl overflow-hidden bg-zinc-900 flex items-center justify-center mb-8">
-                <Image src={slide.image} alt="Onboarding" width={280} height={280} className="object-cover w-full h-full" />
+                <motion.div
+                  animate={{
+                    scale: [1, 1.04, 1],
+                    rotate: [0, 2, -2, 0],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    ease: 'easeInOut',
+                  }}
+                  className="w-full h-full flex items-center justify-center"
+                >
+                  <Image src={slide.image} alt="Onboarding" width={280} height={280} className="object-cover w-full h-full" />
+                </motion.div>
               </div>
               <h3 className="text-lg font-bold text-white text-center mb-2">{t(slide.titleKey)}</h3>
               <p className="text-sm text-zinc-300 text-center">{t(slide.descKey)}</p>

@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useT } from '@/lib/useT';
 import common from '@/locales/es/common.json';
 import LoaderBolas from "@/components/ui/LoaderBolas";
-import OnboardingSlider from '@/components/ui/OnboardingSlider';
 
 interface Provider {
   nombre?: string;
@@ -41,7 +40,6 @@ export default function OnboardingProvider({ provider }: Props) {
   const [uploadResponse, setUploadResponse] = useState<any>(null);
   const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
   const [overlayPreference, setOverlayPreference] = useState<'dark-overlay' | 'light-overlay'>('light-overlay');
-  const [showSlider, setShowSlider] = useState(true);
 
   // Expresión regular: solo letras, números, puntos y guiones bajos, sin @
   const instagramRegex = /^[a-zA-Z0-9._]+$/;
@@ -180,14 +178,6 @@ export default function OnboardingProvider({ provider }: Props) {
     setLoading(true);
     window.location.href = "/providers/dashboard";
   };
-
-  if (showSlider) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333]">
-        <OnboardingSlider onSkip={() => setShowSlider(false)} />
-      </div>
-    );
-  }
 
   if (loading) {
     return (
