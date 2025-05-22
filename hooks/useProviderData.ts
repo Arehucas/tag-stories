@@ -58,7 +58,9 @@ export function useProviderData() {
     // Esperar a que el email esté realmente disponible
     const email = session?.user?.email;
     if (!email) {
-      setLoading(true);
+      setError("No hay email de usuario en la sesión.");
+      setProvider(null);
+      setLoading(false);
       return;
     }
     setLoading(true);

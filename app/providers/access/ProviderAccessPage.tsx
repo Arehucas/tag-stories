@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useT } from '@/lib/useT';
 
 export default function ProviderAccess() {
   const router = useRouter();
-  const { status } = useSession();
   const t = useT();
   const [isLocalhost, setIsLocalhost] = useState(false);
 
@@ -15,12 +14,6 @@ export default function ProviderAccess() {
       setIsLocalhost(window.location.hostname === 'localhost');
     }
   }, []);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/providers/dashboard");
-    }
-  }, [status, router]);
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-[#0a0618] via-[#18122b] to-[#1a1333] flex flex-col items-center">
@@ -55,7 +48,7 @@ export default function ProviderAccess() {
         {/* Botón de acceso: Google siempre visible, demo solo si es localhost */}
         <button
           className="btn-google-gradient w-full max-w-xs mb-4"
-          onClick={() => signIn('google')}
+          onClick={() => signIn('google', { callbackUrl: '/providers/dashboard', prompt: 'select_account' })}
         >
           <span>
             <svg width="24" height="24" viewBox="0 0 48 48" className="inline-block" style={{marginRight: 12}}>
