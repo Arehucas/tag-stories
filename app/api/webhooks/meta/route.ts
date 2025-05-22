@@ -17,23 +17,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  // Loguear cualquier evento de Instagram recibido
-  if (body.object === 'instagram' && Array.isArray(body.entry)) {
-    for (const entry of body.entry) {
-      if (Array.isArray(entry.changes)) {
-        for (const change of entry.changes) {
-          console.log('[IG WEBHOOK EVENT]', {
-            field: change.field,
-            value: change.value,
-            entryId: entry.id,
-            time: entry.time,
-          });
-        }
-      }
-    }
-  } else {
-    // Log genérico para otros eventos
-    console.log('Evento recibido de Meta:', JSON.stringify(body));
-  }
+  // Aquí puedes procesar los eventos recibidos de Meta
+  console.log('Evento recibido de Meta:', JSON.stringify(body));
   return new NextResponse('EVENT_RECEIVED', { status: 200 });
 } 

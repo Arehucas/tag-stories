@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import OnboardingProvider from "./onboarding";
 import LoaderBolas from "@/components/ui/LoaderBolas";
 import LoaderTable from "@/components/ui/LoaderTable";
@@ -65,7 +65,6 @@ interface Story {
 function ProviderDashboardGate() {
   const t = useT();
   const { provider, loading, error } = useProviderData();
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [stories, setStories] = useState<any[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
@@ -146,27 +145,19 @@ function ProviderDashboardGate() {
     if (stories.length > 0) fetchCampaignNames();
   }, [provider?.slug, stories]);
 
-  // Control de sesión profesional
-  if (status === "loading" || loading) {
+  useEffect(() => {
+    if (!loading && !provider) {
+      router.replace('/providers/onboarding/slider');
+    }
+  }, [loading, provider, router]);
+
+  // Loader global: hasta que todo esté listo
+  if (loading || !provider?.slug || loadingStories || loadingCampaignActive) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181824] via-[#23243a] to-[#1a1a2e]">
         <LoaderBolas text={mensajeLoader} />
       </div>
     );
-  }
-  if (status !== "authenticated" || !session?.user?.email) {
-    signOut({ callbackUrl: "/providers/access" });
-    return <div>Sesión inválida. Por favor, inicia sesión de nuevo.</div>;
-  }
-  if (error === "No hay email de usuario en la sesión.") {
-    signOut({ callbackUrl: "/providers/access" });
-    return <div>Sesión inválida. Por favor, inicia sesión de nuevo.</div>;
-  }
-
-  // Si no hay provider, redirige a onboarding
-  if (!loading && !provider) {
-    router.replace('/providers/onboarding/slider');
-    return null;
   }
 
   // Renderizo el dashboard real

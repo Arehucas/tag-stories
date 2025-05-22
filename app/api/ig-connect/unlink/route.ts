@@ -22,7 +22,7 @@ export async function POST() {
   const db = await getDb();
   await db.collection('providers').updateOne(
     { email: session.user.email },
-    { $set: { instagram_access_token: null, instagram_user_id: null } }
+    { $set: { instagram_access_token: null } }
   );
   return NextResponse.json({ ok: true });
 } 

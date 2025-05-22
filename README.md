@@ -78,33 +78,3 @@ for (let i = 0; i < 4; i++) {
 
 Reemplaza [providerId] por el id real del provider para probar el flujo completo.
 # tag-stories
-
-## Checklist profesional de integración Instagram
-
-1. Variables de entorno (en Vercel y local):
-   - `INSTAGRAM_CLIENT_ID`
-   - `INSTAGRAM_CLIENT_SECRET`
-   - `INSTAGRAM_REDIRECT_URI=https://www.taun.me/ig-connect/callback`
-   - `NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI=https://www.taun.me/ig-connect/callback`
-
-2. Configuración en Meta (Instagram Developers):
-   - URI de redirección: `https://www.taun.me/ig-connect/callback`
-
-3. Flujo de conexión:
-   - El usuario es redirigido a Instagram desde `/ig-connect`.
-   - Instagram redirige a `/ig-connect/callback?code=...`.
-   - El frontend toma el `code` y hace POST a `/api/ig-connect/exchange-token`.
-   - El backend intercambia el código por el token y guarda los datos.
-
-4. Validaciones y logs:
-   - Validar que todas las variables de entorno estén definidas antes de arrancar.
-   - Loggear todos los intentos y errores de integración con Instagram.
-   - Mostrar mensajes claros al usuario en caso de error.
-
-5. Seguridad:
-   - Nunca exponer el client_secret al frontend.
-   - Limitar reintentos y auditar accesos.
-
-6. Testing:
-   - Probar el flujo completo tras cada cambio de entorno o despliegue.
-   - Revisar los logs de Vercel ante cualquier error 400/401/500.
