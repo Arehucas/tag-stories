@@ -26,6 +26,7 @@ export default function IGConnectPage() {
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-fuchsia-500 to-blue-500 text-white font-semibold py-3 rounded-xl text-lg shadow-lg hover:scale-105 transition-transform cursor-pointer"
           onClick={() => {
             const redirectUri = process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI;
+            console.log('[IG][DEBUG] redirect_uri usado en frontend:', redirectUri);
             if (!redirectUri) {
               console.error('Falta la variable de entorno NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI');
               alert('Error de configuración: falta NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI');

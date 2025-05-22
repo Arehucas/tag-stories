@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Log de intento de intercambio
+  console.log('[IG][DEBUG] redirect_uri usado en backend:', redirectUri);
   console.log('[IG] Intercambiando código', { clientId, redirectUri, code: code.slice(0, 5) + '...' });
 
   // Intercambio de código por token
