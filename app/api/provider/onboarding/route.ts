@@ -8,6 +8,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { nombre, direccion, ciudad, instagram_handle, logo_url, email, overlayPreference } = body;
   const finalLogoUrl = logo_url || '/logos/logo-provider-default.jpg';
+  console.log('[ONBOARDING] Body recibido:', body);
+  console.log('[ONBOARDING] Email sesión:', session?.user?.email);
 
   // BYPASS SOLO EN DESARROLLO PARA DEMO
   if (
@@ -47,12 +49,15 @@ export async function POST(req: NextRequest) {
   }
 
   if (!session || !session.user?.email) {
+    console.log('[ONBOARDING][ERROR] No autenticado');
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
   if (!nombre || !direccion || !ciudad || !instagram_handle || !email) {
+    console.log('[ONBOARDING][ERROR] Faltan campos obligatorios', { nombre, direccion, ciudad, instagram_handle, email });
     return NextResponse.json({ error: "Todos los campos son obligatorios" }, { status: 400 });
   }
   if (email !== session.user.email) {
+    console.log('[ONBOARDING][ERROR] Email no coincide', { emailBody: email, emailSession: session.user.email });
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
   const db = await getDb();
