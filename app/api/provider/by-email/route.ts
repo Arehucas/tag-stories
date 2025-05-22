@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
   ) {
     const db = await getDb();
     const provider = await db.collection('providers').findOne({ email });
+    console.log(`[BY-EMAIL][DEV] Buscando provider con email: ${email} => ${provider ? 'ENCONTRADO' : 'NO ENCONTRADO'}`);
     if (provider) return NextResponse.json(provider);
     return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
   }
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest) {
   }
   const db = await getDb();
   const provider = await db.collection('providers').findOne({ email });
+  console.log(`[BY-EMAIL][PROD] Buscando provider con email: ${email} => ${provider ? 'ENCONTRADO' : 'NO ENCONTRADO'}`);
   if (!provider) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
   return NextResponse.json(provider);
 }

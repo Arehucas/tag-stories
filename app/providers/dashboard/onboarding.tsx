@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useT } from '@/lib/useT';
 import common from '@/locales/es/common.json';
 import LoaderBolas from "@/components/ui/LoaderBolas";
+import { useSession } from "next-auth/react";
 
 interface Provider {
   nombre?: string;
@@ -24,6 +25,7 @@ export const metadata = {
 };
 
 export default function OnboardingProvider({ provider }: Props) {
+  const { data: session } = useSession();
   const [nombre, setNombre] = useState(provider?.nombre || "");
   const [direccion, setDireccion] = useState(provider?.direccion || "");
   const [ciudad, setCiudad] = useState(provider?.ciudad || "");
@@ -33,7 +35,7 @@ export default function OnboardingProvider({ provider }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [email, setEmail] = useState(provider?.email || "");
+  const [email, setEmail] = useState("");
   const t = useT();
   const [logoPreview, setLogoPreview] = useState<string | null>(logoUrl || null);
   const [debugInfo, setDebugInfo] = useState<{ name: string; size: number; type: string } | null>(null);
@@ -45,12 +47,15 @@ export default function OnboardingProvider({ provider }: Props) {
   const instagramRegex = /^[a-zA-Z0-9._]+$/;
 
   useEffect(() => {
-    // Obtener email de sesión demo si existe
+    if (session?.user?.email) {
+      setEmail(session.user.email);
+      return;
+    }
+    // Demo/local logic
     if (typeof window !== "undefined") {
       const demoSession = localStorage.getItem("demoSession");
       if (demoSession) {
         const demoUser = JSON.parse(demoSession);
-        // Soportar ambos formatos: { provider: { email } } y { user: { email } }
         if (demoUser.user && demoUser.user.email) {
           setEmail(demoUser.user.email);
           return;
@@ -65,12 +70,11 @@ export default function OnboardingProvider({ provider }: Props) {
         }
       }
     }
-    // Si no es demo, usar el email del provider prop
     if (provider && provider.email) {
       setEmail(provider.email);
       return;
     }
-  }, [provider]);
+  }, [session, provider]);
 
   async function analyzeLogoColorAndTransparency(fileOrUrl: File | string): Promise<'dark-overlay' | 'light-overlay'> {
     return new Promise((resolve) => {
@@ -129,6 +133,10 @@ export default function OnboardingProvider({ provider }: Props) {
     setError("");
     if (!nombre || !direccion || !ciudad || !instagram) {
       setError(t('onboarding.error_required_fields'));
+      return;
+    }
+    if (!email) {
+      setError('No se ha podido obtener el email de usuario.');
       return;
     }
     if (!instagramRegex.test(instagram)) {
