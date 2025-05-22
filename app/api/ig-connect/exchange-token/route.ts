@@ -53,11 +53,19 @@ export async function POST(req: NextRequest) {
   if (!accessToken) {
     return NextResponse.json({ error: 'No se recibió access_token' }, { status: 400 });
   }
-  // Guardar el access token en el provider
+  // Obtener el user_id de Instagram usando el access_token
+  const userRes = await fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${accessToken}`);
+  if (!userRes.ok) {
+    const error = await userRes.text();
+    return NextResponse.json({ error: 'No se pudo obtener el user_id de Instagram', details: error }, { status: 400 });
+  }
+  const userData = await userRes.json();
+  const instagramUserId = userData.id;
+  // Guardar el access token y el user_id en el provider
   const db = await getDb();
   await db.collection('providers').updateOne(
     { email: session.user.email },
-    { $set: { instagram_access_token: accessToken } }
+    { $set: { instagram_access_token: accessToken, instagram_user_id: instagramUserId } }
   );
   // Eliminar el campo en users si existe
   await db.collection('users').updateOne(

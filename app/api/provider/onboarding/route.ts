@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
           overlayPreference: overlayPreference || 'light-overlay',
           updatedAt: new Date(),
         },
-        $setOnInsert: { createdAt: new Date(), shortId, slug },
+        $setOnInsert: { createdAt: new Date(), shortId, slug, instagram_user_id: null },
       },
       { upsert: true, returnDocument: "after" }
     );
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
         overlayPreference: overlayPreference || 'light-overlay',
         updatedAt: new Date(),
       },
-      $setOnInsert: { createdAt: new Date(), shortId, slug },
+      $setOnInsert: { createdAt: new Date(), shortId, slug, instagram_user_id: null },
     },
     { upsert: true, returnDocument: "after" }
   );
