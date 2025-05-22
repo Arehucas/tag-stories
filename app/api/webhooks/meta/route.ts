@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  console.log('[WEBHOOK][RAW BODY]', JSON.stringify(body));
   // Loguear cualquier evento de Instagram recibido
   if (body.object === 'instagram' && Array.isArray(body.entry)) {
     for (const entry of body.entry) {
