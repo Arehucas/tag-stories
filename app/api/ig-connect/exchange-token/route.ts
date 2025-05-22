@@ -32,11 +32,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Falta el código de Instagram' }, { status: 400 });
   }
   // Intercambiar el código por el access token
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
+  if (!redirectUri) {
+    return NextResponse.json({ error: 'Falta la variable de entorno INSTAGRAM_REDIRECT_URI' }, { status: 500 });
+  }
   const params = new URLSearchParams({
     client_id: process.env.INSTAGRAM_CLIENT_ID!,
     client_secret: process.env.INSTAGRAM_CLIENT_SECRET!,
     grant_type: 'authorization_code',
-    redirect_uri: 'https://www.taun.me/ig-connect/callback',
+    redirect_uri: redirectUri,
     code,
   });
   const tokenRes = await fetch('https://api.instagram.com/oauth/access_token', {
