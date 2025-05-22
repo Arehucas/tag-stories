@@ -1,4 +1,4 @@
-import { getDb } from "./mongo.ts";
+import { getDb } from "./mongo";
 
 async function main() {
   const db = await getDb();
