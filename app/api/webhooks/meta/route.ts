@@ -139,10 +139,13 @@ export async function POST(req: NextRequest) {
               const buf = Buffer.from(arrBuf);
               const img = new Image();
               img.src = buf;
-              const canvas = createCanvas(img.width, img.height);
+              // Escalar a 1080x1920 antes de calcular blockwise
+              const TARGET_WIDTH = 1080;
+              const TARGET_HEIGHT = 1920;
+              const canvas = createCanvas(TARGET_WIDTH, TARGET_HEIGHT);
               const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0);
-              receivedImageData = ctx.getImageData(0, 0, img.width, img.height);
+              ctx.drawImage(img, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+              receivedImageData = ctx.getImageData(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
               incomingPhash = bmvbhash(receivedImageData, 16);
               receivedBlockwisePhashArray = blockwisePhash(receivedImageData, 10);
             } catch (e) {
@@ -247,10 +250,13 @@ export async function POST(req: NextRequest) {
                   const buf = Buffer.from(arrBuf);
                   const img = new Image();
                   img.src = buf;
-                  const canvas = createCanvas(img.width, img.height);
+                  // Escalar a 1080x1920 antes de calcular blockwise
+                  const TARGET_WIDTH = 1080;
+                  const TARGET_HEIGHT = 1920;
+                  const canvas = createCanvas(TARGET_WIDTH, TARGET_HEIGHT);
                   const ctx = canvas.getContext('2d');
-                  ctx.drawImage(img, 0, 0);
-                  receivedImageData = ctx.getImageData(0, 0, img.width, img.height);
+                  ctx.drawImage(img, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                  receivedImageData = ctx.getImageData(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
                   incomingPhash = bmvbhash(receivedImageData, 16);
                   receivedBlockwisePhashArray = blockwisePhash(receivedImageData, 10);
                 } catch (e) {
