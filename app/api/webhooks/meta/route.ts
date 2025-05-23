@@ -122,9 +122,15 @@ export async function POST(req: NextRequest) {
             const senderId = value.sender.id;
             const mediaUrl = value.media.image || value.media.media_url;
             const mediaId = value.media.id;
+            // Buscar provider por instagram_business_id
+            const provider = await db.collection('providers').findOne({ instagram_business_id: recipientId });
+            if (!provider) {
+              console.warn('[WEBHOOK][NO PROVIDER MATCH]', { recipientId });
+              continue;
+            }
             // Buscar stories pendientes para ese provider
             const pendingStories = await db.collection('storySubmissions').find({
-              providerInstagramUserId: recipientId,
+              providerId: provider._id.toString(),
               status: 'pending'
             }).toArray();
             // Descargar imagen y calcular pHash (si es posible)
@@ -234,9 +240,15 @@ export async function POST(req: NextRequest) {
                 const senderId = msg.sender?.id;
                 const mediaUrl = att.payload.url;
                 const mediaId = att.payload.asset_id || null;
+                // Buscar provider por instagram_business_id
+                const provider = await db.collection('providers').findOne({ instagram_business_id: recipientId });
+                if (!provider) {
+                  console.warn('[WEBHOOK][NO PROVIDER MATCH][messaging]', { recipientId });
+                  continue;
+                }
                 // Buscar stories pendientes para ese provider
                 const pendingStories = await db.collection('storySubmissions').find({
-                  providerInstagramUserId: recipientId,
+                  providerId: provider._id.toString(),
                   status: 'pending'
                 }).toArray();
                 // Descargar imagen y calcular pHash (si es posible)

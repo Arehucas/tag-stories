@@ -67,18 +67,43 @@ export async function POST(req: NextRequest) {
   const userData = await userRes.json();
   const instagramUserId = userData.id;
 
-  // Guardar el access token y el user_id en el provider
+  // --- Obtener el instagram_business_id (recipientId de los webhooks) ---
+  let instagramBusinessId = null;
+  try {
+    // 1. Obtener las páginas de Facebook del usuario
+    const accountsRes = await fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${accessToken}`);
+    const accountsData = await accountsRes.json();
+    if (accountsData.data && accountsData.data.length > 0) {
+      // 2. Buscar la página que tenga una cuenta de Instagram conectada
+      for (const page of accountsData.data) {
+        const pageId = page.id;
+        const pageRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=connected_instagram_account&access_token=${accessToken}`);
+        const pageData = await pageRes.json();
+        if (pageData.connected_instagram_account && pageData.connected_instagram_account.id) {
+          instagramBusinessId = pageData.connected_instagram_account.id;
+          break;
+        }
+      }
+    }
+    if (!instagramBusinessId) {
+      console.warn('[IG] No se encontró instagram_business_id para el usuario', { email: session.user.email });
+    }
+  } catch (err) {
+    console.error('[IG] Error obteniendo instagram_business_id', err);
+  }
+
+  // Guardar el access token, user_id y business_id en el provider
   const db = await getDb();
   await db.collection('providers').updateOne(
     { email: session.user.email },
-    { $set: { instagram_access_token: accessToken, instagram_user_id: instagramUserId } }
+    { $set: { instagram_access_token: accessToken, instagram_user_id: instagramUserId, instagram_business_id: instagramBusinessId } }
   );
   await db.collection('users').updateOne(
     { email: session.user.email },
     { $unset: { instagram_access_token: "" } }
   );
 
-  console.log('[IG] Vinculación exitosa', { email: session.user.email, instagramUserId });
+  console.log('[IG] Vinculación exitosa', { email: session.user.email, instagramUserId, instagramBusinessId });
 
   return NextResponse.json({ ok: true });
 } 
