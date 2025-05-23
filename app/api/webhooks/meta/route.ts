@@ -161,6 +161,8 @@ export async function POST(req: NextRequest) {
               timestamp: Date.now(),
             });
             // Matching solo si hay stories y blockwisePhashArray
+            let storyValidated = false;
+            let storyValidado = null;
             if (pendingStories.length && receivedBlockwisePhashArray) {
               for (const story of pendingStories) {
                 if (!story.blockwisePhashArray || !story.imageUrl) continue;
@@ -170,7 +172,7 @@ export async function POST(req: NextRequest) {
                     storyId: story._id,
                     matchRatio,
                   });
-                  if (matchRatio >= 0.92) {
+                  if (matchRatio >= 0.92 && !storyValidated) {
                     await db.collection('storySubmissions').updateOne(
                       { _id: story._id },
                       {
@@ -188,32 +190,35 @@ export async function POST(req: NextRequest) {
                       storyId: story._id,
                       matchRatio,
                     });
-                    if (story.ambassadorId) {
-                      const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
-                      const accessToken = provider?.instagram_access_token;
-                      if (accessToken) {
-                        const username = await getInstagramUsername(senderId, accessToken);
-                        if (username) {
-                          const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(story.ambassadorId) });
-                          if (ambassador && ambassador.igName !== username) {
-                            await db.collection('ambassadors').updateOne(
-                              { _id: new ObjectId(story.ambassadorId) },
-                              { $set: { igName: username, updatedAt: new Date() } }
-                            );
-                            await mergeAmbassadorsByIgName(username, story.ambassadorId.toString());
-                            console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][24h]', {
-                              ambassadorId: story.ambassadorId,
-                              nuevoIgName: username
-                            });
-                          }
-                        }
-                      }
-                    }
-                  } else {
-                    console.log('[WEBHOOK][NO BLOCKWISE MATCH][24h]', { matchRatio });
+                    storyValidated = true;
+                    storyValidado = story;
+                    break;
                   }
                 } catch (e) {
                   console.error('[WEBHOOK][ERROR BLOCKWISE MATCH][24h]', e);
+                }
+              }
+            }
+            if (storyValidated && storyValidado) {
+              if (storyValidado.ambassadorId) {
+                const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
+                const accessToken = provider?.instagram_access_token;
+                if (accessToken) {
+                  const username = await getInstagramUsername(senderId, accessToken);
+                  if (username) {
+                    const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(storyValidado.ambassadorId) });
+                    if (ambassador && ambassador.igName !== username) {
+                      await db.collection('ambassadors').updateOne(
+                        { _id: new ObjectId(storyValidado.ambassadorId) },
+                        { $set: { igName: username, updatedAt: new Date() } }
+                      );
+                      await mergeAmbassadorsByIgName(username, storyValidado.ambassadorId.toString());
+                      console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][24h]', {
+                        ambassadorId: storyValidado.ambassadorId,
+                        nuevoIgName: username
+                      });
+                    }
+                  }
                 }
               }
             }
@@ -272,6 +277,8 @@ export async function POST(req: NextRequest) {
                   timestamp: Date.now(),
                 });
                 // Matching solo si hay stories y blockwisePhashArray
+                let storyValidated = false;
+                let storyValidado = null;
                 if (pendingStories.length && receivedBlockwisePhashArray) {
                   for (const story of pendingStories) {
                     if (!story.blockwisePhashArray || !story.imageUrl) continue;
@@ -281,7 +288,7 @@ export async function POST(req: NextRequest) {
                         storyId: story._id,
                         matchRatio,
                       });
-                      if (matchRatio >= 0.92) {
+                      if (matchRatio >= 0.92 && !storyValidated) {
                         await db.collection('storySubmissions').updateOne(
                           { _id: story._id },
                           {
@@ -299,29 +306,9 @@ export async function POST(req: NextRequest) {
                           storyId: story._id,
                           matchRatio,
                         });
-                        if (story.ambassadorId) {
-                          const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
-                          const accessToken = provider?.instagram_access_token;
-                          if (accessToken) {
-                            const username = await getInstagramUsername(senderId, accessToken);
-                            if (username) {
-                              const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(story.ambassadorId) });
-                              if (ambassador && ambassador.igName !== username) {
-                                await db.collection('ambassadors').updateOne(
-                                  { _id: new ObjectId(story.ambassadorId) },
-                                  { $set: { igName: username, updatedAt: new Date() } }
-                                );
-                                await mergeAmbassadorsByIgName(username, story.ambassadorId.toString());
-                                console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][messaging][24h]', {
-                                  ambassadorId: story.ambassadorId,
-                                  nuevoIgName: username
-                                });
-                              }
-                            }
-                          }
-                        }
-                      } else {
-                        console.log('[WEBHOOK][NO BLOCKWISE MATCH][messaging][24h]', { matchRatio });
+                        storyValidated = true;
+                        storyValidado = story;
+                        break;
                       }
                     } catch (e) {
                       console.error('[WEBHOOK][ERROR BLOCKWISE MATCH][messaging][24h]', e);
@@ -336,6 +323,29 @@ export async function POST(req: NextRequest) {
                   mediaId,
                   timestamp: msg.timestamp
                 });
+                if (storyValidated && storyValidado) {
+                  if (storyValidado.ambassadorId) {
+                    const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
+                    const accessToken = provider?.instagram_access_token;
+                    if (accessToken) {
+                      const username = await getInstagramUsername(senderId, accessToken);
+                      if (username) {
+                        const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(storyValidado.ambassadorId) });
+                        if (ambassador && ambassador.igName !== username) {
+                          await db.collection('ambassadors').updateOne(
+                            { _id: new ObjectId(storyValidado.ambassadorId) },
+                            { $set: { igName: username, updatedAt: new Date() } }
+                          );
+                          await mergeAmbassadorsByIgName(username, storyValidado.ambassadorId.toString());
+                          console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][messaging][24h]', {
+                            ambassadorId: storyValidado.ambassadorId,
+                            nuevoIgName: username
+                          });
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
