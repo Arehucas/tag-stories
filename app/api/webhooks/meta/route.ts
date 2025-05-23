@@ -73,12 +73,13 @@ export async function POST(req: NextRequest) {
   if (body.object === 'instagram' && Array.isArray(body.entry)) {
     const db = await getDb();
     for (const entry of body.entry) {
+      // --- Soporte para entry.changes[] (menciones clásicas) ---
       if (Array.isArray(entry.changes)) {
         for (const change of entry.changes) {
           const { field, value } = change;
           if (field === 'mention' && value.media && value.sender && value.recipient) {
-            const recipientId = value.recipient.id; // IG user id del provider
-            const senderId = value.sender.id; // IG user id del usuario
+            const recipientId = value.recipient.id;
+            const senderId = value.sender.id;
             const mediaUrl = value.media.image || value.media.media_url;
             const mediaId = value.media.id;
             // Buscar stories pendientes para ese provider
@@ -102,15 +103,14 @@ export async function POST(req: NextRequest) {
               console.error('[WEBHOOK][ERROR IMG PHASH]', e);
             }
             // Guardar SIEMPRE el raw webhook
-            const rawResult = await db.collection('rawStories').insertOne({
+            await db.collection('rawStories').insertOne({
               webhookBody: body,
               media_id: mediaId,
               media_url: mediaUrl,
               phash: incomingPhash,
               timestamp: Date.now(),
-              // storyId: solo si hay match
             });
-            // Comparar con stories pendientes SOLO si hay stories y phash
+            // Matching solo si hay stories y phash
             if (pendingStories.length && incomingPhash) {
               let matchedStory = null;
               let minDistance = Infinity;
@@ -124,7 +124,6 @@ export async function POST(req: NextRequest) {
               }
               const UMBRAL = 5;
               if (matchedStory && minDistance <= UMBRAL) {
-                // Actualizar story
                 await db.collection('storySubmissions').updateOne(
                   { _id: matchedStory._id },
                   {
@@ -134,11 +133,10 @@ export async function POST(req: NextRequest) {
                       validatedAt: new Date(),
                       validationMethod: 'phash',
                       validationScore: minDistance,
-                      rawStoryId: rawResult.insertedId
+                      rawStoryId: null // No rawStoryId porque puede haber varios rawStories por evento
                     }
                   }
                 );
-                // LOG DETALLADO
                 console.log('[WEBHOOK][STORY VALIDADA AUTO]', {
                   storyId: matchedStory._id,
                   provider: recipientId,
@@ -150,7 +148,6 @@ export async function POST(req: NextRequest) {
                 });
                 // --- Lógica ambassador: actualizar igName y merge ---
                 if (matchedStory.ambassadorId) {
-                  // Obtener access token del provider
                   const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
                   const accessToken = provider?.instagram_access_token;
                   if (accessToken) {
@@ -173,6 +170,122 @@ export async function POST(req: NextRequest) {
                 }
               } else {
                 console.log('[WEBHOOK][NO PHASH MATCH]', { incomingPhash, minDistance });
+              }
+            }
+          }
+        }
+      }
+      // --- Soporte para entry.messaging[] (story_mention en mensajes) ---
+      if (Array.isArray(entry.messaging)) {
+        for (const msg of entry.messaging) {
+          if (
+            msg.message &&
+            Array.isArray(msg.message.attachments)
+          ) {
+            for (const att of msg.message.attachments) {
+              if (att.type === 'story_mention' && att.payload && att.payload.url) {
+                const recipientId = msg.recipient?.id;
+                const senderId = msg.sender?.id;
+                const mediaUrl = att.payload.url;
+                const mediaId = att.payload.asset_id || null;
+                // Buscar stories pendientes para ese provider
+                const pendingStories = await db.collection('storySubmissions').find({
+                  providerInstagramUserId: recipientId,
+                  status: 'pending'
+                }).toArray();
+                // Descargar imagen y calcular pHash (si es posible)
+                let incomingPhash = null;
+                try {
+                  const imgRes = await fetch(mediaUrl);
+                  const buf = await imgRes.buffer();
+                  const img = new Image();
+                  img.src = buf;
+                  const canvas = createCanvas(img.width, img.height);
+                  const ctx = canvas.getContext('2d');
+                  ctx.drawImage(img, 0, 0);
+                  const imageData = ctx.getImageData(0, 0, img.width, img.height);
+                  incomingPhash = bmvbhash(imageData, 16);
+                } catch (e) {
+                  console.error('[WEBHOOK][ERROR IMG PHASH][messaging]', e);
+                }
+                // Guardar SIEMPRE el raw webhook
+                await db.collection('rawStories').insertOne({
+                  webhookBody: body,
+                  media_id: mediaId,
+                  media_url: mediaUrl,
+                  phash: incomingPhash,
+                  timestamp: Date.now(),
+                });
+                // Matching solo si hay stories y phash
+                if (pendingStories.length && incomingPhash) {
+                  let matchedStory = null;
+                  let minDistance = Infinity;
+                  for (const story of pendingStories) {
+                    if (!story.originalPhash) continue;
+                    const dist = hammingDistance(story.originalPhash, incomingPhash);
+                    if (dist < minDistance) {
+                      minDistance = dist;
+                      matchedStory = story;
+                    }
+                  }
+                  const UMBRAL = 5;
+                  if (matchedStory && minDistance <= UMBRAL) {
+                    await db.collection('storySubmissions').updateOne(
+                      { _id: matchedStory._id },
+                      {
+                        $set: {
+                          status: 'validated',
+                          validatedBy: 'auto',
+                          validatedAt: new Date(),
+                          validationMethod: 'phash',
+                          validationScore: minDistance,
+                          rawStoryId: null
+                        }
+                      }
+                    );
+                    console.log('[WEBHOOK][STORY VALIDADA AUTO][messaging]', {
+                      storyId: matchedStory._id,
+                      provider: recipientId,
+                      usuarioIG: senderId,
+                      incomingPhash,
+                      originalPhash: matchedStory.originalPhash,
+                      distancia: minDistance,
+                      campaignId: matchedStory.campaignId
+                    });
+                    // --- Lógica ambassador: actualizar igName y merge ---
+                    if (matchedStory.ambassadorId) {
+                      const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
+                      const accessToken = provider?.instagram_access_token;
+                      if (accessToken) {
+                        const username = await getInstagramUsername(senderId, accessToken);
+                        if (username) {
+                          const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(matchedStory.ambassadorId) });
+                          if (ambassador && ambassador.igName !== username) {
+                            await db.collection('ambassadors').updateOne(
+                              { _id: new ObjectId(matchedStory.ambassadorId) },
+                              { $set: { igName: username, updatedAt: new Date() } }
+                            );
+                            await mergeAmbassadorsByIgName(username, matchedStory.ambassadorId.toString());
+                            console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][messaging]', {
+                              ambassadorId: matchedStory.ambassadorId,
+                              nuevoIgName: username
+                            });
+                          }
+                        }
+                      }
+                    }
+                  } else {
+                    console.log('[WEBHOOK][NO PHASH MATCH][messaging]', { incomingPhash, minDistance });
+                  }
+                }
+                // Log explícito de evento messaging
+                console.log('[WEBHOOK][RAW MESSAGING EVENT]', {
+                  senderId,
+                  recipientId,
+                  mediaUrl,
+                  mediaId,
+                  timestamp: msg.timestamp
+                });
               }
             }
           }
