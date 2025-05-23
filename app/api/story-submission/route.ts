@@ -25,6 +25,11 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
       ambassadorId: new ObjectId(ambassadorId),
       originalPhash: originalPhash || null,
+      validatedBy: null, // 'auto' | 'manual' | null
+      validatedAt: null,
+      validationMethod: null, // 'phash' | 'manual' | null
+      validationScore: null,
+      rawStoryId: null,
     };
     const result = await db.collection('storySubmissions').insertOne(submission);
     return NextResponse.json({ id: result.insertedId });
