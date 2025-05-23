@@ -266,7 +266,6 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
               disabled={!croppedImage || !jpegDataUrl || uploading}
               onClick={async () => {
                 if (!croppedImage || !jpegDataUrl) {
-                  alert('La imagen de preview no está lista.');
                   return;
                 }
                 setUploading(true);
@@ -279,6 +278,41 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                   for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
                   const blob = new Blob([u8arr], { type: 'image/jpeg' });
                   const fileName = provider && provider.instagram_handle ? `story-${provider.instagram_handle}.jpg` : 'story-local.jpg';
+                  // 2. Subir a Cloudinary
+                  const formData = new FormData();
+                  formData.append('file', blob, fileName);
+                  const uploadRes = await fetch('/api/upload-logo', {
+                    method: 'POST',
+                    body: formData,
+                  });
+                  const uploadData = await uploadRes.json();
+                  if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
+                  // 3. Crear ambassador vacío
+                  const ambassadorRes = await fetch('/api/ambassadors', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}),
+                  });
+                  const ambassadorData = await ambassadorRes.json();
+                  if (!ambassadorRes.ok || !ambassadorData._id) throw new Error('Error creando ambassador: ' + JSON.stringify(ambassadorData));
+                  // 4. Guardar en BBDD
+                  const saveRes = await fetch('/api/story-submission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ providerId, campaignId, imageUrl: uploadData.url, ambassadorId: ambassadorData._id, originalPhash: phash }),
+                  });
+                  const saveData = await saveRes.json();
+                  if (!saveRes.ok || !saveData.id) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
+                  // 5. Actualizar ambassador con storyId, providerId y campaignId
+                  if (saveData.id && campaignId && providerId) {
+                    await fetch(`/api/ambassadors/${ambassadorData._id}/add-relations`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ storyId: saveData.id, providerId, campaignId }),
+                    });
+                  }
+                  setUploadResponse({ cloudinary: uploadData, db: saveData });
+                  // --- Intent de compartir ---
                   const file = new File([blob], fileName, { type: 'image/jpeg' });
                   let compartido = false;
                   if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -291,49 +325,23 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                       compartido = true;
                     } catch (e: any) {
                       compartido = false;
-                      const ig = provider?.instagram_handle ? `@${provider.instagram_handle}` : '@ighandler';
-                      alert(`¡No has compartido la story! ${ig} no podrá revisar tu story y darte tu recompensa.`);
                     }
                   }
-                  if (compartido) {
-                    // 2. Subir a Cloudinary
-                    const formData = new FormData();
-                    formData.append('file', blob, fileName);
-                    const uploadRes = await fetch('/api/upload-logo', {
-                      method: 'POST',
-                      body: formData,
-                    });
-                    const uploadData = await uploadRes.json();
-                    if (!uploadData.url) throw new Error('Error subiendo a Cloudinary: ' + JSON.stringify(uploadData));
-                    // 3. Crear ambassador vacío
-                    const ambassadorRes = await fetch('/api/ambassadors', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({}),
-                    });
-                    const ambassadorData = await ambassadorRes.json();
-                    if (!ambassadorRes.ok || !ambassadorData._id) throw new Error('Error creando ambassador: ' + JSON.stringify(ambassadorData));
-                    // 4. Guardar en BBDD
-                    const saveRes = await fetch('/api/story-submission', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ providerId, campaignId, imageUrl: uploadData.url, ambassadorId: ambassadorData._id, originalPhash: phash }),
-                    });
-                    const saveData = await saveRes.json();
-                    if (!saveRes.ok || !saveData.id) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));
-                    // 5. Actualizar ambassador con storyId, providerId y campaignId
-                    if (saveData.id && campaignId && providerId) {
-                      await fetch(`/api/ambassadors/${ambassadorData._id}/add-relations`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ storyId: saveData.id, providerId, campaignId }),
-                      });
-                    }
-                    setUploadResponse({ cloudinary: uploadData, db: saveData });
+                  // Si no se pudo compartir, fallback a descarga
+                  if (!compartido) {
+                    const urlDescarga = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = urlDescarga;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => {
+                      URL.revokeObjectURL(urlDescarga);
+                    }, 200);
                   }
                 } catch (e) {
                   setUploadResponse({ error: e?.toString() });
-                  alert('Error en compartir/guardar: ' + (e?.toString() || ''));
                 } finally {
                   setUploading(false);
                 }
