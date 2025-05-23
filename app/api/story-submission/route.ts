@@ -15,8 +15,22 @@ export async function POST(req: NextRequest) {
     if (!campaign) {
       return NextResponse.json({ error: 'Campaña no encontrada' }, { status: 403 });
     }
+    // Obtener el instagram_business_id del provider si existe
+    let instagramBusinessId = null;
+    const provider = await db.collection('providers').findOne({
+      $or: [
+        { _id: providerId } as any,
+        { shortId: providerId },
+        { slug: providerId },
+        { email: providerId },
+      ],
+    });
+    if (provider && provider.instagram_business_id) {
+      instagramBusinessId = provider.instagram_business_id;
+    }
     const submission = {
       providerId,
+      instagram_business_id: instagramBusinessId || null,
       campaignId: new ObjectId(campaignId),
       campaignName: campaign.nombre,
       templateId: campaign.templateId,
