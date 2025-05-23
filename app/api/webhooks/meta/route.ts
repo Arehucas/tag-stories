@@ -133,7 +133,8 @@ export async function POST(req: NextRequest) {
             let receivedBlockwisePhashArray = null;
             try {
               const imgRes = await fetch(mediaUrl);
-              const buf = await imgRes.buffer();
+              const arrBuf = await imgRes.arrayBuffer();
+              const buf = Buffer.from(arrBuf);
               const img = new Image();
               img.src = buf;
               const canvas = createCanvas(img.width, img.height);
@@ -160,6 +161,13 @@ export async function POST(req: NextRequest) {
                 if (!story.blockwisePhashArray || !story.imageUrl) continue;
                 try {
                   const matchRatio = compareBlockwisePhash(story.blockwisePhashArray, receivedBlockwisePhashArray, 5);
+                  console.log('[WEBHOOK][BLOCKWISE MATCH DEBUG]', {
+                    storyId: story._id,
+                    rawMediaId: mediaId,
+                    storyBlockwise: story.blockwisePhashArray,
+                    rawBlockwise: receivedBlockwisePhashArray,
+                    matchRatio,
+                  });
                   if (matchRatio >= 0.92) {
                     await db.collection('storySubmissions').updateOne(
                       { _id: story._id },
@@ -237,7 +245,8 @@ export async function POST(req: NextRequest) {
                 let receivedBlockwisePhashArray = null;
                 try {
                   const imgRes = await fetch(mediaUrl);
-                  const buf = await imgRes.buffer();
+                  const arrBuf = await imgRes.arrayBuffer();
+                  const buf = Buffer.from(arrBuf);
                   const img = new Image();
                   img.src = buf;
                   const canvas = createCanvas(img.width, img.height);
@@ -264,6 +273,13 @@ export async function POST(req: NextRequest) {
                     if (!story.blockwisePhashArray || !story.imageUrl) continue;
                     try {
                       const matchRatio = compareBlockwisePhash(story.blockwisePhashArray, receivedBlockwisePhashArray, 5);
+                      console.log('[WEBHOOK][BLOCKWISE MATCH DEBUG][messaging]', {
+                        storyId: story._id,
+                        rawMediaId: mediaId,
+                        storyBlockwise: story.blockwisePhashArray,
+                        rawBlockwise: receivedBlockwisePhashArray,
+                        matchRatio,
+                      });
                       if (matchRatio >= 0.92) {
                         await db.collection('storySubmissions').updateOne(
                           { _id: story._id },
