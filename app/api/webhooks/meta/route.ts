@@ -200,27 +200,7 @@ export async function POST(req: NextRequest) {
               }
             }
             if (storyValidated && storyValidado) {
-              if (storyValidado.ambassadorId) {
-                const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
-                const accessToken = provider?.instagram_access_token;
-                if (accessToken) {
-                  const username = await getInstagramUsername(senderId, accessToken);
-                  if (username) {
-                    const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(storyValidado.ambassadorId) });
-                    if (ambassador && ambassador.igName !== username) {
-                      await db.collection('ambassadors').updateOne(
-                        { _id: new ObjectId(storyValidado.ambassadorId) },
-                        { $set: { igName: username, updatedAt: new Date() } }
-                      );
-                      await mergeAmbassadorsByIgName(username, storyValidado.ambassadorId.toString());
-                      console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][24h]', {
-                        ambassadorId: storyValidado.ambassadorId,
-                        nuevoIgName: username
-                      });
-                    }
-                  }
-                }
-              }
+              // Lógica de actualización de ambassador eliminada: no se actualiza ambassador ni igName aquí
             }
           }
         }
@@ -324,27 +304,7 @@ export async function POST(req: NextRequest) {
                   timestamp: msg.timestamp
                 });
                 if (storyValidated && storyValidado) {
-                  if (storyValidado.ambassadorId) {
-                    const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
-                    const accessToken = provider?.instagram_access_token;
-                    if (accessToken) {
-                      const username = await getInstagramUsername(senderId, accessToken);
-                      if (username) {
-                        const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(storyValidado.ambassadorId) });
-                        if (ambassador && ambassador.igName !== username) {
-                          await db.collection('ambassadors').updateOne(
-                            { _id: new ObjectId(storyValidado.ambassadorId) },
-                            { $set: { igName: username, updatedAt: new Date() } }
-                          );
-                          await mergeAmbassadorsByIgName(username, storyValidado.ambassadorId.toString());
-                          console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][messaging][24h]', {
-                            ambassadorId: storyValidado.ambassadorId,
-                            nuevoIgName: username
-                          });
-                        }
-                      }
-                    }
-                  }
+                  // Lógica de actualización de ambassador eliminada: no se actualiza ambassador ni igName aquí
                 }
               }
             }
