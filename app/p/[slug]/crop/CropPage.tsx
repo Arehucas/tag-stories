@@ -245,11 +245,41 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
       const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
       if (imageData) {
         const phash = bmvbhash(imageData, 16); // 16x16
-        // Guarda el pHash en el store global y en localStorage
+        // Calcula blockwisePhashArray (10x10)
+        function blockwisePhash(imageData: ImageData, grid: number = 10): string[] {
+          const cellW = Math.floor(imageData.width / grid);
+          const cellH = Math.floor(imageData.height / grid);
+          const hashes: string[] = [];
+          for (let y = 0; y < grid; y++) {
+            for (let x = 0; x < grid; x++) {
+              // Extrae subimagen
+              const subData = new Uint8ClampedArray(cellW * cellH * 4);
+              for (let row = 0; row < cellH; row++) {
+                for (let col = 0; col < cellW; col++) {
+                  const srcIdx = ((y * cellH + row) * imageData.width + (x * cellW + col)) * 4;
+                  const dstIdx = (row * cellW + col) * 4;
+                  subData[dstIdx] = imageData.data[srcIdx];
+                  subData[dstIdx + 1] = imageData.data[srcIdx + 1];
+                  subData[dstIdx + 2] = imageData.data[srcIdx + 2];
+                  subData[dstIdx + 3] = imageData.data[srcIdx + 3];
+                }
+              }
+              const subImageData = new ImageData(subData, cellW, cellH);
+              hashes.push(bmvbhash(subImageData, 8));
+            }
+          }
+          return hashes;
+        }
+        const blockwisePhashArray = blockwisePhash(imageData, 10);
+        // Guarda el pHash y el array en el store global y en localStorage
         if (typeof window !== 'undefined') {
           localStorage.setItem('taun_image_phash', phash);
+          localStorage.setItem('taun_blockwise_phash_array', JSON.stringify(blockwisePhashArray));
         }
         (useImageStore.getState().setPhash as (phash: string | null) => void)(phash);
+        if (useImageStore.getState().setBlockwisePhashArray) {
+          (useImageStore.getState().setBlockwisePhashArray as (arr: string[] | null) => void)(blockwisePhashArray);
+        }
       }
     }
   };

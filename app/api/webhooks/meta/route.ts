@@ -130,6 +130,7 @@ export async function POST(req: NextRequest) {
             // Descargar imagen y calcular pHash (si es posible)
             let incomingPhash = null;
             let receivedImageData = null;
+            let receivedBlockwisePhashArray = null;
             try {
               const imgRes = await fetch(mediaUrl);
               const buf = await imgRes.buffer();
@@ -140,6 +141,7 @@ export async function POST(req: NextRequest) {
               ctx.drawImage(img, 0, 0);
               receivedImageData = ctx.getImageData(0, 0, img.width, img.height);
               incomingPhash = bmvbhash(receivedImageData, 16);
+              receivedBlockwisePhashArray = blockwisePhash(receivedImageData, 10);
             } catch (e) {
               console.error('[WEBHOOK][ERROR IMG PHASH]', e);
             }
@@ -149,24 +151,15 @@ export async function POST(req: NextRequest) {
               media_id: mediaId,
               media_url: mediaUrl,
               phash: incomingPhash,
+              blockwisePhashArray: receivedBlockwisePhashArray,
               timestamp: Date.now(),
             });
-            // Matching solo si hay stories y phash
-            if (pendingStories.length && incomingPhash && receivedImageData) {
+            // Matching solo si hay stories y blockwisePhashArray
+            if (pendingStories.length && receivedBlockwisePhashArray) {
               for (const story of pendingStories) {
-                if (!story.originalPhash || !story.imageUrl) continue;
+                if (!story.blockwisePhashArray || !story.imageUrl) continue;
                 try {
-                  const origRes = await fetch(story.imageUrl);
-                  const origBuf = await origRes.buffer();
-                  const origImg = new Image();
-                  origImg.src = origBuf;
-                  const origCanvas = createCanvas(origImg.width, origImg.height);
-                  const origCtx = origCanvas.getContext('2d');
-                  origCtx.drawImage(origImg, 0, 0);
-                  const origImageData = origCtx.getImageData(0, 0, origImg.width, origImg.height);
-                  const origHashes = blockwisePhash(origImageData, 10);
-                  const recvHashes = blockwisePhash(receivedImageData, 10);
-                  const matchRatio = compareBlockwisePhash(origHashes, recvHashes, 5);
+                  const matchRatio = compareBlockwisePhash(story.blockwisePhashArray, receivedBlockwisePhashArray, 5);
                   if (matchRatio >= 0.92) {
                     await db.collection('storySubmissions').updateOne(
                       { _id: story._id },
@@ -241,6 +234,7 @@ export async function POST(req: NextRequest) {
                 // Descargar imagen y calcular pHash (si es posible)
                 let incomingPhash = null;
                 let receivedImageData = null;
+                let receivedBlockwisePhashArray = null;
                 try {
                   const imgRes = await fetch(mediaUrl);
                   const buf = await imgRes.buffer();
@@ -251,6 +245,7 @@ export async function POST(req: NextRequest) {
                   ctx.drawImage(img, 0, 0);
                   receivedImageData = ctx.getImageData(0, 0, img.width, img.height);
                   incomingPhash = bmvbhash(receivedImageData, 16);
+                  receivedBlockwisePhashArray = blockwisePhash(receivedImageData, 10);
                 } catch (e) {
                   console.error('[WEBHOOK][ERROR IMG PHASH][messaging]', e);
                 }
@@ -260,24 +255,15 @@ export async function POST(req: NextRequest) {
                   media_id: mediaId,
                   media_url: mediaUrl,
                   phash: incomingPhash,
+                  blockwisePhashArray: receivedBlockwisePhashArray,
                   timestamp: Date.now(),
                 });
-                // Matching solo si hay stories y phash
-                if (pendingStories.length && incomingPhash && receivedImageData) {
+                // Matching solo si hay stories y blockwisePhashArray
+                if (pendingStories.length && receivedBlockwisePhashArray) {
                   for (const story of pendingStories) {
-                    if (!story.originalPhash || !story.imageUrl) continue;
+                    if (!story.blockwisePhashArray || !story.imageUrl) continue;
                     try {
-                      const origRes = await fetch(story.imageUrl);
-                      const origBuf = await origRes.buffer();
-                      const origImg = new Image();
-                      origImg.src = origBuf;
-                      const origCanvas = createCanvas(origImg.width, origImg.height);
-                      const origCtx = origCanvas.getContext('2d');
-                      origCtx.drawImage(origImg, 0, 0);
-                      const origImageData = origCtx.getImageData(0, 0, origImg.width, origImg.height);
-                      const origHashes = blockwisePhash(origImageData, 10);
-                      const recvHashes = blockwisePhash(receivedImageData, 10);
-                      const matchRatio = compareBlockwisePhash(origHashes, recvHashes, 5);
+                      const matchRatio = compareBlockwisePhash(story.blockwisePhashArray, receivedBlockwisePhashArray, 5);
                       if (matchRatio >= 0.92) {
                         await db.collection('storySubmissions').updateOne(
                           { _id: story._id },

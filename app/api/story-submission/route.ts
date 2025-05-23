@@ -6,7 +6,7 @@ import { ObjectId } from 'mongodb';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { providerId, campaignId, imageUrl, ambassadorId, originalPhash } = body;
+    const { providerId, campaignId, imageUrl, ambassadorId, originalPhash, blockwisePhashArray } = body;
     if (!providerId || !campaignId || !imageUrl || !ambassadorId) {
       return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
     }
@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
       ambassadorId: new ObjectId(ambassadorId),
       originalPhash: originalPhash || null,
+      blockwisePhashArray: blockwisePhashArray || null,
       validatedBy: null, // 'auto' | 'manual' | null
       validatedAt: null,
       validationMethod: null, // 'phash' | 'manual' | null

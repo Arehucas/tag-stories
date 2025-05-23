@@ -8,6 +8,8 @@ interface ImageStore {
   clear: () => void;
   phash: string | null;
   setPhash: (phash: string | null) => void;
+  blockwisePhashArray?: string[] | null;
+  setBlockwisePhashArray?: (arr: string[] | null) => void;
 }
 
 export const useImageStore = create<ImageStore>((set: (fn: (state: ImageStore) => Partial<ImageStore>) => void) => ({
@@ -18,4 +20,6 @@ export const useImageStore = create<ImageStore>((set: (fn: (state: ImageStore) =
   clear: () => set(() => ({ originalImage: null, croppedImage: null })),
   phash: null,
   setPhash: (phash) => set(() => ({ phash })),
+  blockwisePhashArray: null,
+  setBlockwisePhashArray: (arr) => set(() => ({ blockwisePhashArray: arr })),
 })); 
