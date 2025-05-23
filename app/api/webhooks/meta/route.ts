@@ -129,6 +129,7 @@ export async function POST(req: NextRequest) {
             }).toArray();
             // Descargar imagen y calcular pHash (si es posible)
             let incomingPhash = null;
+            let receivedImageData = null;
             try {
               const imgRes = await fetch(mediaUrl);
               const buf = await imgRes.buffer();
@@ -137,8 +138,8 @@ export async function POST(req: NextRequest) {
               const canvas = createCanvas(img.width, img.height);
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0);
-              const imageData = ctx.getImageData(0, 0, img.width, img.height);
-              incomingPhash = bmvbhash(imageData, 16);
+              receivedImageData = ctx.getImageData(0, 0, img.width, img.height);
+              incomingPhash = bmvbhash(receivedImageData, 16);
             } catch (e) {
               console.error('[WEBHOOK][ERROR IMG PHASH]', e);
             }
@@ -151,12 +152,10 @@ export async function POST(req: NextRequest) {
               timestamp: Date.now(),
             });
             // Matching solo si hay stories y phash
-            if (pendingStories.length && incomingPhash) {
-              // Descargar y preparar imageData de la story original para cada pendiente
+            if (pendingStories.length && incomingPhash && receivedImageData) {
               for (const story of pendingStories) {
                 if (!story.originalPhash || !story.imageUrl) continue;
                 try {
-                  // Descargar imagen original
                   const origRes = await fetch(story.imageUrl);
                   const origBuf = await origRes.buffer();
                   const origImg = new Image();
@@ -165,13 +164,10 @@ export async function POST(req: NextRequest) {
                   const origCtx = origCanvas.getContext('2d');
                   origCtx.drawImage(origImg, 0, 0);
                   const origImageData = origCtx.getImageData(0, 0, origImg.width, origImg.height);
-                  // Descargar imagen recibida (ya la tienes como imageData)
-                  // Calcular blockwise pHash
                   const origHashes = blockwisePhash(origImageData, 10);
-                  const recvHashes = blockwisePhash(imageData, 10);
+                  const recvHashes = blockwisePhash(receivedImageData, 10);
                   const matchRatio = compareBlockwisePhash(origHashes, recvHashes, 5);
                   if (matchRatio >= 0.92) {
-                    // Validar story
                     await db.collection('storySubmissions').updateOne(
                       { _id: story._id },
                       {
@@ -192,7 +188,6 @@ export async function POST(req: NextRequest) {
                       matchRatio,
                       campaignId: story.campaignId
                     });
-                    // --- Lógica ambassador: actualizar igName y merge ---
                     if (story.ambassadorId) {
                       const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
                       const accessToken = provider?.instagram_access_token;
@@ -245,6 +240,7 @@ export async function POST(req: NextRequest) {
                 }).toArray();
                 // Descargar imagen y calcular pHash (si es posible)
                 let incomingPhash = null;
+                let receivedImageData = null;
                 try {
                   const imgRes = await fetch(mediaUrl);
                   const buf = await imgRes.buffer();
@@ -253,8 +249,8 @@ export async function POST(req: NextRequest) {
                   const canvas = createCanvas(img.width, img.height);
                   const ctx = canvas.getContext('2d');
                   ctx.drawImage(img, 0, 0);
-                  const imageData = ctx.getImageData(0, 0, img.width, img.height);
-                  incomingPhash = bmvbhash(imageData, 16);
+                  receivedImageData = ctx.getImageData(0, 0, img.width, img.height);
+                  incomingPhash = bmvbhash(receivedImageData, 16);
                 } catch (e) {
                   console.error('[WEBHOOK][ERROR IMG PHASH][messaging]', e);
                 }
@@ -267,12 +263,10 @@ export async function POST(req: NextRequest) {
                   timestamp: Date.now(),
                 });
                 // Matching solo si hay stories y phash
-                if (pendingStories.length && incomingPhash) {
-                  // Descargar y preparar imageData de la story original para cada pendiente
+                if (pendingStories.length && incomingPhash && receivedImageData) {
                   for (const story of pendingStories) {
                     if (!story.originalPhash || !story.imageUrl) continue;
                     try {
-                      // Descargar imagen original
                       const origRes = await fetch(story.imageUrl);
                       const origBuf = await origRes.buffer();
                       const origImg = new Image();
@@ -281,13 +275,10 @@ export async function POST(req: NextRequest) {
                       const origCtx = origCanvas.getContext('2d');
                       origCtx.drawImage(origImg, 0, 0);
                       const origImageData = origCtx.getImageData(0, 0, origImg.width, origImg.height);
-                      // Descargar imagen recibida (ya la tienes como imageData)
-                      // Calcular blockwise pHash
                       const origHashes = blockwisePhash(origImageData, 10);
-                      const recvHashes = blockwisePhash(imageData, 10);
+                      const recvHashes = blockwisePhash(receivedImageData, 10);
                       const matchRatio = compareBlockwisePhash(origHashes, recvHashes, 5);
                       if (matchRatio >= 0.92) {
-                        // Validar story
                         await db.collection('storySubmissions').updateOne(
                           { _id: story._id },
                           {
@@ -308,7 +299,6 @@ export async function POST(req: NextRequest) {
                           matchRatio,
                           campaignId: story.campaignId
                         });
-                        // --- Lógica ambassador: actualizar igName y merge ---
                         if (story.ambassadorId) {
                           const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
                           const accessToken = provider?.instagram_access_token;
