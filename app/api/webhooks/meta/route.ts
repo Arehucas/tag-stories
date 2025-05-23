@@ -122,16 +122,12 @@ export async function POST(req: NextRequest) {
             const senderId = value.sender.id;
             const mediaUrl = value.media.image || value.media.media_url;
             const mediaId = value.media.id;
-            // Buscar provider por instagram_business_id
-            const provider = await db.collection('providers').findOne({ instagram_business_id: recipientId });
-            if (!provider) {
-              console.warn('[WEBHOOK][NO PROVIDER MATCH]', { recipientId });
-              continue;
-            }
-            // Buscar stories pendientes para ese provider
+            // Buscar stories pending creadas en las últimas 24h
+            const now = new Date();
+            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
             const pendingStories = await db.collection('storySubmissions').find({
-              providerId: provider._id.toString(),
-              status: 'pending'
+              status: 'pending',
+              createdAt: { $gte: yesterday }
             }).toArray();
             // Descargar imagen y calcular pHash (si es posible)
             let incomingPhash = null;
@@ -167,11 +163,8 @@ export async function POST(req: NextRequest) {
                 if (!story.blockwisePhashArray || !story.imageUrl) continue;
                 try {
                   const matchRatio = compareBlockwisePhash(story.blockwisePhashArray, receivedBlockwisePhashArray, 5);
-                  console.log('[WEBHOOK][BLOCKWISE MATCH DEBUG]', {
+                  console.log('[WEBHOOK][BLOCKWISE MATCH DEBUG][24h]', {
                     storyId: story._id,
-                    rawMediaId: mediaId,
-                    storyBlockwise: story.blockwisePhashArray,
-                    rawBlockwise: receivedBlockwisePhashArray,
                     matchRatio,
                   });
                   if (matchRatio >= 0.92) {
@@ -188,12 +181,9 @@ export async function POST(req: NextRequest) {
                         }
                       }
                     );
-                    console.log('[WEBHOOK][STORY VALIDADA AUTO][blockwise]', {
+                    console.log('[WEBHOOK][STORY VALIDADA AUTO][blockwise][24h]', {
                       storyId: story._id,
-                      provider: recipientId,
-                      usuarioIG: senderId,
                       matchRatio,
-                      campaignId: story.campaignId
                     });
                     if (story.ambassadorId) {
                       const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
@@ -208,7 +198,7 @@ export async function POST(req: NextRequest) {
                               { $set: { igName: username, updatedAt: new Date() } }
                             );
                             await mergeAmbassadorsByIgName(username, story.ambassadorId.toString());
-                            console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise]', {
+                            console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][24h]', {
                               ambassadorId: story.ambassadorId,
                               nuevoIgName: username
                             });
@@ -217,10 +207,10 @@ export async function POST(req: NextRequest) {
                       }
                     }
                   } else {
-                    console.log('[WEBHOOK][NO BLOCKWISE MATCH]', { matchRatio });
+                    console.log('[WEBHOOK][NO BLOCKWISE MATCH][24h]', { matchRatio });
                   }
                 } catch (e) {
-                  console.error('[WEBHOOK][ERROR BLOCKWISE MATCH]', e);
+                  console.error('[WEBHOOK][ERROR BLOCKWISE MATCH][24h]', e);
                 }
               }
             }
@@ -240,16 +230,12 @@ export async function POST(req: NextRequest) {
                 const senderId = msg.sender?.id;
                 const mediaUrl = att.payload.url;
                 const mediaId = att.payload.asset_id || null;
-                // Buscar provider por instagram_business_id
-                const provider = await db.collection('providers').findOne({ instagram_business_id: recipientId });
-                if (!provider) {
-                  console.warn('[WEBHOOK][NO PROVIDER MATCH][messaging]', { recipientId });
-                  continue;
-                }
-                // Buscar stories pendientes para ese provider
+                // Buscar stories pending creadas en las últimas 24h
+                const now = new Date();
+                const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
                 const pendingStories = await db.collection('storySubmissions').find({
-                  providerId: provider._id.toString(),
-                  status: 'pending'
+                  status: 'pending',
+                  createdAt: { $gte: yesterday }
                 }).toArray();
                 // Descargar imagen y calcular pHash (si es posible)
                 let incomingPhash = null;
@@ -285,11 +271,8 @@ export async function POST(req: NextRequest) {
                     if (!story.blockwisePhashArray || !story.imageUrl) continue;
                     try {
                       const matchRatio = compareBlockwisePhash(story.blockwisePhashArray, receivedBlockwisePhashArray, 5);
-                      console.log('[WEBHOOK][BLOCKWISE MATCH DEBUG][messaging]', {
+                      console.log('[WEBHOOK][BLOCKWISE MATCH DEBUG][messaging][24h]', {
                         storyId: story._id,
-                        rawMediaId: mediaId,
-                        storyBlockwise: story.blockwisePhashArray,
-                        rawBlockwise: receivedBlockwisePhashArray,
                         matchRatio,
                       });
                       if (matchRatio >= 0.92) {
@@ -306,12 +289,9 @@ export async function POST(req: NextRequest) {
                             }
                           }
                         );
-                        console.log('[WEBHOOK][STORY VALIDADA AUTO][blockwise][messaging]', {
+                        console.log('[WEBHOOK][STORY VALIDADA AUTO][blockwise][messaging][24h]', {
                           storyId: story._id,
-                          provider: recipientId,
-                          usuarioIG: senderId,
                           matchRatio,
-                          campaignId: story.campaignId
                         });
                         if (story.ambassadorId) {
                           const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
@@ -326,7 +306,7 @@ export async function POST(req: NextRequest) {
                                   { $set: { igName: username, updatedAt: new Date() } }
                                 );
                                 await mergeAmbassadorsByIgName(username, story.ambassadorId.toString());
-                                console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][messaging]', {
+                                console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][messaging][24h]', {
                                   ambassadorId: story.ambassadorId,
                                   nuevoIgName: username
                                 });
@@ -335,10 +315,10 @@ export async function POST(req: NextRequest) {
                           }
                         }
                       } else {
-                        console.log('[WEBHOOK][NO BLOCKWISE MATCH][messaging]', { matchRatio });
+                        console.log('[WEBHOOK][NO BLOCKWISE MATCH][messaging][24h]', { matchRatio });
                       }
                     } catch (e) {
-                      console.error('[WEBHOOK][ERROR BLOCKWISE MATCH][messaging]', e);
+                      console.error('[WEBHOOK][ERROR BLOCKWISE MATCH][messaging][24h]', e);
                     }
                   }
                 }
