@@ -6,7 +6,7 @@ import { ObjectId } from 'mongodb';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { providerId, campaignId, imageUrl, ambassadorId } = body;
+    const { providerId, campaignId, imageUrl, ambassadorId, originalPhash } = body;
     if (!providerId || !campaignId || !imageUrl || !ambassadorId) {
       return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
     }
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       status: 'pending',
       createdAt: new Date(),
       ambassadorId: new ObjectId(ambassadorId),
+      originalPhash: originalPhash || null,
     };
     const result = await db.collection('storySubmissions').insertOne(submission);
     return NextResponse.json({ id: result.insertedId });

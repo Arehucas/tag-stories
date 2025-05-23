@@ -42,6 +42,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
   const [isReady, setIsReady] = useState(false);
   const [campaignId, setCampaignId] = useState<string | null>(null);
   const [providerId, setProviderId] = useState<string | null>(null);
+  const phash = useImageStore(state => state.phash) || (typeof window !== 'undefined' ? localStorage.getItem('taun_image_phash') : null);
 
   useEffect(() => {
     // Restaurar provider desde localStorage si no está en el store
@@ -316,7 +317,7 @@ export default function PreviewPage({ params }: { params: Promise<{ slug: string
                     const saveRes = await fetch('/api/story-submission', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ providerId, campaignId, imageUrl: uploadData.url, ambassadorId: ambassadorData._id }),
+                      body: JSON.stringify({ providerId, campaignId, imageUrl: uploadData.url, ambassadorId: ambassadorData._id, originalPhash: phash }),
                     });
                     const saveData = await saveRes.json();
                     if (!saveRes.ok || !saveData.id) throw new Error('Error guardando en BBDD: ' + JSON.stringify(saveData));

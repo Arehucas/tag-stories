@@ -10,6 +10,7 @@ import { useT } from '@/lib/useT';
 import { get as idbGet } from 'idb-keyval';
 import { set as idbSet } from 'idb-keyval';
 import type { Template } from '@/lib/template';
+import blockhash from 'blockhash-core';
 
 export default function CropPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
@@ -230,6 +231,26 @@ export default function CropPage({ params }: { params: Promise<{ slug: string }>
     if (campaign && campaign._id) {
       localStorage.setItem('taun_campaign_id', campaign._id);
       localStorage.setItem('taun_provider_id', slug);
+    }
+    // Calcula el pHash
+    const imgForHash = new window.Image();
+    imgForHash.src = croppedDataUrl;
+    await new Promise((res) => { imgForHash.onload = res; });
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = imgForHash.width;
+    tempCanvas.height = imgForHash.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (tempCtx) {
+      tempCtx.drawImage(imgForHash, 0, 0);
+      const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+      const phash = blockhash.bhHash(imageData, 16, 2); // 16x16, bits=2
+      // Guarda el pHash en el store global y en localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('taun_image_phash', phash);
+      }
+      if (useImageStore.getState().setPhash) {
+        useImageStore.getState().setPhash(phash);
+      }
     }
   };
 
