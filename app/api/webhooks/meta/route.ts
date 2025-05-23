@@ -55,6 +55,46 @@ async function mergeAmbassadorsByIgName(igName: string, ambassadorId: string) {
   await db.collection('ambassadors').deleteMany({ _id: { $in: others.map(a => a._id) } });
 }
 
+// Helper para extraer subimagen de un ImageData (acepta cualquier tipo compatible)
+function getSubImageData(imageData: any, x: number, y: number, w: number, h: number): any {
+  const { data, width } = imageData;
+  const subData = new Uint8ClampedArray(w * h * 4);
+  for (let row = 0; row < h; row++) {
+    for (let col = 0; col < w; col++) {
+      const srcIdx = ((y + row) * width + (x + col)) * 4;
+      const dstIdx = (row * w + col) * 4;
+      subData[dstIdx] = data[srcIdx];
+      subData[dstIdx + 1] = data[srcIdx + 1];
+      subData[dstIdx + 2] = data[srcIdx + 2];
+      subData[dstIdx + 3] = data[srcIdx + 3];
+    }
+  }
+  // node-canvas ImageData constructor
+  return new (imageData.constructor)(subData, w, h);
+}
+
+// Blockwise pHash
+function blockwisePhash(imageData: any, grid: number = 10): string[] {
+  const cellW = Math.floor(imageData.width / grid);
+  const cellH = Math.floor(imageData.height / grid);
+  const hashes: string[] = [];
+  for (let y = 0; y < grid; y++) {
+    for (let x = 0; x < grid; x++) {
+      const cell = getSubImageData(imageData, x * cellW, y * cellH, cellW, cellH);
+      hashes.push(bmvbhash(cell, 8));
+    }
+  }
+  return hashes;
+}
+
+function compareBlockwisePhash(arr1: string[], arr2: string[], hammingThreshold: number = 5): number {
+  let matches = 0;
+  for (let i = 0; i < arr1.length; i++) {
+    if (hammingDistance(arr1[i], arr2[i]) <= hammingThreshold) matches++;
+  }
+  return matches / arr1.length;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const mode = searchParams.get('hub.mode');
@@ -112,64 +152,74 @@ export async function POST(req: NextRequest) {
             });
             // Matching solo si hay stories y phash
             if (pendingStories.length && incomingPhash) {
-              let matchedStory = null;
-              let minDistance = Infinity;
+              // Descargar y preparar imageData de la story original para cada pendiente
               for (const story of pendingStories) {
-                if (!story.originalPhash) continue;
-                const dist = hammingDistance(story.originalPhash, incomingPhash);
-                if (dist < minDistance) {
-                  minDistance = dist;
-                  matchedStory = story;
-                }
-              }
-              const UMBRAL = 5;
-              if (matchedStory && minDistance <= UMBRAL) {
-                await db.collection('storySubmissions').updateOne(
-                  { _id: matchedStory._id },
-                  {
-                    $set: {
-                      status: 'validated',
-                      validatedBy: 'auto',
-                      validatedAt: new Date(),
-                      validationMethod: 'phash',
-                      validationScore: minDistance,
-                      rawStoryId: null // No rawStoryId porque puede haber varios rawStories por evento
-                    }
-                  }
-                );
-                console.log('[WEBHOOK][STORY VALIDADA AUTO]', {
-                  storyId: matchedStory._id,
-                  provider: recipientId,
-                  usuarioIG: senderId,
-                  incomingPhash,
-                  originalPhash: matchedStory.originalPhash,
-                  distancia: minDistance,
-                  campaignId: matchedStory.campaignId
-                });
-                // --- Lógica ambassador: actualizar igName y merge ---
-                if (matchedStory.ambassadorId) {
-                  const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
-                  const accessToken = provider?.instagram_access_token;
-                  if (accessToken) {
-                    const username = await getInstagramUsername(senderId, accessToken);
-                    if (username) {
-                      const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(matchedStory.ambassadorId) });
-                      if (ambassador && ambassador.igName !== username) {
-                        await db.collection('ambassadors').updateOne(
-                          { _id: new ObjectId(matchedStory.ambassadorId) },
-                          { $set: { igName: username, updatedAt: new Date() } }
-                        );
-                        await mergeAmbassadorsByIgName(username, matchedStory.ambassadorId.toString());
-                        console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO]', {
-                          ambassadorId: matchedStory.ambassadorId,
-                          nuevoIgName: username
-                        });
+                if (!story.originalPhash || !story.imageUrl) continue;
+                try {
+                  // Descargar imagen original
+                  const origRes = await fetch(story.imageUrl);
+                  const origBuf = await origRes.buffer();
+                  const origImg = new Image();
+                  origImg.src = origBuf;
+                  const origCanvas = createCanvas(origImg.width, origImg.height);
+                  const origCtx = origCanvas.getContext('2d');
+                  origCtx.drawImage(origImg, 0, 0);
+                  const origImageData = origCtx.getImageData(0, 0, origImg.width, origImg.height);
+                  // Descargar imagen recibida (ya la tienes como imageData)
+                  // Calcular blockwise pHash
+                  const origHashes = blockwisePhash(origImageData, 10);
+                  const recvHashes = blockwisePhash(imageData, 10);
+                  const matchRatio = compareBlockwisePhash(origHashes, recvHashes, 5);
+                  if (matchRatio >= 0.92) {
+                    // Validar story
+                    await db.collection('storySubmissions').updateOne(
+                      { _id: story._id },
+                      {
+                        $set: {
+                          status: 'validated',
+                          validatedBy: 'auto',
+                          validatedAt: new Date(),
+                          validationMethod: 'blockwise-phash',
+                          validationScore: matchRatio,
+                          rawStoryId: null
+                        }
+                      }
+                    );
+                    console.log('[WEBHOOK][STORY VALIDADA AUTO][blockwise]', {
+                      storyId: story._id,
+                      provider: recipientId,
+                      usuarioIG: senderId,
+                      matchRatio,
+                      campaignId: story.campaignId
+                    });
+                    // --- Lógica ambassador: actualizar igName y merge ---
+                    if (story.ambassadorId) {
+                      const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
+                      const accessToken = provider?.instagram_access_token;
+                      if (accessToken) {
+                        const username = await getInstagramUsername(senderId, accessToken);
+                        if (username) {
+                          const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(story.ambassadorId) });
+                          if (ambassador && ambassador.igName !== username) {
+                            await db.collection('ambassadors').updateOne(
+                              { _id: new ObjectId(story.ambassadorId) },
+                              { $set: { igName: username, updatedAt: new Date() } }
+                            );
+                            await mergeAmbassadorsByIgName(username, story.ambassadorId.toString());
+                            console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise]', {
+                              ambassadorId: story.ambassadorId,
+                              nuevoIgName: username
+                            });
+                          }
+                        }
                       }
                     }
+                  } else {
+                    console.log('[WEBHOOK][NO BLOCKWISE MATCH]', { matchRatio });
                   }
+                } catch (e) {
+                  console.error('[WEBHOOK][ERROR BLOCKWISE MATCH]', e);
                 }
-              } else {
-                console.log('[WEBHOOK][NO PHASH MATCH]', { incomingPhash, minDistance });
               }
             }
           }
@@ -218,64 +268,74 @@ export async function POST(req: NextRequest) {
                 });
                 // Matching solo si hay stories y phash
                 if (pendingStories.length && incomingPhash) {
-                  let matchedStory = null;
-                  let minDistance = Infinity;
+                  // Descargar y preparar imageData de la story original para cada pendiente
                   for (const story of pendingStories) {
-                    if (!story.originalPhash) continue;
-                    const dist = hammingDistance(story.originalPhash, incomingPhash);
-                    if (dist < minDistance) {
-                      minDistance = dist;
-                      matchedStory = story;
-                    }
-                  }
-                  const UMBRAL = 5;
-                  if (matchedStory && minDistance <= UMBRAL) {
-                    await db.collection('storySubmissions').updateOne(
-                      { _id: matchedStory._id },
-                      {
-                        $set: {
-                          status: 'validated',
-                          validatedBy: 'auto',
-                          validatedAt: new Date(),
-                          validationMethod: 'phash',
-                          validationScore: minDistance,
-                          rawStoryId: null
-                        }
-                      }
-                    );
-                    console.log('[WEBHOOK][STORY VALIDADA AUTO][messaging]', {
-                      storyId: matchedStory._id,
-                      provider: recipientId,
-                      usuarioIG: senderId,
-                      incomingPhash,
-                      originalPhash: matchedStory.originalPhash,
-                      distancia: minDistance,
-                      campaignId: matchedStory.campaignId
-                    });
-                    // --- Lógica ambassador: actualizar igName y merge ---
-                    if (matchedStory.ambassadorId) {
-                      const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
-                      const accessToken = provider?.instagram_access_token;
-                      if (accessToken) {
-                        const username = await getInstagramUsername(senderId, accessToken);
-                        if (username) {
-                          const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(matchedStory.ambassadorId) });
-                          if (ambassador && ambassador.igName !== username) {
-                            await db.collection('ambassadors').updateOne(
-                              { _id: new ObjectId(matchedStory.ambassadorId) },
-                              { $set: { igName: username, updatedAt: new Date() } }
-                            );
-                            await mergeAmbassadorsByIgName(username, matchedStory.ambassadorId.toString());
-                            console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][messaging]', {
-                              ambassadorId: matchedStory.ambassadorId,
-                              nuevoIgName: username
-                            });
+                    if (!story.originalPhash || !story.imageUrl) continue;
+                    try {
+                      // Descargar imagen original
+                      const origRes = await fetch(story.imageUrl);
+                      const origBuf = await origRes.buffer();
+                      const origImg = new Image();
+                      origImg.src = origBuf;
+                      const origCanvas = createCanvas(origImg.width, origImg.height);
+                      const origCtx = origCanvas.getContext('2d');
+                      origCtx.drawImage(origImg, 0, 0);
+                      const origImageData = origCtx.getImageData(0, 0, origImg.width, origImg.height);
+                      // Descargar imagen recibida (ya la tienes como imageData)
+                      // Calcular blockwise pHash
+                      const origHashes = blockwisePhash(origImageData, 10);
+                      const recvHashes = blockwisePhash(imageData, 10);
+                      const matchRatio = compareBlockwisePhash(origHashes, recvHashes, 5);
+                      if (matchRatio >= 0.92) {
+                        // Validar story
+                        await db.collection('storySubmissions').updateOne(
+                          { _id: story._id },
+                          {
+                            $set: {
+                              status: 'validated',
+                              validatedBy: 'auto',
+                              validatedAt: new Date(),
+                              validationMethod: 'blockwise-phash',
+                              validationScore: matchRatio,
+                              rawStoryId: null
+                            }
+                          }
+                        );
+                        console.log('[WEBHOOK][STORY VALIDADA AUTO][blockwise][messaging]', {
+                          storyId: story._id,
+                          provider: recipientId,
+                          usuarioIG: senderId,
+                          matchRatio,
+                          campaignId: story.campaignId
+                        });
+                        // --- Lógica ambassador: actualizar igName y merge ---
+                        if (story.ambassadorId) {
+                          const provider = await db.collection('providers').findOne({ instagram_user_id: recipientId });
+                          const accessToken = provider?.instagram_access_token;
+                          if (accessToken) {
+                            const username = await getInstagramUsername(senderId, accessToken);
+                            if (username) {
+                              const ambassador = await db.collection('ambassadors').findOne({ _id: new ObjectId(story.ambassadorId) });
+                              if (ambassador && ambassador.igName !== username) {
+                                await db.collection('ambassadors').updateOne(
+                                  { _id: new ObjectId(story.ambassadorId) },
+                                  { $set: { igName: username, updatedAt: new Date() } }
+                                );
+                                await mergeAmbassadorsByIgName(username, story.ambassadorId.toString());
+                                console.log('[WEBHOOK][AMBASSADOR IGNAME ACTUALIZADO Y MERGEADO][blockwise][messaging]', {
+                                  ambassadorId: story.ambassadorId,
+                                  nuevoIgName: username
+                                });
+                              }
+                            }
                           }
                         }
+                      } else {
+                        console.log('[WEBHOOK][NO BLOCKWISE MATCH][messaging]', { matchRatio });
                       }
+                    } catch (e) {
+                      console.error('[WEBHOOK][ERROR BLOCKWISE MATCH][messaging]', e);
                     }
-                  } else {
-                    console.log('[WEBHOOK][NO PHASH MATCH][messaging]', { incomingPhash, minDistance });
                   }
                 }
                 // Log explícito de evento messaging
